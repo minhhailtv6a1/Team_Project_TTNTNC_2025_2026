@@ -1,5 +1,7 @@
 numpy
 matplotlib
+pandas
 gymnasium
 gymnasium[box2d]
 pygame
+ipykernel
