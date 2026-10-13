@@ -45,6 +45,16 @@ videos/*
 *.webm
 
 # ==========================================
+# Temporary working artifacts (e.g. PDF-to-image extraction)
+# (Preserve an expected output-folder structure with .gitkeep)
+# ==========================================
+**/tmp/*
+!**/tmp/.gitkeep
+!**/tmp/pdfs/
+**/tmp/pdfs/*
+!**/tmp/pdfs/.gitkeep
+
+# ==========================================
 # Archives / Compressed files
 # ==========================================
 *.zip
