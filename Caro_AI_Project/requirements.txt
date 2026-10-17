@@ -1,0 +1,37 @@
+# Minimum versions for Python 3.13 on Windows x86_64.
+# Verified with Python 3.13.6 and pip 25.2.
+
+# Game engine and scientific computing
+numpy>=2.5.4
+pandas>=3.0.6
+scipy>=1.18.1
+scikit-learn>=1.9.1
+psutil>=7.2.2
+pyarrow>=26.0.0
+tqdm>=4.70.1
+
+# Neural network training and experiment tracking
+torch>=2.14.1
+tensorboard>=2.21.0
+
+# UI and API
+streamlit>=1.66.0
+fastapi>=0.143.3
+uvicorn[standard]>=0.54.0
+pydantic>=2.14.1
+httpx>=0.28.1
+
+# Visualization and document generation
+matplotlib>=3.11.2
+seaborn>=0.13.2
+reportlab>=5.0.1
+
+# Notebook environment
+jupyterlab>=4.6.4
+ipykernel>=7.4.0
+
+# Testing and benchmarking
+pytest>=9.1.1
+pytest-cov>=7.1.0
+pytest-benchmark>=5.3.0
+

@@ -1,0 +1,90 @@
+# Python virtual environments
+myenv/
+.venv/
+venv/
+env/
+.env/
+
+# Python bytecode, caches and build output
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+*.pem
+*.key
+
+# Self-play data and generated tensors
+data/raw_logs/*
+!data/raw_logs/.gitkeep
+data/processed_tensors/*
+!data/processed_tensors/.gitkeep
+*.npy
+*.npz
+*.parquet
+
+# Model checkpoints and experiment tracking
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.h5
+runs/
+wandb/
+lightning_logs/
+
+# Generated evaluation artifacts
+results/
+reports/generated/
+figures/generated/
+videos/
+*.mp4
+*.avi
+*.webm
+
+# Temporary and generated files
+tmp/*
+!tmp/pdfs/
+tmp/pdfs/*
+!tmp/pdfs/.gitkeep
+output/
+*.tmp
+*.log
+
+# Archives
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
