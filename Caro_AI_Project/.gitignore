@@ -11,6 +11,8 @@ __pycache__/
 *$py.class
 *.so
 .pytest_cache/
+pytest-cache-files-*/
+.benchmarks/
 .mypy_cache/
 .ruff_cache/
 .coverage
