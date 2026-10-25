@@ -226,7 +226,7 @@ def page_scope(c: canvas.Canvas) -> None:
     chip(c, "GATE D0 · CHỐT VỚI GIẢNG VIÊN", 17 * mm, 163 * mm, YELLOW_LIGHT, colors.HexColor("#9B7200"), 66 * mm)
     para(c, "Luật đề xuất", 17 * mm, 155 * mm, 64 * mm, 9 * mm, size=11, font="UI-Bold")
     para(c, bullet_lines([
-        "Bàn 9×9, hai người, thông tin đầy đủ",
+        "Bàn 11×11, hai người, thông tin đầy đủ",
         "Thắng: ≥5 liên tiếp, không bị chặn cả hai đầu",
         "Không luật cấm; hòa khi hết ô; seed cố định",
         "Game version: <b>caro-v1</b> (đóng băng từ W2)",
@@ -330,8 +330,8 @@ def page_architecture(c: canvas.Canvas) -> None:
     # contracts table-like cards
     section_label(c, "Hợp đồng dữ liệu đóng băng ở cuối W2", 15 * mm, 66 * mm, CYAN)
     contracts = [
-        ("STATE", "board[int8, 9,9]\ncurrent_player · last_move", CYAN),
-        ("ACTION", "int 0..80 <-> (row,col)\nlegal mask[81]", PURPLE),
+        ("STATE", "board[int8, 11,11]\ncurrent_player · last_move", CYAN),
+        ("ACTION", "int 0..120 <-> (row,col)\nlegal mask[121]", PURPLE),
         ("STEP", "next_state · reward · done\nreject illegal action", ORANGE),
         ("TRACE", "game_id · ply · seed · agent\nmove_ms · nodes/sims · result", GREEN),
     ]

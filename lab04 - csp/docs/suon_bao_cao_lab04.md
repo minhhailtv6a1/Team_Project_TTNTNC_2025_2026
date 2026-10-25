@@ -84,44 +84,111 @@
 
 ## 1.1. Mục tiêu chương
 
-- Biểu diễn bài toán tô màu đồ thị dưới dạng CSP.
-- Sinh đồ thị phẳng từ `n = 10` điểm ngẫu nhiên bằng phép tam giác hóa Delaunay.
-- Khảo sát miền 4 màu và 3 màu.
-- Phân biệt phép gán đầy đủ với phép gán hợp lệ.
+Chương này chuẩn bị dữ liệu đầu vào cho các thuật toán ở những chương sau. Công việc chính gồm tạo một graph phẳng có 10 đỉnh, chuyển graph đó thành mô hình CSP và tạo hai phiên bản domain gồm 3 màu và 4 màu.
+
+Sau chương này, mô hình cần trả lời được ba câu hỏi đơn giản:
+
+1. Những đối tượng nào cần được gán màu?
+2. Mỗi đối tượng được phép nhận những màu nào?
+3. Những cặp đỉnh nào bắt buộc phải khác màu?
 
 ## 1.2. Mô hình bài toán
 
-- Tập biến: `X = {0, 1, ..., n - 1}`, mỗi biến ứng với một đỉnh.
-- Miền giá trị: `D_i = {red, blue, green, orange}` hoặc miền 3 màu.
-- Ràng buộc: `C_ij: color(i) != color(j)` với mọi cạnh `(i, j)`.
-- Giải thích vì sao chỉ lưu cạnh `i < j` để tránh lặp ràng buộc vô hướng.
-- Nêu điều kiện một phép gán là nghiệm CSP: vừa đầy đủ, vừa nhất quán.
+Một bài toán CSP được tạo từ ba thành phần `X`, `D` và `C`. Với bài toán tô màu graph, ba thành phần này được dùng như sau:
+
+| Thành phần | Ý nghĩa trong bài toán | Biểu diễn trong code |
+|---|---|---|
+| `X` - variables | Các đỉnh cần tô màu, từ 0 đến 9 | `variables = ['0', ..., '9']` |
+| `D` - domains | Những màu một đỉnh có thể nhận | `red`, `blue`, `green`, `orange` |
+| `C` - constraints | Hai đỉnh có cạnh nối không được cùng màu | Cặp `(i, j)` với `color(i) != color(j)` |
+
+Có thể viết ngắn gọn mô hình như sau:
+
+$$
+X = \{0, 1, \ldots, 9\}, \qquad
+D_i \in \{\text{red, blue, green, orange}\}, \qquad
+C_{ij}: color(i) \ne color(j).
+$$
+
+Graph là vô hướng, nên cạnh `(i, j)` và `(j, i)` thực chất là cùng một cạnh. Trong code, nhóm chỉ lưu cặp có `i < j`. Cách này giúp mỗi constraint xuất hiện đúng một lần và tránh kiểm tra trùng.
+
+Hai khái niệm dễ nhầm được phân biệt như sau:
+
+| Khái niệm | Điều kiện | Có chắc là nghiệm không? |
+|---|---|---|
+| Phép gán đầy đủ | Tất cả 10 đỉnh đều đã có màu | Chưa chắc |
+| Phép gán hợp lệ | Các đỉnh kề nhau đều khác màu | Chưa chắc nếu còn đỉnh chưa gán |
+| Nghiệm CSP | Vừa đầy đủ, vừa hợp lệ | Có |
+
+Ví dụ, tô tất cả đỉnh bằng `red` là một phép gán đầy đủ nhưng không phải nghiệm, vì nhiều cặp đỉnh kề nhau có cùng màu.
 
 ## 1.3. Sinh và mô tả đồ thị
 
-- Trình bày cách sinh điểm, Delaunay triangulation, tập cạnh và danh sách `neighbors`.
-- Ghi seed, số đỉnh, số cạnh và số bậc trung bình.
-- Chèn hình đồ thị chưa tô màu.
+Graph được tạo theo bốn bước ngắn:
 
-> **Hình 1.1.** Đồ thị phẳng Delaunay với `n = 10`, seed `[điền seed]`.
+1. Cố định `seed = 1111` để có thể tạo lại đúng cùng dữ liệu.
+2. Sinh 10 điểm ngẫu nhiên trên mặt phẳng.
+3. Dùng Delaunay triangulation để nối các điểm thành một graph phẳng.
+4. Từ kết quả Delaunay, lấy danh sách `neighbors` và tập cạnh.
+
+| Thông tin | Giá trị |
+|---|---:|
+| Số đỉnh | 10 |
+| Seed | 1111 |
+| Cách nối đỉnh | Delaunay triangulation |
+| Số cạnh vô hướng | 21 |
+| Bậc trung bình | 4,20 |
+
+![Đồ thị Delaunay gồm 10 đỉnh và 21 cạnh](images/chuong1_do_thi_delaunay.svg)
+
+> **Hình 1.1.** Graph phẳng được tạo với `n = 10` và seed `1111`. Mỗi đỉnh sẽ trở thành một variable của CSP; mỗi cạnh sẽ tạo một constraint khác màu.
+
+Danh sách `neighbors` cho biết mỗi đỉnh đang nối với những đỉnh nào. Để bảng gọn hơn, danh sách được trình bày thành hai nhóm cột:
+
+| Đỉnh | Neighbors | Đỉnh | Neighbors |
+|---:|---|---:|---|
+| 0 | 1, 2, 4, 5 | 5 | 0, 1, 4, 6, 7 |
+| 1 | 0, 5, 7 | 6 | 4, 5, 7, 8 |
+| 2 | 0, 3, 4, 9 | 7 | 1, 5, 6, 8 |
+| 3 | 2, 4, 9 | 8 | 4, 6, 7, 9 |
+| 4 | 0, 2, 3, 5, 6, 8, 9 | 9 | 2, 3, 4, 8 |
+
+Tổng số phần tử trong các danh sách neighbors là 42. Mỗi cạnh được nhìn thấy từ hai đầu, nên số cạnh thực tế là `42 / 2 = 21`. Kết quả này cũng được kiểm tra tự động trong notebook.
 
 ## 1.4. Khảo sát miền 3 màu và 4 màu
 
-| Cấu hình | Số đỉnh | Số cạnh | Số màu | Nhận xét ban đầu |
-|---|---:|---:|---:|---|
-| [Cấu hình 1] | 10 | [Điền] | 4 | [Điền] |
-| [Cấu hình 2] | 10 | [Điền] | 3 | [Điền] |
+Hai cấu hình dùng chung 10 variables và 21 constraints. Phần duy nhất thay đổi là domain của mỗi variable.
+
+| Cấu hình | Domain của một đỉnh | Số phép gán đầy đủ có thể có | Nhận xét |
+|---|---|---:|---|
+| 4 màu | `red`, `blue`, `green`, `orange` | $4^{10} = 1.048.576$ | Nhiều lựa chọn hơn nên thường dễ tìm màu hợp lệ |
+| 3 màu | `red`, `blue`, `green` | $3^{10} = 59.049$ | Ít lựa chọn hơn nhưng constraints chặt hơn; graph có thể không có nghiệm |
+
+Số phép gán trong bảng chỉ là số trường hợp có thể tạo ra trước khi kiểm tra constraints. Phần lớn các phép gán này không hợp lệ. Việc graph có thật sự tô được bằng 3 hoặc 4 màu sẽ được kiểm tra bằng Backtracking và các thuật toán khác ở Chương 3, Chương 4.
+
+Trong code, hai cấu hình được giữ riêng:
+
+```python
+csp_4_colors = build_graph_coloring_csp(neighbors, COLORS_4)
+csp_3_colors = build_graph_coloring_csp(neighbors, COLORS_3)
+```
+
+Mỗi variable nhận một bản sao domain riêng. Chi tiết nhỏ này giúp các bước Forward Checking sau đó có thể tạm xóa màu khỏi một variable mà không làm thay đổi domain của các variable khác.
 
 ## 1.5. Kết luận chương
 
-[Tóm tắt mô hình `X, D, C`, đặc điểm đồ thị và ảnh hưởng dự kiến của kích thước miền.]
+Graph đầu vào đã được chuyển thành một CSP gồm 10 variables, 21 constraints và hai lựa chọn domain. Seed `1111` giúp toàn bộ nhóm dùng đúng cùng một graph khi so sánh thuật toán.
+
+Điểm quan trọng nhất của chương là: **gán đủ màu cho mọi đỉnh chưa có nghĩa là đã tìm được nghiệm**. Kết quả chỉ được chấp nhận khi mọi cặp đỉnh có cạnh nối đều khác màu. Hai điều kiện này sẽ được kiểm tra trực tiếp bằng `complete()` và `consistent()` ở Chương 2.
 
 ## 1.6. Phân công và đầu ra
 
-- **Hải:** viết phần mô hình hóa; tạo đồ thị; xuất `neighbors`, số cạnh và hình minh họa; khảo sát miền 3/4 màu.
-- **Thiện:** kiểm tra notebook có chạy lại đúng với seed đã công bố và thông tin cấu hình đủ để tái lập.
-- **Đầu ra bắt buộc:** mô hình `X, D, C`; đồ thị `n = 10`; danh sách láng giềng; số cạnh; hình đồ thị; nhận xét về phép gán đầy đủ và hợp lệ.
-- **Tiêu chí hoàn thành:** kết quả sinh đồ thị tái lập được, ký hiệu nhất quán và không phụ thuộc đường dẫn cá nhân.
+| Thành viên | Công việc | Kết quả |
+|---|---|---|
+| Hải | Tạo graph, xây dựng `X-D-C`, xuất neighbors và khảo sát domain | Code, bảng số liệu và Hình 1.1 |
+| Thiện | Kiểm tra seed, số cạnh và khả năng chạy lại | Xác nhận kết quả có thể tái lập |
+
+Notebook đã chạy lại thành công từ đầu, không dùng đường dẫn cá nhân và tạo đúng 10 đỉnh, 21 cạnh cho seed đã công bố.
 
 ---
 
@@ -133,46 +200,90 @@
 
 ## 2.1. Mục tiêu chương
 
-- Làm rõ vai trò của `complete(assignment, csp)` và `consistent(assignment, csp)`.
-- Phân biệt phép gán rỗng, phép gán từng phần, phép gán đầy đủ và nghiệm CSP.
-- Xác nhận cấu trúc lưu trữ `csp` gồm `variables`, `domains`, `constraints`.
+Sau khi có mô hình CSP, chương này kiểm tra một assignment đã đủ thông tin và có vi phạm constraint hay chưa. Ba hàm được sử dụng là `complete()`, `consistent()` và `is_solution()`.
 
-## 2.2. Thiết kế hai hàm kiểm tra
+Mục tiêu không chỉ là làm cho code chạy, mà còn tránh một lỗi dễ gặp: thuật toán trả về đủ 10 màu nhưng một số đỉnh kề nhau vẫn có cùng màu.
 
-### 2.2.1. Hàm `complete()`
+## 2.2. Dữ liệu đầu vào
 
-[Mô tả điều kiện đầu vào, đầu ra và tiêu chí phép gán đầy đủ.]
+Một assignment được lưu bằng `dict`. Key là tên đỉnh, value là màu đã gán cho đỉnh đó.
 
-### 2.2.2. Hàm `consistent()`
+```python
+assignment = {'0': 'red', '1': 'blue'}
+```
 
-[Mô tả cách kiểm tra các ràng buộc giữa những biến đã được gán.]
+Ví dụ trên mới gán màu cho đỉnh 0 và 1, nên đây là assignment từng phần. Ba thành phần của `csp` được dùng khi kiểm tra gồm:
 
-## 2.3. Ca kiểm thử
+| Thành phần | Dùng để kiểm tra |
+|---|---|
+| `variables` | Assignment đã có đủ các đỉnh hay chưa |
+| `domains` | Màu được gán có nằm trong domain của đỉnh hay không |
+| `constraints` | Hai đỉnh nối với nhau có bị cùng màu hay không |
 
-| STT | Dữ liệu kiểm thử | `complete()` mong đợi | `consistent()` mong đợi | Kết quả thực tế | Đạt/Không đạt |
-|---:|---|---:|---:|---|---|
-| 1 | Phép gán rỗng | False | True | [Điền] | [Điền] |
-| 2 | Phép gán một phần, không xung đột | False | True | [Điền] | [Điền] |
-| 3 | Hai đỉnh kề nhau cùng màu | [Theo dữ liệu] | False | [Điền] | [Điền] |
-| 4 | Phép gán đầy đủ nhưng có xung đột | True | False | [Điền] | [Điền] |
-| 5 | Nghiệm do thuật toán tìm được | True | True | [Điền] | [Điền] |
+## 2.3. Các hàm kiểm tra
 
-## 2.4. Thảo luận
+| Hàm | Trả về `True` khi | Không kiểm tra |
+|---|---|---|
+| `complete()` | Tập key của assignment đúng bằng tập variables | Màu có hợp lệ hay không |
+| `consistent()` | Màu thuộc domain và các constraint đã xét đều được thỏa | Assignment đã đủ tất cả variables hay chưa |
+| `is_solution()` | Cả `complete()` và `consistent()` đều đúng | - |
 
-- Trả lời câu hỏi 1 của đề: `complete()` khác `consistent()` như thế nào?
-- Giải thích vì sao một phép gán đầy đủ không nhất thiết là nghiệm CSP.
-- Nêu vai trò của việc xác thực nghiệm độc lập sau khi thuật toán kết thúc.
+Phần kết hợp cuối cùng khá ngắn:
 
-## 2.5. Kết luận chương
+```python
+def is_solution(assignment, csp):
+    return complete(assignment, csp) and consistent(assignment, csp)
+```
 
-[Tóm tắt ý nghĩa của hai tiêu chí và kết quả kiểm thử.]
+`consistent()` chỉ kiểm tra những constraint có cả hai đầu đã được gán. Vì vậy, assignment rỗng hoặc assignment từng phần vẫn có thể nhất quán: tại thời điểm đó chưa có constraint nào bị vi phạm.
 
-## 2.6. Phân công và đầu ra
+![Ma trận complete và consistent](images/chuong2_complete_consistent.svg)
 
-- **Hải:** chuẩn bị dữ liệu kiểm thử, chạy test, ghi expected/actual và giải thích cấu trúc `csp`.
-- **Ly:** review các trường hợp biên, nhất là phép gán một phần và phép gán đầy đủ có xung đột.
-- **Đầu ra bắt buộc:** tối thiểu 3 ca kiểm thử có kết quả mong đợi và thực tế; phần trả lời câu hỏi thảo luận 1.
-- **Tiêu chí hoàn thành:** các test chạy được từ kernel sạch và minh họa rõ `complete()` không đồng nghĩa với `consistent()`.
+> **Hình 2.1.** Bốn trường hợp có thể xảy ra khi kết hợp `complete()` và `consistent()`. Chỉ ô màu xanh là nghiệm CSP.
+
+## 2.4. Kiểm thử
+
+Notebook sử dụng sáu test case. Mỗi test đều ghi trước expected result, sau đó so sánh với actual result và dùng `assert` để dừng chương trình nếu có sai khác.
+
+Trong bảng dưới, `C` là `complete`, `K` là `consistent` và `S` là `is_solution`.
+
+| STT | Test case | Expected `(C, K, S)` | Actual `(C, K, S)` | Kết quả |
+|---:|---|---|---|---|
+| 1 | Assignment rỗng `{}` | `(False, True, False)` | `(False, True, False)` | PASS |
+| 2 | Gán một phần: `0=red`, `1=blue` | `(False, True, False)` | `(False, True, False)` | PASS |
+| 3 | Hai đỉnh kề cùng màu: `0=red`, `1=red` | `(False, False, False)` | `(False, False, False)` | PASS |
+| 4 | Màu ngoài domain: `0=purple` | `(False, False, False)` | `(False, False, False)` | PASS |
+| 5 | Gán đủ nhưng tất cả đỉnh đều màu `red` | `(True, False, False)` | `(True, False, False)` | PASS |
+| 6 | Assignment đầy đủ và hợp lệ | `(True, True, True)` | `(True, True, True)` | PASS |
+
+Kết quả đạt **6/6 test case**. Ngoài nghiệm mẫu, notebook còn kiểm tra trực tiếp assignment do Backtracking tạo ra:
+
+| Kiểm tra nghiệm Backtracking | Kết quả |
+|---|---|
+| `complete(res, csp)` | `True` |
+| `consistent(res, csp)` | `True` |
+| `is_solution(res, csp)` | `True` |
+
+## 2.5. Trả lời câu hỏi thảo luận
+
+`complete()` và `consistent()` kiểm tra hai việc khác nhau. `complete()` chỉ quan tâm đã gán đủ variables hay chưa, còn `consistent()` quan tâm các giá trị đang có có hợp lệ hay không. Vì vậy, một assignment đầy đủ không tự động trở thành nghiệm CSP.
+
+Ví dụ rõ nhất là gán toàn bộ đỉnh bằng `red`: assignment có đủ 10 đỉnh nên `complete()` trả về `True`, nhưng các đỉnh kề nhau bị trùng màu nên `consistent()` trả về `False`.
+
+Việc kiểm tra lại nghiệm bằng hàm độc lập cũng rất cần thiết. Trạng thái `success` của thuật toán chỉ được chấp nhận khi `is_solution()` trả về `True`; nhờ đó lỗi trong quá trình search không bị ghi nhầm thành kết quả đúng.
+
+## 2.6. Kết luận chương
+
+Ba hàm kiểm tra đã phân biệt rõ assignment từng phần, assignment đầy đủ và nghiệm CSP. Toàn bộ sáu test case đều đúng với expected result, đồng thời nghiệm do Backtracking sinh ra cũng vượt qua bước xác thực độc lập.
+
+## 2.7. Phân công và đầu ra
+
+| Thành viên | Công việc | Kết quả |
+|---|---|---|
+| Hải | Hoàn thiện ba hàm kiểm tra, chuẩn bị test và chạy expected/actual | 6/6 test PASS |
+| Ly | Review các trường hợp từng phần, xung đột và màu ngoài domain | Logic kiểm tra được xác nhận |
+
+Các test chạy được từ kernel sạch và kết quả đã được lưu trong notebook.
 
 ---
 
@@ -184,59 +295,114 @@
 
 ## 3.1. Mục tiêu chương
 
-- Cài đặt và đánh giá Backtracking cơ bản.
-- Cài đặt chiến lược chọn biến MRV trên miền còn hợp lệ.
-- Cài đặt chiến lược thứ tự giá trị LCV.
-- So sánh ba cấu hình trên cùng đồ thị.
+Chương này dùng Backtracking để tìm cách tô màu hợp lệ cho graph ở Chương 1. Sau phiên bản cơ bản, hai cách sắp thứ tự được thêm vào để giảm những lựa chọn không cần thiết:
+
+| Cấu hình | Chọn variable | Chọn màu |
+|---|---|---|
+| Backtracking | Variable chưa gán đầu tiên | Theo thứ tự trong domain |
+| Backtracking + MRV | Variable còn ít màu hợp lệ nhất | Theo thứ tự trong domain |
+| Backtracking + MRV + LCV | Variable còn ít màu hợp lệ nhất | Màu ít gây khó cho neighbors nhất |
 
 ## 3.2. Backtracking cơ bản
 
-- Trình bày giả mã hoặc lưu đồ.
-- Mô tả cách chọn biến chưa gán đầu tiên.
-- Định nghĩa chính xác cách tăng biến `COUNT`.
-- Nêu điều kiện dừng và cách xác thực nghiệm.
+Backtracking tô từng đỉnh theo thứ tự. Nếu màu vừa thử làm assignment vi phạm constraint, thuật toán bỏ màu đó và thử màu tiếp theo. Khi một variable không còn màu phù hợp, thuật toán quay lại variable trước để đổi lựa chọn.
+
+| Bước | Xử lý |
+|---:|---|
+| 1 | Kiểm tra assignment đã đầy đủ chưa |
+| 2 | Chọn một variable chưa gán |
+| 3 | Thử từng màu trong domain |
+| 4 | Nếu assignment vẫn nhất quán, tiếp tục sang variable kế tiếp |
+| 5 | Nếu nhánh thất bại, xóa phép gán vừa thử và quay lui |
+
+Trong notebook, `COUNT` là **số lần thử một cặp variable-color**. Ví dụ, thử `đỉnh 4 = red` làm `COUNT` tăng một đơn vị, dù màu đó bị loại ngay. Chỉ số `nodes` là số trạng thái từng phần đã được mở rộng, bao gồm nút gốc và nút nghiệm.
+
+Thuật toán dừng khi tìm được assignment thỏa `is_solution()`, hoặc khi đã thử hết mọi khả năng. Vì đây là Backtracking đầy đủ trên CSP hữu hạn, trường hợp thử hết mà không có nghiệm có thể dùng để kết luận graph không tô được với domain đang xét.
 
 ## 3.3. Minimum Remaining Values
 
-- Nêu nguyên tắc chọn biến có ít giá trị còn hợp lệ nhất.
-- Làm rõ MRV được tính trên miền còn hợp lệ, không chỉ độ dài miền ban đầu.
-- Nêu quy tắc phá hòa nếu nhiều biến có cùng giá trị MRV.
+MRV chọn variable đang có ít màu hợp lệ nhất. Ý tưởng đơn giản là xử lý chỗ khó trước: nếu một đỉnh gần như hết lựa chọn, ta nên phát hiện sớm thay vì tiếp tục tô những đỉnh dễ.
+
+Số màu của MRV được tính sau khi bỏ những màu đã được neighbors sử dụng, không chỉ lấy độ dài domain ban đầu. Với assignment mẫu:
+
+```python
+{'0': 'red', '1': 'blue'}
+```
+
+Backtracking cơ bản chọn đỉnh 2 vì đây là variable chưa gán đầu tiên. MRV chọn đỉnh 5 vì tại thời điểm đó đỉnh 5 còn ít màu hợp lệ hơn. Nếu nhiều variable có cùng điểm MRV, notebook giữ thứ tự variable ban đầu để kết quả có thể chạy lại giống nhau.
 
 ## 3.4. Least Constraining Value
 
-- Nêu cách chấm điểm một màu theo số giá trị nó loại khỏi các láng giềng chưa gán.
-- Nêu quy tắc phá hòa và thứ tự màu để thí nghiệm có thể tái lập.
+Sau khi MRV chọn variable, LCV quyết định màu nào được thử trước. Mỗi màu được chấm bằng số lựa chọn mà nó sẽ loại khỏi domain của các neighbors chưa gán.
+
+| Điểm LCV | Ý nghĩa | Thứ tự thử |
+|---:|---|---|
+| Nhỏ | Ít làm giảm lựa chọn của neighbors | Thử trước |
+| Lớn | Làm nhiều neighbors mất màu | Thử sau |
+| Không hợp lệ ngay | Trùng màu với neighbor đã gán | Đưa xuống cuối |
+
+Nếu hai màu có cùng điểm, thứ tự màu gốc `red`, `blue`, `green`, `orange` được dùng để phá hòa. LCV chỉ đổi thứ tự thử; nó không xóa nghiệm khỏi không gian tìm kiếm.
 
 ## 3.5. Thiết kế thí nghiệm
 
-- Giữ nguyên tập điểm, cạnh, seed và thứ tự màu giữa các cấu hình.
-- So sánh: Backtracking gốc; Backtracking + MRV; Backtracking + MRV + LCV.
-- Chỉ số: thành công, `COUNT`, thời gian và tính hợp lệ của nghiệm.
+Để so sánh công bằng, ba cấu hình dùng đúng cùng dữ liệu:
 
-| Thuật toán | Seed | Số màu | Thành công | `COUNT` | Thời gian (s) | Nghiệm hợp lệ |
-|---|---:|---:|---:|---:|---:|---:|
-| Backtracking | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] |
-| Backtracking + MRV | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] |
-| Backtracking + MRV + LCV | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] |
+| Thông tin | Giá trị |
+|---|---|
+| Số đỉnh / cạnh | 10 / 21 |
+| Seed | 1111 |
+| Domain | 3 màu và 4 màu |
+| Thứ tự màu | Giữ cố định |
+| Đo thời gian | `time.perf_counter()` |
+| Kiểm tra nghiệm | `is_solution()` |
+
+Kết quả một lần chạy đầy đủ của notebook:
+
+| Domain | Thuật toán | Thành công | `COUNT` | Nodes | Thời gian (ms) |
+|---|---|---:|---:|---:|---:|
+| 4 màu | Backtracking | Có | 23 | 11 | 0,411 |
+| 4 màu | Backtracking + MRV | Có | 24 | 11 | 0,561 |
+| 4 màu | Backtracking + MRV + LCV | Có | 10 | 11 | 1,631 |
+| 3 màu | Backtracking | Không | 210 | 70 | 1,991 |
+| 3 màu | Backtracking + MRV | Không | 102 | 34 | 1,654 |
+| 3 màu | Backtracking + MRV + LCV | Không | 102 | 34 | 2,896 |
+
+Thời gian ở đây rất nhỏ và có thể dao động giữa các lần chạy. Vì vậy, `COUNT` và `nodes` được dùng làm chỉ số chính; thời gian chỉ đóng vai trò tham khảo.
 
 ## 3.6. Kết quả trực quan và nhận xét
 
-> **Hình 3.1.** Một nghiệm tô màu hợp lệ tìm được bằng `[điền thuật toán]`.
+![Nghiệm tô màu hợp lệ bằng MRV và LCV](images/chuong3_nghiem_to_mau.svg)
 
-- So sánh kích thước cây tìm kiếm qua `COUNT`.
-- Phân tích trường hợp heuristic giúp giảm nhánh và trường hợp chi phí tính heuristic làm tăng thời gian.
-- Trả lời phần MRV trong câu hỏi thảo luận 2 của đề.
+> **Hình 3.1.** Nghiệm 4 màu do Backtracking + MRV + LCV tìm được. Nghiệm có `complete = True` và `consistent = True`.
+
+![So sánh COUNT của các cấu hình Backtracking](images/chuong3_so_sanh_count.svg)
+
+> **Hình 3.2.** So sánh số lần thử gán giữa ba cấu hình. Cột thấp hơn cho biết thuật toán thử ít cặp variable-color hơn.
+
+Với domain 4 màu, cả ba cấu hình đều tìm được nghiệm sau 11 nodes. LCV giảm `COUNT` từ 23 xuống 10, tương đương khoảng 56,5%. Tuy nhiên thời gian lại cao hơn vì mỗi màu phải được chấm điểm trước khi thử. MRV dùng một mình không cải thiện trường hợp này và `COUNT` tăng nhẹ từ 23 lên 24.
+
+Với domain 3 màu, cả ba cấu hình đều duyệt hết phần tìm kiếm cần thiết và không tìm thấy nghiệm. MRV giảm `COUNT` từ 210 xuống 102 và giảm nodes từ 70 xuống 34, tương đương khoảng 51,4%. LCV không giảm thêm số lần thử trong trường hợp này, nhưng vẫn tốn thời gian để tính thứ tự màu.
+
+Kết quả cho thấy heuristic giúp thay đổi hình dạng cây search chứ không bảo đảm luôn chạy nhanh hơn. Với graph nhỏ hoặc nghiệm dễ gặp, chi phí tính MRV/LCV có thể lớn hơn phần công việc tiết kiệm được.
+
+### Tác động của MRV lên cây Backtracking
+
+MRV thường làm cây hẹp hơn vì nhánh khó được xử lý sớm. Nếu variable ít lựa chọn dẫn đến thất bại, thuật toán quay lui ngay thay vì phát hiện lỗi ở gần cuối. Đổi lại, tại mỗi node phải tính số màu hợp lệ của các variable chưa gán; đây là phần chi phí tăng thêm.
 
 ## 3.7. Kết luận chương
 
-[Nêu cấu hình hiệu quả nhất trên dữ liệu đã thử, kèm giới hạn của kết luận.]
+Backtracking cơ bản, MRV và LCV đều được cài trên cùng một lõi tìm kiếm. Với graph 4 màu, MRV + LCV dùng ít lần thử nhất và trả về nghiệm hợp lệ. Với graph 3 màu, MRV giảm khoảng một nửa `COUNT` và nodes so với baseline.
+
+Kết quả chỉ phản ánh graph `n = 10`, seed `1111`. Không nên kết luận một heuristic luôn tốt nhất chỉ từ một graph; thí nghiệm nhiều kích thước và seed được tiếp tục ở Chương 4.
 
 ## 3.8. Phân công và đầu ra
 
-- **Hải:** duy trì bản baseline; cài MRV và LCV; chạy so sánh; xác thực và trực quan hóa nghiệm.
-- **Thiện:** review định nghĩa `COUNT`, cách đo thời gian và việc dùng cùng đầu vào giữa các cấu hình.
-- **Đầu ra bắt buộc:** ba cấu hình thuật toán; bảng so sánh `COUNT`/thời gian; ít nhất một hình tô màu; phần thảo luận MRV.
-- **Tiêu chí hoàn thành:** mọi nghiệm báo thành công đều qua `complete() and consistent()` và bảng ghi đủ điều kiện thí nghiệm.
+| Thành viên | Công việc | Kết quả |
+|---|---|---|
+| Hải | Giữ baseline, cài MRV/LCV, chạy so sánh và vẽ nghiệm | Ba cấu hình, bảng kết quả và Hình 3.1 |
+| Thiện | Review `COUNT`, cách đo thời gian và đầu vào chung | Xác nhận phép so sánh dùng cùng graph/seed |
+
+Mọi kết quả báo thành công đều được kiểm tra lại bằng `is_solution()` trước khi đưa vào bảng.
 
 ---
 
@@ -248,57 +414,144 @@
 
 ## 4.1. Mục tiêu chương
 
-- Bổ sung Forward Checking vào Backtracking.
-- Cài đặt Min-Conflicts cho phép gán đầy đủ.
-- Đánh giá trên nhiều kích thước đồ thị, nhiều seed và miền 3/4 màu.
+Chương này mở rộng thuật toán ở Chương 3 theo hai hướng khác nhau. Forward Checking vẫn dùng Backtracking nhưng kiểm tra trước domain của các đỉnh chưa tô. Min-Conflicts đi theo hướng local search: luôn giữ một phép gán đầy đủ rồi sửa dần các vị trí đang xung đột.
+
+Hai thuật toán được đánh giá trên cùng graph để trả lời ba câu hỏi:
+
+- Forward Checking giúp phát hiện nhánh sai sớm như thế nào?
+- Min-Conflicts có tìm được nghiệm trong giới hạn bước hay không?
+- Khi domain giảm từ 4 màu xuống 3 màu, kết quả thay đổi ra sao?
 
 ## 4.2. Forward Checking
 
-- Mô tả miền riêng của từng biến.
-- Trình bày cách loại màu xung đột khỏi láng giềng chưa gán.
-- Trình bày cơ chế ghi nhận và hoàn tác miền khi quay lui.
-- Nêu cách phát hiện sớm thất bại khi một biến chưa gán có miền rỗng.
+Mỗi đỉnh có một domain riêng, ban đầu chứa toàn bộ màu được phép dùng. Sau khi gán màu cho một đỉnh, Forward Checking xóa màu đó khỏi domain của các neighbors chưa được gán. Nếu một domain trở thành rỗng, nhánh hiện tại chắc chắn không thể hoàn thành và được dừng ngay.
+
+| Bước | Xử lý |
+|---:|---|
+| 1 | Chọn variable bằng MRV và sắp xếp màu bằng LCV. |
+| 2 | Thử một màu không xung đột với assignment hiện tại. |
+| 3 | Xóa màu vừa chọn khỏi domain của các neighbors chưa gán. |
+| 4 | Nếu có domain rỗng, dừng nhánh và backtrack. |
+| 5 | Khi backtrack, trả lại đúng các màu đã bị xóa ở bước 3. |
+
+Phần hoàn tác domain là điểm quan trọng nhất. Mỗi lần xóa màu, chương trình lưu lại variable, màu và vị trí cũ. Khi nhánh thất bại, các thay đổi này được phục hồi theo thứ tự ngược. Nhờ vậy, thử nghiệm của một nhánh không làm sai domain của nhánh tiếp theo.
+
+Các chỉ số được ghi lại gồm:
+
+| Chỉ số | Ý nghĩa |
+|---|---|
+| `COUNT` | Số lần thử một cặp variable-color. |
+| `nodes` | Số trạng thái được mở trong cây search. |
+| `pruned` | Số lần một màu bị loại khỏi domain nhờ Forward Checking. |
+| `status` | `success`, `proven_unsat` hoặc `node_limit`. |
+
+`proven_unsat` chỉ được dùng khi thuật toán đã duyệt đầy đủ phần tìm kiếm cần thiết mà không gặp `node_limit`. Nếu bị dừng do giới hạn node, kết quả chưa đủ để kết luận vô nghiệm.
 
 ## 4.3. Min-Conflicts
 
-- Khởi tạo một phép gán đầy đủ.
-- Chọn ngẫu nhiên một biến đang xung đột.
-- Chọn màu làm nhỏ nhất số ràng buộc vi phạm; phá hòa ngẫu nhiên.
-- Ghi `max_steps`, số bước, lịch sử xung đột, thời gian và trạng thái thành công.
-- Làm rõ Min-Conflicts hết bước không chứng minh bài toán vô nghiệm.
+Min-Conflicts không xây assignment từ rỗng như Backtracking. Thuật toán gán màu cho toàn bộ đỉnh ngay từ đầu, sau đó lặp lại việc giảm số cạnh có hai đầu cùng màu.
 
-## 4.4. Thiết kế thí nghiệm
+```text
+Khởi tạo một assignment đầy đủ
+Lặp tối đa max_steps lần:
+    nếu không còn cạnh xung đột: trả về nghiệm
+    chọn ngẫu nhiên một đỉnh đang xung đột
+    thử các màu và tính số xung đột tạo ra
+    chọn một màu có số xung đột nhỏ nhất
+Kết thúc giới hạn: trả về step_limit
+```
 
-- Kích thước đồ thị: `[điền các n]`.
-- Miền màu: 3 màu và 4 màu.
-- Seed: `[điền danh sách hoặc quy tắc sinh seed]`.
-- Số lượt cho mỗi cấu hình: `[điền]`.
-- Thuật toán: Backtracking/Forward Checking và Min-Conflicts.
+Khi nhiều màu có cùng điểm tốt nhất, một màu được chọn ngẫu nhiên. Seed của bộ sinh số ngẫu nhiên được cố định để có thể chạy lại thí nghiệm. Notebook ghi số `steps`, số lần đánh giá màu, `final h`, `best h`, lịch sử xung đột và thời gian chạy. Trong đó, `h` là số cạnh đang vi phạm ràng buộc; `h = 0` nghĩa là đã tìm được nghiệm.
 
-| Thuật toán | `n` | Số màu | Số seed/lượt | Số cạnh TB | Tỷ lệ thành công | `COUNT`/số bước TB | Thời gian TB (s) |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Forward Checking | [Điền] | 3 | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] |
-| Forward Checking | [Điền] | 4 | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] |
-| Min-Conflicts | [Điền] | 3 | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] |
-| Min-Conflicts | [Điền] | 4 | [Điền] | [Điền] | [Điền] | [Điền] | [Điền] |
+Min-Conflicts có thể bị lặp quanh một vùng chưa tốt hoặc hết số bước trước khi gặp nghiệm. Vì vậy, trạng thái `step_limit` chỉ có nghĩa là **chưa tìm được nghiệm trong giới hạn đã đặt**, không phải là chứng minh bài toán vô nghiệm.
 
-## 4.5. Phân tích kết quả
+## 4.4. Kết quả trên graph cố định
 
-- So sánh tác động của Forward Checking lên cây Backtracking và chi phí quản lý miền.
-- Phân tích sự khác nhau giữa miền 3 màu và 4 màu.
-- Phân biệt ba tình huống: tìm được nghiệm; heuristic hết giới hạn; Backtracking đầy đủ chứng minh vô nghiệm.
-- Trả lời phần Forward Checking trong câu hỏi 2 và toàn bộ câu hỏi 3 của đề.
+Thử nghiệm đầu tiên dùng graph Delaunay có 10 đỉnh, 21 cạnh và seed `1111`, giống dữ liệu ở các chương trước.
 
-## 4.6. Kết luận chương
+| Thuật toán | Domain | Trạng thái | Lượng công việc | Kết quả phụ | Thời gian (ms) |
+|---|---:|---|---:|---:|---:|
+| Forward Checking | 4 màu | `success` | `COUNT = 10`, nodes = 11 | pruned = 20 | 0,518 |
+| Forward Checking | 3 màu | `proven_unsat` | `COUNT = 33`, nodes = 28 | pruned = 90 | 0,926 |
+| Min-Conflicts | 4 màu | `success` | 9 steps | 36 evaluations, `h = 0` | 0,822 |
+| Min-Conflicts | 3 màu | `step_limit` | 2.000 steps | 6.000 evaluations, best `h = 2` | 140,128 |
 
-[Nêu ưu/nhược điểm của Forward Checking và Min-Conflicts dựa trên dữ liệu.]
+![Kết quả Forward Checking và Min-Conflicts trên graph cố định](images/chuong4_ket_qua_co_dinh.svg)
 
-## 4.7. Phân công và đầu ra
+> **Hình 4.1.** Trạng thái của hai thuật toán trên cùng graph. `proven_unsat` và `step_limit` mang hai ý nghĩa khác nhau.
 
-- **Hải:** cài Forward Checking và hoàn tác miền; cài Min-Conflicts; chạy nhiều `n`, seed, miền 3/4 màu; xuất dữ liệu thô.
-- **Thiện:** thống nhất tên cột/chỉ số, kiểm tra dữ liệu đủ để tổng hợp ở Chương 8 và review tính công bằng.
-- **Đầu ra bắt buộc:** hai thuật toán; bảng nhiều kích thước/seed; tỷ lệ thành công; `COUNT` hoặc số bước; thời gian; trả lời câu hỏi 2-3.
-- **Tiêu chí hoàn thành:** miền được khôi phục đúng sau backtrack; không diễn giải thất bại của Min-Conflicts như một chứng minh vô nghiệm.
+Với 4 màu, cả hai thuật toán đều tìm được nghiệm nhanh. Với 3 màu, Forward Checking hoàn tất search và chứng minh graph không thể tô hợp lệ, còn Min-Conflicts dừng sau 2.000 bước với kết quả tốt nhất vẫn còn 2 cạnh xung đột.
+
+## 4.5. Thiết kế benchmark
+
+Để tránh kết luận từ một graph duy nhất, notebook tiếp tục chạy trên nhiều kích thước và seed. Với mỗi bộ `(n, seed, số màu)`, hai thuật toán nhận đúng cùng một graph.
+
+| Thành phần | Cấu hình |
+|---|---|
+| Kích thước graph | `n = 10, 20, 30` |
+| Seed tạo graph | `1111, 2222, 3333` |
+| Domain | 3 màu và 4 màu |
+| Thuật toán | Forward Checking + MRV + LCV; Min-Conflicts |
+| Giới hạn Forward Checking | `max_nodes = 50.000` |
+| Giới hạn Min-Conflicts | `max_steps = 3.000` |
+| Tổng số lượt | 36 lượt |
+
+Mỗi dòng trong bảng sau là trung bình của 3 seed. `Effort` là `COUNT` đối với Forward Checking và là số bước đối với Min-Conflicts. Hai đại lượng này mô tả lượng công việc riêng của từng thuật toán, không nên xem là cùng một phép đo tuyệt đối.
+
+| Thuật toán | `n` | Màu | Cạnh TB | Thành công | Effort TB | Best `h` TB | Thời gian TB (ms) | Trạng thái |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| Forward Checking | 10 | 3 | 20,7 | 0% | 31,0 | — | 0,916 | `proven_unsat: 3` |
+| Forward Checking | 10 | 4 | 20,7 | 100% | 10,0 | 0,00 | 0,407 | `success: 3` |
+| Forward Checking | 20 | 3 | 50,3 | 0% | 37,0 | — | 1,386 | `proven_unsat: 3` |
+| Forward Checking | 20 | 4 | 50,3 | 100% | 20,0 | 0,00 | 1,265 | `success: 3` |
+| Forward Checking | 30 | 3 | 78,7 | 0% | 51,0 | — | 2,757 | `proven_unsat: 3` |
+| Forward Checking | 30 | 4 | 78,7 | 100% | 37,7 | 0,00 | 3,020 | `success: 3` |
+| Min-Conflicts | 10 | 3 | 20,7 | 0% | 3.000,0 | 1,33 | 189,169 | `step_limit: 3` |
+| Min-Conflicts | 10 | 4 | 20,7 | 100% | 5,3 | 0,00 | 0,419 | `success: 3` |
+| Min-Conflicts | 20 | 3 | 50,3 | 0% | 3.000,0 | 3,67 | 328,774 | `step_limit: 3` |
+| Min-Conflicts | 20 | 4 | 50,3 | 100% | 44,0 | 0,00 | 5,102 | `success: 3` |
+| Min-Conflicts | 30 | 3 | 78,7 | 0% | 3.000,0 | 5,67 | 457,161 | `step_limit: 3` |
+| Min-Conflicts | 30 | 4 | 78,7 | 100% | 109,7 | 0,00 | 16,766 | `success: 3` |
+
+## 4.6. Phân tích kết quả
+
+### Tác động của Forward Checking
+
+Forward Checking loại sớm các màu không còn dùng được. Khi một neighbor mất hết màu, thuật toán quay lui ngay mà không cần chờ đến lúc chọn neighbor đó. Cách này thường làm cây search nhỏ hơn, nhất là ở các bài có nhiều ràng buộc.
+
+Chi phí thêm vào là phải sao chép hoặc cập nhật domain, ghi nhận các màu bị xóa và hoàn tác chính xác khi backtrack. Vì vậy, Forward Checking không phải lúc nào cũng nhanh hơn trên graph rất nhỏ. Trong benchmark này, chi phí đó vẫn thấp: thời gian trung bình lớn nhất chỉ khoảng 3,020 ms.
+
+### Khác biệt giữa 3 màu và 4 màu
+
+Ở cả 9 graph dùng 4 màu, hai thuật toán đều đạt tỷ lệ thành công 100%. Khi `n` tăng, Min-Conflicts cần nhiều bước hơn, từ trung bình 5,3 bước ở `n = 10` lên 109,7 bước ở `n = 30`, nhưng vẫn tìm được nghiệm trong giới hạn.
+
+Với 3 màu, Forward Checking trả về `proven_unsat` cho cả 9 graph. Min-Conflicts đều chạm giới hạn 3.000 bước; best `h` tăng từ 1,33 lên 5,67 khi kích thước graph tăng. Điều này cho thấy thuật toán đã tiến gần một lời giải tốt nhưng không thể loại hết xung đột. Kết quả của Forward Checking mới là cơ sở để kết luận các graph 3 màu đã thử là vô nghiệm.
+
+### Cách đọc trạng thái kết quả
+
+| Trạng thái | Có nghiệm? | Có chứng minh vô nghiệm? | Cách hiểu |
+|---|---:|---:|---|
+| `success` | Có | Không cần | Assignment đầy đủ và đã qua `is_solution()`. |
+| `step_limit` | Chưa tìm thấy | Không | Min-Conflicts đã dùng hết số bước cho phép. |
+| `node_limit` | Chưa tìm thấy | Không | Backtracking bị dừng trước khi duyệt xong. |
+| `proven_unsat` | Không | Có | Backtracking đã duyệt đầy đủ mà không có nghiệm. |
+
+Benchmark chỉ dùng 3 seed cho mỗi cấu hình, nên kết quả phù hợp để minh họa hoạt động của thuật toán nhưng chưa đủ để khẳng định hiệu năng cho mọi graph Delaunay.
+
+## 4.7. Kết luận chương
+
+Forward Checking có ưu điểm là phát hiện ngõ cụt sớm và có thể chứng minh vô nghiệm khi hoàn tất search. Đổi lại, thuật toán phải quản lý và hoàn tác domain cẩn thận. Min-Conflicts đơn giản, tìm nghiệm 4 màu nhanh trên các graph đã thử và phù hợp khi cần một lời giải tốt trong thời gian ngắn. Điểm hạn chế là hết bước không cho biết bài toán thật sự vô nghiệm hay chỉ chưa gặp nghiệm.
+
+Trong 36 lượt benchmark, cả hai thuật toán giải thành công toàn bộ 18 lượt dùng 4 màu. Với 18 lượt dùng 3 màu, Forward Checking chứng minh vô nghiệm, còn Min-Conflicts đều dừng ở `step_limit`. Kết quả này cũng cho thấy trạng thái dừng cần được báo rõ bên cạnh thời gian và số bước.
+
+## 4.8. Phân công và đầu ra
+
+| Thành viên | Công việc | Kết quả |
+|---|---|---|
+| Hải | Cài Forward Checking và hoàn tác domain; cài Min-Conflicts; chạy nhiều `n`, seed và domain 3/4 màu | Hai thuật toán, dữ liệu graph cố định và 36 lượt benchmark |
+| Thiện | Thống nhất tên cột/chỉ số; kiểm tra dữ liệu phục vụ tổng hợp; review tính công bằng | Hai thuật toán dùng cùng graph trong từng cấu hình, trạng thái dừng được ghi rõ |
+
+Các nghiệm báo `success` đều được kiểm tra lại bằng `is_solution()`. Domain của Forward Checking cũng được phục hồi sau mỗi lần backtrack để các nhánh search độc lập với nhau.
 
 ---
 

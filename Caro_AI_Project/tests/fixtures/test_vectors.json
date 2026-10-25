@@ -1,6 +1,6 @@
 {
   "game_version": "caro-v1",
-  "board_size": 9,
+  "board_size": 11,
   "win_length": 5,
   "blocked_both_ends_rule": true,
   "test_cases": [
@@ -21,11 +21,11 @@
       "id": "TC02_VERTICAL_WIN",
       "description": "O thắng cột dọc chuẩn (5 quân O liên tiếp, không bị chặn 2 đầu)",
       "board_moves": [
-        {"action": 10, "player": -1},
-        {"action": 19, "player": -1},
-        {"action": 28, "player": -1},
-        {"action": 37, "player": -1},
-        {"action": 46, "player": -1}
+        {"action": 11, "player": -1},
+        {"action": 22, "player": -1},
+        {"action": 33, "player": -1},
+        {"action": 44, "player": -1},
+        {"action": 55, "player": -1}
       ],
       "expected_winner": -1,
       "terminated": true
@@ -35,10 +35,10 @@
       "description": "X thắng chéo chính (1 đầu chạm biên top-left, 1 đầu mở)",
       "board_moves": [
         {"action": 0, "player": 1},
-        {"action": 10, "player": 1},
-        {"action": 20, "player": 1},
-        {"action": 30, "player": 1},
-        {"action": 40, "player": 1}
+        {"action": 12, "player": 1},
+        {"action": 24, "player": 1},
+        {"action": 36, "player": 1},
+        {"action": 48, "player": 1}
       ],
       "expected_winner": 1,
       "terminated": true
@@ -47,12 +47,12 @@
       "id": "TC05_ONE_END_BLOCKED_WIN",
       "description": "5 quân X bị quân O chặn 1 đầu, đầu kia trống -> Vẫn tính Thắng",
       "board_moves": [
-        {"action": 10, "player": -1},
-        {"action": 11, "player": 1},
+        {"action": 11, "player": -1},
         {"action": 12, "player": 1},
         {"action": 13, "player": 1},
         {"action": 14, "player": 1},
-        {"action": 15, "player": 1}
+        {"action": 15, "player": 1},
+        {"action": 16, "player": 1}
       ],
       "expected_winner": 1,
       "terminated": true
@@ -61,20 +61,20 @@
       "id": "TC06_BOTH_ENDS_BLOCKED_BY_O",
       "description": "Trường hợp biên: 5 quân X bị quân O chặn ở cả 2 đầu -> Chưa thắng",
       "board_moves": [
-        {"action": 10, "player": -1},
-        {"action": 11, "player": 1},
+        {"action": 11, "player": -1},
         {"action": 12, "player": 1},
         {"action": 13, "player": 1},
         {"action": 14, "player": 1},
         {"action": 15, "player": 1},
-        {"action": 16, "player": -1}
+        {"action": 16, "player": 1},
+        {"action": 17, "player": -1}
       ],
       "expected_winner": null,
       "terminated": false
     },
     {
       "id": "TC07_BLOCKED_BY_O_AND_EDGE",
-      "description": "Trường hợp biên: 5 quân X có 1 đầu bị O chặn, 1 đầu sát biên -> Thắng",
+      "description": "Trường hợp biên: 5 quân X có 1 đầu bị O chặn, 1 đầu sát biên -> Chưa thắng",
       "board_moves": [
         {"action": 0, "player": 1},
         {"action": 1, "player": 1},
@@ -83,26 +83,26 @@
         {"action": 4, "player": 1},
         {"action": 5, "player": -1}
       ],
-      "expected_winner": 1,
-      "terminated": true
+      "expected_winner": null,
+      "terminated": false
     },
     {
       "id": "TC08_OVERLINE_WIN",
       "description": "6 quân X liên tiếp không bị chặn 2 đầu -> Thắng",
       "board_moves": [
-        {"action": 19, "player": 1},
-        {"action": 20, "player": 1},
-        {"action": 21, "player": 1},
-        {"action": 22, "player": 1},
         {"action": 23, "player": 1},
-        {"action": 24, "player": 1}
+        {"action": 24, "player": 1},
+        {"action": 25, "player": 1},
+        {"action": 26, "player": 1},
+        {"action": 27, "player": 1},
+        {"action": 28, "player": 1}
       ],
       "expected_winner": 1,
       "terminated": true
     },
     {
       "id": "TC14_DRAW_BOARD_FULL",
-      "description": "Bàn cờ kín 81 ô nhưng không có chuỗi 5 nào thỏa mãn -> Hòa",
+      "description": "Bàn cờ kín 121 ô nhưng không có chuỗi 5 nào thỏa mãn -> Hòa",
       "expected_winner": 0,
       "terminated": true
     }

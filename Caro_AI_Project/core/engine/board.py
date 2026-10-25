@@ -1,14 +1,16 @@
 import numpy as np
 from typing import Tuple, List, Optional
 
+from core.engine.interfaces import DEFAULT_BOARD_SIZE
+
 
 class Board:
     """
     Quản lý mảng bàn cờ Caro 11x11 và các thao tác chuyển đổi tọa độ, đặt quân cờ.
     """
 
-    BOARD_SIZE = 11
-    TOTAL_CELLS = 121
+    BOARD_SIZE = DEFAULT_BOARD_SIZE
+    TOTAL_CELLS = BOARD_SIZE * BOARD_SIZE
     EMPTY_VALUE = 0
     PLAYER_X = 1
     PLAYER_O = -1
