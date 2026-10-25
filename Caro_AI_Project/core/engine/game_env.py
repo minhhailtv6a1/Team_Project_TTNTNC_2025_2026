@@ -1,4 +1,3 @@
-# File: core/engine/game_env.py
 from typing import List, Tuple
 import copy
 from core.engine.rules import RuleEngine
