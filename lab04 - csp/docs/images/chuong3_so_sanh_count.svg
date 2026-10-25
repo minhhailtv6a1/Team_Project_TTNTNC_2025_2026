@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 450" role="img" aria-labelledby="title desc">
+  <title id="title">So sánh COUNT của ba cấu hình Backtracking</title>
+  <desc id="desc">Biểu đồ cột so sánh số lần thử gán của Backtracking, Backtracking cộng MRV và Backtracking cộng MRV cộng LCV với domain 3 màu và 4 màu.</desc>
+  <rect width="760" height="450" rx="18" fill="#f8fafc"/>
+  <text x="380" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#172033">Số lần thử gán biến-giá trị (COUNT)</text>
+
+  <g stroke="#d8dee9" stroke-width="1">
+    <line x1="95" y1="340" x2="710" y2="340"/>
+    <line x1="95" y1="278.1" x2="710" y2="278.1"/>
+    <line x1="95" y1="216.2" x2="710" y2="216.2"/>
+    <line x1="95" y1="154.3" x2="710" y2="154.3"/>
+    <line x1="95" y1="92.4" x2="710" y2="92.4"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="12" fill="#667085" text-anchor="end">
+    <text x="86" y="344">0</text><text x="86" y="282.1">50</text>
+    <text x="86" y="220.2">100</text><text x="86" y="158.3">150</text>
+    <text x="86" y="96.4">200</text>
+  </g>
+  <line x1="95" y1="68" x2="95" y2="340" stroke="#475467" stroke-width="1.5"/>
+  <line x1="95" y1="340" x2="710" y2="340" stroke="#475467" stroke-width="1.5"/>
+
+  <g>
+    <rect x="137" y="80" width="52" height="260" rx="5" fill="#ef8354"/>
+    <rect x="195" y="311.5" width="52" height="28.5" rx="5" fill="#2a9d8f"/>
+    <rect x="327" y="213.7" width="52" height="126.3" rx="5" fill="#ef8354"/>
+    <rect x="385" y="310.3" width="52" height="29.7" rx="5" fill="#2a9d8f"/>
+    <rect x="517" y="213.7" width="52" height="126.3" rx="5" fill="#ef8354"/>
+    <rect x="575" y="327.6" width="52" height="12.4" rx="5" fill="#2a9d8f"/>
+  </g>
+
+  <g font-family="Arial, sans-serif" font-size="13" font-weight="700" text-anchor="middle" fill="#172033">
+    <text x="163" y="72">210</text><text x="221" y="303">23</text>
+    <text x="353" y="205">102</text><text x="411" y="302">24</text>
+    <text x="543" y="205">102</text><text x="601" y="319">10</text>
+  </g>
+
+  <g font-family="Arial, sans-serif" font-size="13" fill="#344054" text-anchor="middle">
+    <text x="192" y="368">Backtracking</text>
+    <text x="382" y="368">Backtracking</text><text x="382" y="386">+ MRV</text>
+    <text x="572" y="368">Backtracking</text><text x="572" y="386">+ MRV + LCV</text>
+  </g>
+
+  <g font-family="Arial, sans-serif" font-size="13" fill="#475467">
+    <rect x="235" y="416" width="16" height="16" rx="3" fill="#ef8354"/>
+    <text x="260" y="429">3 màu</text>
+    <rect x="395" y="416" width="16" height="16" rx="3" fill="#2a9d8f"/>
+    <text x="420" y="429">4 màu</text>
+  </g>
+</svg>
