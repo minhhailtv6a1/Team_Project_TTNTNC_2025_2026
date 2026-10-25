@@ -1,5 +1,7 @@
 # Kế hoạch chi tiết Tuần 2 - Luật đầy đủ và tích hợp Engine AI Caro
 
+> **Cập nhật phạm vi:** 11x11 là module chính và là kích thước duy nhất được phát triển/kiểm thử. 9x9 tạm ngưng; kiến trúc vẫn tham số hóa theo `board_size` để mở rộng sau.
+
 > Thời lượng: 5 ngày làm việc  
 > Điều kiện bắt đầu: Tuần 1 đã merge, toàn bộ test xanh và có mốc `w1-foundation`.  
 > Mục tiêu tuần: hoàn thiện luật thắng/hòa, terminal, clone/undo; khóa contract `caro-v1`; nối UI với engine thật; thiết lập CI với coverage lõi tối thiểu 90%.
@@ -33,7 +35,7 @@ Kế hoạch Tuần 2 dựa trên trạng thái thực tế của repository, kh
 | `result()` | Chưa cài đặt | Trả kết quả đúng theo góc nhìn player | M2 |
 | `undo()` | Chưa có | Hoàn tác một nước, khôi phục đủ metadata | M2 |
 | Terminal guard | Chưa khóa đầy đủ | Không cho đi tiếp sau thắng/hòa | M2 |
-| Default board | Code/contract đang lệch 9x9 và 11x11 | 9x9 mặc định, 11x11 là tùy chọn | M3 chốt |
+| Default board | Code/contract từng lệch 9x9 và 11x11 | 11x11 là module duy nhất đang hoạt động | M3 chốt |
 | Action public | UI/contract dùng `(row, col)`, `Board` có action `int` nội bộ | Public dùng tuple, int chỉ là chi tiết nội bộ | M3 chốt |
 | Overline | Tài liệu có chỗ ghi “đúng 5”, có chỗ ghi “từ 5” | Chốt một quy tắc duy nhất | M2 + M3 |
 | UI runtime | Dùng `MockGameEnv` | Dùng `CaroEnv` thật | M1 |
@@ -59,7 +61,7 @@ Ba thành viên họp tối đa 75 phút. M3 ghi biên bản và cập nhật co
 
 | Hạng mục | Giá trị đề xuất cho `caro-v1` | Người duyệt | Test bắt buộc |
 |---|---|---|---|
-| Bàn mặc định | `9 x 9`; `11 x 11` là tùy chọn | Cả nhóm | Reset có 81/121 legal actions |
+| Bàn mặc định | `11 x 11`; kích thước khác tạm ngưng | Cả nhóm | Reset có 121 legal actions |
 | Giá trị ô | `EMPTY=0`, `X=1`, `O=-1` | M2 + M3 | Dtype/miền giá trị hợp lệ |
 | Public action | `Action = tuple[int, int]` dạng `(row, col)` | M1 + M3 | Biên âm, biên trên, ô đã chiếm |
 | Action nội bộ Board | Có thể dùng `int`, nhưng không lộ ra UI/Agent | M2 + M3 | Round-trip int ↔ tuple |
@@ -145,7 +147,7 @@ Thay môi trường giả lập bằng engine thật và hoàn thiện luồng c
 **Tiêu chí hoàn thành**
 
 - `streamlit run ui/app.py` khởi tạo `CaroEnv` thật.
-- Render đủ 81 ô ở cấu hình mặc định.
+- Render đủ 121 ô ở cấu hình mặc định.
 - Click UI truyền đúng tuple `(row, col)` cho engine.
 - UI không import `Board` hoặc gọi hàm private của `RuleEngine`.
 - Thay đổi bên trong engine không buộc sửa component render board.
@@ -194,7 +196,7 @@ Thay môi trường giả lập bằng engine thật và hoàn thiện luồng c
 2. Test ít nhất một chuỗi X thắng và một chuỗi O thắng.
 3. Test cảnh báo ô đã chiếm và state không đổi.
 4. Test terminal disable board, banner kết quả và Play Again.
-5. Test đổi 9x9 ↔ 11x11.
+5. Test cấu hình 11x11 và từ chối kích thước chưa được hỗ trợ.
 6. Browser smoke ở viewport 1280x720 và viewport desktop lớn.
 7. Chụp ảnh trạng thái đầu ván, giữa ván và kết thúc để đính kèm PR.
 
@@ -218,7 +220,7 @@ Thay môi trường giả lập bằng engine thật và hoàn thiện luồng c
 
 - Test UI không monkeypatch logic thắng/thua.
 - Test tái hiện được winner do engine trả về.
-- Bàn 9x9 và 11x11 không vỡ layout.
+- Bàn 11x11 không vỡ layout; công thức kích thước ô không hard-code theo từng size.
 - Toàn bộ test W1-M1-03 tiếp tục xanh.
 
 ### Nhánh và commit của M1
@@ -273,7 +275,7 @@ Sở hữu tính đúng đắn của luật và state transition. M2 triển kha
 - Tất cả trường hợp thắng hợp lệ trả đúng winner.
 - Chặn hai đầu không trả winner.
 - Board chưa kết thúc trả `None`.
-- Kết quả giống nhau trên 9x9 và 11x11.
+- Kết quả nhất quán trên cấu hình 11x11.
 - Không có mutation trong hàm kiểm tra thuần.
 
 ### W2-M2-02 - Hoàn thiện terminal, reward và `result()`
@@ -398,7 +400,7 @@ Sở hữu contract freeze, test độc lập, coverage và CI. M3 không viết
 **Tiêu chí hoàn thành**
 
 - M1 và M2 cùng approve contract.
-- Không còn lệch 9x9/11x11, tuple/int hoặc exact-five/overline.
+- Không còn lệch kích thước bàn, tuple/int hoặc exact-five/overline.
 - Mọi public method có input, output, lỗi và invariant rõ ràng.
 
 ### W2-M3-02 - Unit, property-style và regression tests
@@ -413,7 +415,7 @@ Sở hữu contract freeze, test độc lập, coverage và CI. M3 không viết
 6. Test invariant: số quân tăng đúng một sau step hợp lệ.
 7. Test invariant: lượt đổi đúng, move count khớp số ô khác 0.
 8. Test clone/undo độc lập và round-trip N step/N undo.
-9. Test 9x9 và 11x11.
+9. Test đầy đủ bàn 11x11.
 10. Dùng parametrization/property-style loop; chỉ thêm Hypothesis khi nhóm duyệt dependency mới.
 
 **Input**
@@ -581,7 +583,7 @@ Mỗi commit phải chạy được test liên quan. Không gom code engine, UI 
 | W2-T22 | UI | Chuỗi O thắng | Banner O, board disabled | M1 |
 | W2-T23 | UI | Click ô đã chiếm | Warning, UI state giữ nguyên | M1 |
 | W2-T24 | UI | Play Again | Reset về X, board rỗng | M1 |
-| W2-T25 | UI | Đổi 9x9/11x11 | 81/121 ô, không vỡ layout | M1 |
+| W2-T25 | UI | Khởi tạo module 11x11 | 121 ô, không vỡ layout | M1 |
 
 ## 10. Lệnh kiểm thử và cổng chất lượng
 
@@ -674,7 +676,7 @@ python -m streamlit run ui/app.py
 - [ ] Status, move history và last move lấy từ engine/result.
 - [ ] Terminal disable bàn và hiện đúng banner.
 - [ ] New Game/Play Again gọi reset.
-- [ ] 9x9 và 11x11 không vỡ layout.
+- [ ] 11x11 không vỡ layout.
 - [ ] Không có logic thắng/thua trong `ui/`.
 
 ### Git và bàn giao

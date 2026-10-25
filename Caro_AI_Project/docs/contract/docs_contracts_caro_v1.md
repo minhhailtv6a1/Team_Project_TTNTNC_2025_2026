@@ -5,7 +5,7 @@ Tài liệu này định nghĩa các cấu trúc dữ liệu và giao diện API
 ## 1\. Quy ước chung
 
 * **Không gian trạng thái:** Bàn cờ được biểu diễn dưới dạng ma trận 2 chiều (Mảng của các mảng). Tọa độ được quy ước là (row, col) (dòng, cột), bắt đầu từ chỉ số 0\. Dòng chạy từ trên xuống dưới, cột chạy từ trái sang phải.  
-* **Kích thước bàn cờ mặc định:** Bàn cờ chuẩn là 9x9 hoặc 11x11, được cấu hình thông qua GameConfig.  
+* **Kích thước bàn cờ mặc định:** Bàn cờ chuẩn hiện tại là 11x11. Kích thước đi qua `GameConfig` để có thể mở rộng trong tương lai; 9x9 đang tạm ngưng và không thuộc phạm vi phát triển/kiểm thử hiện tại.  
 * **Luật thắng:** Trò chơi sử dụng luật **chặn 2 đầu**. Cụ thể, một người chơi thắng khi có đúng 5 quân cờ liên tiếp theo chiều ngang, dọc, hoặc chéo, và không bị đối phương chặn ở cả hai đầu của chuỗi 5 quân đó. Việc xác minh tính đúng đắn của luật này do Engine nội bộ xử lý, API bên ngoài chỉ cần nhận kết quả thông qua StepResult.
 
 ## **2\. Định nghĩa các thực thể (Entities)**

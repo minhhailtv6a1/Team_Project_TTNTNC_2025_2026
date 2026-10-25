@@ -9,16 +9,16 @@ from core.engine.interfaces import GameConfig, InvalidActionError, Player
 from ui.mock_game_env import MockGameEnv
 
 
-def test_default_mock_is_a_9x9_int8_board() -> None:
+def test_default_mock_is_an_11x11_int8_board() -> None:
     env = MockGameEnv()
     state = env.reset()
 
-    assert env.board_array.shape == (9, 9)
+    assert env.board_array.shape == (11, 11)
     assert env.board_array.dtype == np.int8
-    assert len(state.board) == 9
-    assert all(len(row) == 9 for row in state.board)
+    assert len(state.board) == 11
+    assert all(len(row) == 11 for row in state.board)
     assert state.current_player == Player.X
-    assert len(env.legal_actions()) == 81
+    assert len(env.legal_actions()) == 121
 
 
 def test_empty_cell_click_updates_board_and_changes_turn() -> None:
@@ -33,7 +33,7 @@ def test_empty_cell_click_updates_board_and_changes_turn() -> None:
     assert result.winner is None
     assert env.move_count == 1
     assert env.last_action == (4, 4)
-    assert len(env.legal_actions()) == 80
+    assert len(env.legal_actions()) == 120
 
 
 def test_occupied_cell_raises_clear_error_without_mutating_state() -> None:
@@ -49,7 +49,7 @@ def test_occupied_cell_raises_clear_error_without_mutating_state() -> None:
     assert env.state.current_player == Player.O
 
 
-@pytest.mark.parametrize("action", [(-1, 0), (0, -1), (9, 0), (0, 9)])
+@pytest.mark.parametrize("action", [(-1, 0), (0, -1), (11, 0), (0, 11)])
 def test_out_of_bounds_action_does_not_mutate_state(action: tuple[int, int]) -> None:
     env = MockGameEnv()
     state_before_error = env.state
@@ -80,11 +80,11 @@ def test_reset_restores_the_initial_state() -> None:
     assert env.last_action is None
     assert state.current_player == Player.X
     assert np.count_nonzero(env.board_array) == 0
-    assert len(env.legal_actions()) == 81
+    assert len(env.legal_actions()) == 121
 
 
-def test_configurable_11x11_mode_and_clone_are_independent() -> None:
-    env = MockGameEnv(GameConfig(board_size=11))
+def test_default_11x11_mode_and_clone_are_independent() -> None:
+    env = MockGameEnv()
     clone = env.clone_env()
 
     clone.step((5, 5))
@@ -105,9 +105,15 @@ def test_step_result_state_is_a_defensive_copy() -> None:
 
 
 def test_full_board_is_reported_as_draw_without_win_logic() -> None:
-    env = MockGameEnv(GameConfig(board_size=1))
+    env = MockGameEnv()
+    final_action = (10, 10)
 
-    result = env.step((0, 0))
+    for row in range(11):
+        for col in range(11):
+            if (row, col) != final_action:
+                env.step((row, col))
+
+    result = env.step(final_action)
 
     assert result.done is True
     assert result.winner is None

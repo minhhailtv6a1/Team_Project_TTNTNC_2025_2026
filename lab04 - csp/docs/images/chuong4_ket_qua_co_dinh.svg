@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="540" viewBox="0 0 900 540" role="img" aria-labelledby="title desc">
+  <title id="title">Kết quả Forward Checking và Min-Conflicts trên graph cố định</title>
+  <desc id="desc">Bảng trực quan so sánh hai thuật toán với domain 4 màu và 3 màu trên graph 10 đỉnh, seed 1111.</desc>
+  <rect width="900" height="540" fill="#f8fafc"/>
+  <text x="450" y="42" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#172033">Graph cố định: n = 10, seed = 1111</text>
+  <text x="450" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#556070">So sánh trạng thái và lượng công việc của hai thuật toán</text>
+
+  <rect x="35" y="95" width="210" height="48" rx="10" fill="#334155"/>
+  <rect x="260" y="95" width="290" height="48" rx="10" fill="#2563eb"/>
+  <rect x="565" y="95" width="300" height="48" rx="10" fill="#7c3aed"/>
+  <text x="140" y="126" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="white">Thuật toán</text>
+  <text x="405" y="126" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="white">Domain 4 màu</text>
+  <text x="715" y="126" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="white">Domain 3 màu</text>
+
+  <rect x="35" y="158" width="210" height="135" rx="12" fill="#e2e8f0"/>
+  <text x="140" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">Forward Checking</text>
+  <text x="140" y="238" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#475569">MRV + LCV</text>
+  <text x="140" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#64748b">tìm kiếm có quay lui</text>
+
+  <rect x="260" y="158" width="290" height="135" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+  <text x="405" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#166534">SUCCESS</text>
+  <text x="405" y="228" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#14532d">COUNT = 10 · nodes = 11</text>
+  <text x="405" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#14532d">pruned = 20</text>
+  <text x="405" y="279" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#3f6212">0,518 ms</text>
+
+  <rect x="565" y="158" width="300" height="135" rx="12" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+  <text x="715" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#991b1b">PROVEN UNSAT</text>
+  <text x="715" y="228" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#7f1d1d">COUNT = 33 · nodes = 28</text>
+  <text x="715" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#7f1d1d">pruned = 90</text>
+  <text x="715" y="279" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#7f1d1d">0,926 ms</text>
+
+  <rect x="35" y="308" width="210" height="135" rx="12" fill="#e2e8f0"/>
+  <text x="140" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#172033">Min-Conflicts</text>
+  <text x="140" y="393" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#475569">local search</text>
+  <text x="140" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#64748b">gán đầy đủ mọi lúc</text>
+
+  <rect x="260" y="308" width="290" height="135" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+  <text x="405" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#166534">SUCCESS</text>
+  <text x="405" y="378" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#14532d">9 steps · 36 evaluations</text>
+  <text x="405" y="404" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#14532d">final h = 0</text>
+  <text x="405" y="429" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#3f6212">0,822 ms</text>
+
+  <rect x="565" y="308" width="300" height="135" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <text x="715" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#92400e">STEP LIMIT</text>
+  <text x="715" y="378" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#78350f">2.000 steps · 6.000 evaluations</text>
+  <text x="715" y="404" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#78350f">best h = 2</text>
+  <text x="715" y="429" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#78350f">140,128 ms</text>
+
+  <rect x="35" y="468" width="830" height="48" rx="12" fill="#fff7ed" stroke="#fb923c"/>
+  <text x="450" y="498" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#9a3412">proven_unsat = đã duyệt đầy đủ · step_limit ≠ chứng minh vô nghiệm</text>
+</svg>

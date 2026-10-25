@@ -33,16 +33,12 @@ Action: TypeAlias = tuple[int, int]
 class MockGameEnv:
     """Small UI-facing stand-in for :class:`core.engine.game_env.CaroEnv`.
 
-    The UI design uses a 9x9 board by default.  Passing a ``GameConfig`` keeps
-    the mock usable for the contract's configurable 11x11 mode as well.
+    It follows ``GameConfig`` so the UI, mock, and real engine share the same
+    11x11 default while retaining a configurable boundary for future sizes.
     """
 
-    DEFAULT_BOARD_SIZE = 9
-
     def __init__(self, config: GameConfig | None = None) -> None:
-        self.config = copy.deepcopy(
-            config or GameConfig(board_size=self.DEFAULT_BOARD_SIZE)
-        )
+        self.config = copy.deepcopy(config or GameConfig())
         self._validate_config()
         self._board = np.empty((0, 0), dtype=np.int8)
         self._current_player = Player.X

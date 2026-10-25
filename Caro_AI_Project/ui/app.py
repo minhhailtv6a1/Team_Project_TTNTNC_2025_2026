@@ -17,12 +17,20 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from core.engine.interfaces import GameConfig, InvalidActionError, Player, StepResult
+from core.engine.interfaces import (
+    DEFAULT_BOARD_SIZE,
+    SUPPORTED_BOARD_SIZES,
+    GameConfig,
+    InvalidActionError,
+    Player,
+    StepResult,
+)
 from ui.mock_game_env import MockGameEnv
 
 
-DEFAULT_BOARD_SIZE = 9
-BOARD_SIZES = (9, 11)
+# The selector intentionally exposes only the active 11x11 module. Adding a
+# future board size only requires extending SUPPORTED_BOARD_SIZES centrally.
+BOARD_SIZES = SUPPORTED_BOARD_SIZES
 GAME_MODES = ("Human vs AI", "Human vs Human", "AI vs AI")
 AI_ALGORITHMS = (
     "Random",
@@ -144,9 +152,9 @@ def _build_dynamic_cell_css(env: MockGameEnv) -> str:
 
 def _inject_styles(env: MockGameEnv) -> None:
     size = env.config.board_size
-    cell_size = 52 if size == 9 else 44
+    cell_size = max(30, min(44, 484 // size))
     board_width = cell_size * size + 2 * (size - 1)
-    compact_cell_size = 44 if size == 9 else 36
+    compact_cell_size = max(26, min(36, 396 // size))
     compact_board_width = compact_cell_size * size + 2 * (size - 1)
     dynamic_cell_css = _build_dynamic_cell_css(env)
     st.markdown(
@@ -166,8 +174,40 @@ def _inject_styles(env: MockGameEnv) -> None:
             --caro-cell-size: {cell_size}px;
             --caro-board-width: {board_width}px;
         }}
-        [data-testid="stHeader"], [data-testid="stToolbar"],
         #MainMenu, footer {{ display: none !important; }}
+        [data-testid="stHeader"] {{
+            display: flex !important;
+            background: transparent !important;
+            pointer-events: none !important;
+        }}
+        [data-testid="stToolbar"] {{
+            display: flex !important;
+            background: transparent !important;
+            pointer-events: none !important;
+        }}
+        [data-testid="stToolbar"] > div > *:not(:has([data-testid="stExpandSidebarButton"])) {{
+            display: none !important;
+        }}
+        [data-testid="stExpandSidebarButton"] {{
+            position: fixed !important;
+            top: 12px !important;
+            left: 12px !important;
+            z-index: 1000000 !important;
+            display: flex !important;
+            width: 38px !important;
+            height: 38px !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: 1px solid #DDE1E6 !important;
+            border-radius: 8px !important;
+            background: #FFFFFF !important;
+            box-shadow: 0 2px 8px rgba(36, 42, 49, .12) !important;
+            pointer-events: auto !important;
+        }}
+        [data-testid="stExpandSidebarButton"]:hover {{
+            border-color: var(--caro-blue) !important;
+            color: var(--caro-blue) !important;
+        }}
         html, body, [data-testid="stAppViewContainer"], .stApp {{
             background: #FFFFFF;
             color: var(--caro-text);
@@ -445,6 +485,8 @@ def _render_sidebar() -> None:
             key="board_size",
             format_func=lambda value: f"{value}×{value}",
             on_change=_start_new_game,
+            disabled=len(BOARD_SIZES) == 1,
+            help="11×11 is the active module; other sizes are deferred.",
         )
         st.button(
             "↻  New Game",
@@ -505,7 +547,6 @@ def _render_board(env: MockGameEnv) -> None:
                     disabled=env.is_terminal(),
                     on_click=_play_move,
                     args=(row, col),
-                    help=f"Row {row}, column {col}",
                 )
 
     st.markdown(

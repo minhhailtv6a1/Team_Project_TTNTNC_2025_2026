@@ -71,7 +71,7 @@ Mỗi thành viên chỉ được phép chỉnh sửa logic trong các tệp tin
 
 *Chịu trách nhiệm xây dựng luật chơi chuẩn xác và các thuật toán tìm kiếm truyền thống.*
 
-* **`core/engine/board.py`**: Xử lý logic cấu trúc mảng lưới bàn cờ (9x9 hoặc 11x11).
+* **`core/engine/board.py`**: Xử lý logic cấu trúc mảng lưới bàn cờ; hiện tập trung 11x11 và giữ API theo `board_size` để mở rộng sau.
 * **`core/engine/rules.py`**: Viết thuật toán kiểm tra điều kiện thắng 5 quân và luật chặn 2 đầu.
 * **`core/agents/heuristic_ai.py`**: Xây dựng bộ luật ưu tiên tĩnh (ưu tiên thắng, chặn đối thủ).
 * **`core/agents/minimax_ai.py`**: Cài đặt thuật toán Minimax kết hợp tham số bật/tắt kỹ thuật cắt tỉa Alpha-Beta.

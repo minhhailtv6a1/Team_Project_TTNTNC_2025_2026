@@ -1,5 +1,7 @@
 # Kế hoạch chi tiết Tuần 1 - Nền tảng AI Caro
 
+> **Cập nhật phạm vi:** Kế hoạch đã được chuẩn hóa theo module chính 11x11. 9x9 tạm ngưng và không tiếp tục phát triển/kiểm thử.
+
 > Thời lượng: 5 ngày làm việc  
 > Mục tiêu tuần: chốt luật và hợp đồng dữ liệu, tạo bộ khung engine, tạo UI dùng dữ liệu giả lập, chuẩn bị test để ba nhánh có thể phát triển độc lập từ Tuần 2.
 
@@ -11,7 +13,7 @@ Cuối Tuần 1, nhóm phải có một bản `w1-foundation` chạy được v�
 - API game có chữ ký hàm, kiểu dữ liệu input/output và quy ước lỗi thống nhất.
 - Engine tạo được bàn cờ, đặt quân hợp lệ và liệt kê được nước đi hợp lệ.
 - Nước đi ngoài bàn, ô đã có quân hoặc đánh sai lượt đều bị từ chối.
-- UI hiển thị được bàn 9x9, nhận click và chạy được bằng `MockGameEnv`.
+- UI hiển thị được bàn 11x11, nhận click và chạy được bằng `MockGameEnv`.
 - Có test contract và test cho các thao tác nền tảng.
 - Mỗi thành viên có Pull Request riêng; không sửa trực tiếp file thuộc quyền sở hữu của người khác.
 
@@ -21,9 +23,9 @@ Ba thành viên họp tối đa 60 phút vào đầu ngày 1. M3 ghi biên bản
 
 | Hạng mục | Giá trị đề xuất cho `caro-v1` | Người xác nhận |
 |---|---|---|
-| Kích thước bàn | `9 x 9` | Cả nhóm |
+| Kích thước bàn | `11 x 11` | Cả nhóm |
 | Giá trị ô | `0 = EMPTY`, `1 = PLAYER_X`, `-1 = PLAYER_O` | M2 + M3 |
-| Action | Số nguyên `0..80`; `row = action // 9`, `col = action % 9` | M1 + M3 |
+| Action | Số nguyên `0..120`; `row = action // 11`, `col = action % 11` | M1 + M3 |
 | Điều kiện thắng | Có từ 5 quân liên tiếp và không bị chặn cả hai đầu | M2 |
 | Overline | Từ 6 quân trở lên vẫn được xét theo quy tắc trên | M2, hỏi lại giảng viên nếu cần |
 | Luật cấm | Không áp dụng luật cấm Renju | Cả nhóm |
@@ -41,7 +43,7 @@ Nếu giảng viên yêu cầu luật khác, M3 sửa tài liệu contract và t
 
 ```python
 GameConfig(
-    board_size=9,
+    board_size=11,
     win_length=5,
     blocked_both_ends=True,
     first_player=1,
@@ -52,7 +54,7 @@ GameConfig(
 
 ```python
 GameState(
-    board: np.ndarray,       # shape=(9, 9), dtype=np.int8
+    board: np.ndarray,       # shape=(11, 11), dtype=np.int8
     current_player: int,     # 1 hoặc -1
     last_action: int | None,
     move_count: int,
@@ -67,7 +69,7 @@ GameState(
 |---|---|---|---|
 | `reset(seed=None)` | `int \| None` | `GameState` mới | Bàn rỗng, X đi trước |
 | `legal_actions()` | Không | `list[int]` | Chỉ trả về ô trống; danh sách rỗng khi game kết thúc |
-| `step(action)` | `int` trong `0..80` | `StepResult` | Không được sửa state nếu action không hợp lệ |
+| `step(action)` | `int` trong `0..120` | `StepResult` | Không được sửa state nếu action không hợp lệ |
 | `is_terminal()` | Không | `bool` | Đúng khi thắng hoặc hòa |
 | `result(player)` | `1` hoặc `-1` | `1`, `0`, `-1` hoặc `None` | Kết quả theo góc nhìn `player` |
 | `clone()` | Không | Game environment độc lập | Sửa clone không ảnh hưởng bản gốc |
@@ -107,7 +109,7 @@ Thiết kế trải nghiệm chơi và xây dựng UI skeleton không phụ thu�
 
 - Quyết định luật `caro-v1`.
 - `GameState` và quy tắc mã hóa action từ M3.
-- Kích thước bàn `9 x 9` từ M2/M3.
+- Kích thước bàn `11 x 11` từ M2/M3.
 
 **Output**
 
@@ -153,7 +155,7 @@ Thiết kế trải nghiệm chơi và xây dựng UI skeleton không phụ thu�
 
 **Tiêu chí hoàn thành**
 
-- Mock trả về board shape `(9, 9)` và `dtype=np.int8`.
+- Mock trả về board shape `(11, 11)` và `dtype=np.int8`.
 - Click vào ô trống cập nhật được bàn cờ.
 - Click lại ô đã có quân trả về lỗi rõ ràng.
 
@@ -162,7 +164,7 @@ Thiết kế trải nghiệm chơi và xây dựng UI skeleton không phụ thu�
 **Công việc cụ thể**
 
 1. Tạo ứng dụng Streamlit tối thiểu trong `ui/app.py`.
-2. Render bàn 9x9 từ `GameState.board`.
+2. Render bàn 11x11 từ `GameState.board`.
 3. Chuyển click thành action và gọi `env.step(action)`.
 4. Hiển thị người đang đến lượt, số nước đã đi và lỗi action.
 5. Thêm nút `New Game` gọi `reset()`.
@@ -197,7 +199,7 @@ Thiết kế trải nghiệm chơi và xây dựng UI skeleton không phụ thu�
 - Commit đề xuất:
   - `docs(ui): add week-1 game screen wireframe`
   - `feat(ui): add contract-compatible mock environment`
-  - `feat(ui): add interactive 9x9 board skeleton`
+  - `feat(ui): add interactive 11x11 board skeleton`
 
 ---
 
@@ -241,7 +243,7 @@ Xây dựng cấu trúc bàn cờ và thao tác state nền tảng. Tuần 1 ch�
 
 **Công việc cụ thể**
 
-1. Tạo board NumPy `9 x 9`, `dtype=np.int8`.
+1. Tạo board NumPy `11 x 11`, `dtype=np.int8`.
 2. Cài đặt chuyển đổi `action <-> (row, col)`.
 3. Cài đặt kiểm tra action trong biên và ô trống.
 4. Cài thao tác đặt quân nội bộ có kiểm tra hợp lệ.
@@ -265,8 +267,8 @@ Xây dựng cấu trúc bàn cờ và thao tác state nền tảng. Tuần 1 ch�
 
 **Tiêu chí hoàn thành**
 
-- Board mới luôn có 81 ô trống.
-- `action_to_coord()` và `coord_to_action()` đảo ngược chính xác cho toàn bộ 81 ô.
+- Board mới luôn có 121 ô trống.
+- `action_to_coord()` và `coord_to_action()` đảo ngược chính xác cho toàn bộ 121 ô.
 - Action `< 0`, `> 80` và ô đã có quân đều bị từ chối.
 - Trả board ra ngoài không cho phép vô tình sửa state nội bộ.
 
@@ -379,7 +381,7 @@ Sở hữu contract API, fixture và test tích hợp. M3 merge trước để M
 **Tiêu chí hoàn thành**
 
 - `reset()` trả state hợp lệ.
-- Ban đầu `legal_actions()` có đúng 81 action.
+- Ban đầu `legal_actions()` có đúng 121 action.
 - Sau một nước hợp lệ còn 80 action.
 - API không làm lộ biến nội bộ có thể sửa trực tiếp.
 
@@ -478,15 +480,15 @@ Không merge theo thời điểm ai làm xong trước. Merge theo dependency sa
 
 ### Engine
 
-- [ ] Reset tạo board rỗng 9x9.
-- [ ] Có đúng 81 legal actions khi bắt đầu.
+- [ ] Reset tạo board rỗng 11x11.
+- [ ] Có đúng 121 legal actions khi bắt đầu.
 - [ ] Đặt quân hợp lệ làm giảm legal actions còn 80.
 - [ ] Action ngoài biên và ô đã có quân bị từ chối.
 - [ ] Clone không chia sẻ board có thể thay đổi với bản gốc.
 
 ### UI
 
-- [ ] Render đủ 81 ô.
+- [ ] Render đủ 121 ô.
 - [ ] Click được và chuyển đúng sang action.
 - [ ] Hiển thị lượt chơi và lỗi.
 - [ ] Nút New Game hoạt động.

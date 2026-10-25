@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" role="img" aria-labelledby="title desc">
+  <title id="title">Nghiệm tô màu hợp lệ bằng Backtracking kết hợp MRV và LCV</title>
+  <desc id="desc">Đồ thị Delaunay 10 đỉnh được tô bằng bốn màu sao cho mọi đỉnh kề nhau khác màu.</desc>
+  <rect width="760" height="520" rx="18" fill="#f8fafc"/>
+  <text x="380" y="36" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#172033">Nghiệm 4 màu - Backtracking + MRV + LCV</text>
+  <rect x="35" y="55" width="690" height="425" rx="12" fill="#ffffff" stroke="#d8dee9"/>
+
+  <g stroke="#98a2b3" stroke-width="2.2" stroke-linecap="round">
+    <line x1="70" y1="200.8" x2="104" y2="90"/><line x1="70" y1="200.8" x2="121" y2="450"/>
+    <line x1="70" y1="200.8" x2="205.9" y2="385.4"/><line x1="70" y1="200.8" x2="239.9" y2="233.1"/>
+    <line x1="104" y1="90" x2="239.9" y2="233.1"/><line x1="104" y1="90" x2="358.8" y2="136.2"/>
+    <line x1="121" y1="450" x2="171.9" y2="436.2"/><line x1="121" y1="450" x2="205.9" y2="385.4"/>
+    <line x1="121" y1="450" x2="690" y2="431.5"/><line x1="171.9" y1="436.2" x2="205.9" y2="385.4"/>
+    <line x1="171.9" y1="436.2" x2="690" y2="431.5"/><line x1="205.9" y1="385.4" x2="239.9" y2="233.1"/>
+    <line x1="205.9" y1="385.4" x2="290.8" y2="246.9"/><line x1="205.9" y1="385.4" x2="520.1" y2="251.5"/>
+    <line x1="205.9" y1="385.4" x2="690" y2="431.5"/><line x1="239.9" y1="233.1" x2="290.8" y2="246.9"/>
+    <line x1="239.9" y1="233.1" x2="358.8" y2="136.2"/><line x1="290.8" y1="246.9" x2="358.8" y2="136.2"/>
+    <line x1="290.8" y1="246.9" x2="520.1" y2="251.5"/><line x1="358.8" y1="136.2" x2="520.1" y2="251.5"/>
+    <line x1="520.1" y1="251.5" x2="690" y2="431.5"/>
+  </g>
+
+  <g stroke="#344054" stroke-width="2">
+    <circle cx="70" cy="200.8" r="15" fill="#e63946"/><circle cx="104" cy="90" r="15" fill="#277da1"/>
+    <circle cx="121" cy="450" r="15" fill="#277da1"/><circle cx="171.9" cy="436.2" r="15" fill="#e63946"/>
+    <circle cx="205.9" cy="385.4" r="15" fill="#43aa8b"/><circle cx="239.9" cy="233.1" r="15" fill="#f8961e"/>
+    <circle cx="290.8" cy="246.9" r="15" fill="#e63946"/><circle cx="358.8" cy="136.2" r="15" fill="#43aa8b"/>
+    <circle cx="520.1" cy="251.5" r="15" fill="#277da1"/><circle cx="690" cy="431.5" r="15" fill="#f8961e"/>
+  </g>
+  <g fill="#ffffff" font-family="Arial, sans-serif" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="central">
+    <text x="70" y="200.8">0</text><text x="104" y="90">1</text><text x="121" y="450">2</text>
+    <text x="171.9" y="436.2">3</text><text x="205.9" y="385.4">4</text><text x="239.9" y="233.1">5</text>
+    <text x="290.8" y="246.9">6</text><text x="358.8" y="136.2">7</text><text x="520.1" y="251.5">8</text>
+    <text x="690" y="431.5">9</text>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="12" fill="#475467">
+    <circle cx="145" cy="500" r="7" fill="#e63946"/><text x="160" y="504">red</text>
+    <circle cx="230" cy="500" r="7" fill="#277da1"/><text x="245" y="504">blue</text>
+    <circle cx="325" cy="500" r="7" fill="#43aa8b"/><text x="340" y="504">green</text>
+    <circle cx="430" cy="500" r="7" fill="#f8961e"/><text x="445" y="504">orange</text>
+    <text x="690" y="504" text-anchor="end">complete = True, consistent = True</text>
+  </g>
+</svg>

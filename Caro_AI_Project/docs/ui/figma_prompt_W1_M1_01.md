@@ -1,5 +1,7 @@
 # Prompt cho AI Agent Figma — Thiết kế giao diện Game Caro (Streamlit)
 
+> **Cập nhật phạm vi:** Giao diện hiện tại chỉ phát triển và kiểm thử bàn 11x11 (121 ô), nhưng tiếp tục render theo `board_size` để mở rộng sau. 9x9 tạm ngưng.
+
 > Task: **W1-M1-01 — Thiết kế luồng màn hình** cho ứng dụng chơi cờ Caro AI, xây dựng bằng **Streamlit (Python)**
 
 ---
@@ -13,7 +15,7 @@ Thiết kế wireframe + UI hoàn chỉnh cho **một ứng dụng web chơi c�
 ## 📐 Thông số kỹ thuật bắt buộc
 
 ### Bàn cờ
-- **Kích thước mặc định:** 9×9 (81 ô) — có thể mở rộng lên 11×11 trong tương lai
+- **Kích thước mặc định và phạm vi hiện tại:** 11×11 (121 ô); 9×9 tạm ngưng
 - **Giá trị mỗi ô:** `0 = Trống`, `1 = X (người đi trước)`, `-1 = O (người đi sau)`
 - **Encoding action:** Mỗi click vào ô `(row, col)` sẽ được chuyển thành action số nguyên: `action = row * board_size + col`
 - **Luật thắng:** 5 quân liên tiếp (ngang, dọc, chéo) + luật chặn 2 đầu
@@ -48,7 +50,7 @@ Thiết kế **một màn hình chính duy nhất (Single Page App)** theo layou
 │  │    • MCTS                         │                  │
 │  │    • Neural Network               │                  │
 │  │                                   │                  │
-│  │  Kích thước bàn: [9x9 ▼]         │                  │
+│  │  Kích thước bàn: [11x11]          │                  │
 │  │                                   │                  │
 │  │  [🔄 Ván mới / New Game]         │                  │
 │  │                                   │                  │
@@ -71,15 +73,15 @@ Thiết kế **một màn hình chính duy nhất (Single Page App)** theo layou
 │  │                                               │      │
 │  │   ┌─ STATUS BAR ───────────────────────┐     │      │
 │  │   │  🔵 Lượt của: Player X              │     │      │
-│  │   │  Nước đi: 5/81                      │     │      │
+│  │   │  Nước đi: 5/121                     │     │      │
 │  │   └────────────────────────────────────┘     │      │
 │  │                                               │      │
 │  │   ┌─ ERROR / NOTIFICATION ZONE ────────┐     │      │
 │  │   │  ⚠️ Ô này đã có quân! (toast)      │     │      │
 │  │   └────────────────────────────────────┘     │      │
 │  │                                               │      │
-│  │   ┌─ BÀN CỜ 9×9 ─────────────────────┐     │      │
-│  │   │  Lưới 9 cột × 9 hàng button       │     │      │
+│  │   ┌─ BÀN CỜ 11×11 ────────────────────┐     │      │
+│  │   │  Lưới 11 cột × 11 hàng button     │     │      │
 │  │   │  Mỗi ô là 1 st.button vuông       │     │      │
 │  │   │                                     │     │      │
 │  │   │  [ ][ ][ ][ ][ ][ ][ ][ ][ ]      │     │      │
@@ -113,7 +115,7 @@ Thiết kế **một màn hình chính duy nhất (Single Page App)** theo layou
 | Logo/Tiêu đề | `st.sidebar.title()` | Tên ứng dụng "🎮 CARO AI" |
 | Chế độ chơi | `st.sidebar.selectbox()` | 3 option: Người vs Người, Người vs AI, AI vs AI |
 | Chọn thuật toán AI | `st.sidebar.selectbox()` | Hiện khi chế độ có AI. Danh sách: Random, Heuristic, Minimax, MCTS, Neural Network |
-| Kích thước bàn | `st.sidebar.selectbox()` | Option: 9×9, 11×11 |
+| Kích thước bàn | `st.sidebar.selectbox()` | Chỉ hiển thị 11×11; giữ điểm mở rộng bằng cấu hình |
 | Nút New Game | `st.sidebar.button()` | Reset toàn bộ state, bắt đầu ván mới |
 | Thống kê | `st.sidebar.metric()` | Số ván X thắng, O thắng, Hòa |
 | Lịch sử nước đi | `st.sidebar.expander()` | Danh sách cuộn các nước đã đi: "1. X → (row, col)" |
@@ -128,7 +130,7 @@ Thiết kế **một màn hình chính duy nhất (Single Page App)** theo layou
 
 ### 3. Bàn cờ (Board Grid) — Thành phần chính
 
-- **Render:** Dùng `st.columns(9)` lặp 9 hàng, mỗi cột chứa 1 `st.button()`
+- **Render:** Dùng `st.columns(board_size)` lặp `board_size` hàng, mỗi cột chứa 1 `st.button()`
 - **Mỗi ô (cell) có 5 trạng thái trực quan:**
 
 | Trạng thái | Hiển thị | Màu/Style | Điều kiện |
@@ -140,7 +142,7 @@ Thiết kế **một màn hình chính duy nhất (Single Page App)** theo layou
 | **Game kết thúc** | Giữ nguyên quân | Toàn bộ ô `disabled=True`, opacity giảm | `terminated == True` |
 
 - **Kích thước ô:** Vuông đều, tối thiểu 48×48px, font chữ lớn dễ đọc
-- **Tương tác:** Click vào ô trống → gọi `env.step(action)` với `action = row * 9 + col`
+- **Tương tác:** Click vào ô trống → gọi `env.step((row, col))`
 - **Click vào ô đã có quân:** Không làm gì hoặc hiện toast lỗi
 
 ### 4. Vùng thông báo lỗi (Error/Notification Zone)
@@ -186,25 +188,25 @@ Thiết kế **một màn hình chính duy nhất (Single Page App)** theo layou
 [Sidebar] Nhấn "🔄 Ván mới"
     │
     ▼
-[Main] Bàn cờ 9×9 trống hiện ra
-[Status] "🔵 Lượt của: Player X | Nước đi: 0/81"
+[Main] Bàn cờ 11×11 trống hiện ra
+[Status] "🔵 Lượt của: Player X | Nước đi: 0/121"
     │
     ▼
 [Người chơi X] Click ô (4, 4) ──────────────────┐
     │                                              │
     ▼                                              │
-action = 4 * 9 + 4 = 40                           │
+action = (5, 5)                                  │
 env.step(40)                                       │
     │                                              │
     ▼                                              │
 [Board cập nhật] Ô (4,4) hiện "X" viền vàng       │
-[Status] "🔴 Lượt của: Player O (AI) | Nước đi: 1/81"
+[Status] "🔴 Lượt của: Player O (AI) | Nước đi: 1/121"
 [Sidebar] Lịch sử: "1. X → (4,4)"                 │
     │                                              │
     ▼                                              │
 [AI tự động đi] env.step(ai_action)                │
 [Board cập nhật] Ô AI chọn hiện "O" viền vàng     │
-[Status] "🔵 Lượt của: Player X | Nước đi: 2/81"  │
+[Status] "🔵 Lượt của: Player X | Nước đi: 2/121" │
 [Sidebar] Lịch sử: "2. O → (r, c)"                │
     │                                              │
     ▼                                              │
@@ -298,7 +300,7 @@ InvalidActionError được raise
 
 Tạo các frame sau trong file Figma:
 
-1. **Main Screen — Trạng thái ban đầu:** Bàn cờ trống 9×9, sidebar đầy đủ, status "Lượt X"
+1. **Main Screen — Trạng thái ban đầu:** Bàn cờ trống 11×11, sidebar đầy đủ, status "Lượt X"
 2. **Main Screen — Đang chơi (mid-game):** Có 10+ quân trên bàn, highlight nước vừa đi, lịch sử nước đi trong sidebar
 3. **Main Screen — X thắng:** Banner kết quả, 5 quân thắng highlight, bàn cờ disabled
 4. **Main Screen — Hòa:** Banner hòa, bàn đầy
@@ -323,5 +325,5 @@ Tạo các frame sau trong file Figma:
 - Contract API: `docs/contracts/caro_v1.md`
 - Data types: `core/engine/interfaces.py` — `GameState`, `StepResult`, `Player`, `InvalidActionError`
 - Action encoding: `action = row * board_size + col` (dạng tuple `(row, col)` theo contract v1)
-- Board size: 9×9 (default) hoặc 11×11
+- Board size: 11×11 (duy nhất trong phạm vi hiện tại; 9×9 tạm ngưng)
 - Target framework: **Streamlit** (Python)

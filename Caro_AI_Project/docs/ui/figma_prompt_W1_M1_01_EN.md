@@ -1,5 +1,7 @@
 # Figma AI Agent Prompt — Caro (Gomoku) Game UI Design for Streamlit
 
+> **Scope update:** The current UI develops and tests only the 11×11 (121-cell) board while keeping rendering parameterized by `board_size` for future expansion. 9×9 is deferred.
+
 > **Task:** Design a complete wireframe and UI for a Caro (Gomoku) AI board game web application built with **Streamlit (Python)**. The design must cover the full screen flow including initial state, mid-game, win/draw/error states, and all interactive components.
 
 ---
@@ -15,7 +17,7 @@ Design a **single-page web application** for playing **Caro (Gomoku)** — a two
 ## 📐 Technical Specifications
 
 ### Board
-- **Default size:** 9×9 grid (81 cells) — may scale to 11×11 in the future
+- **Default and current scope:** 11×11 grid (121 cells); 9×9 is deferred
 - **Cell values:** `0 = Empty`, `1 = Player X (goes first)`, `-1 = Player O (goes second)`
 - **Action encoding:** Each cell click at `(row, col)` maps to an integer: `action = row * board_size + col`
 - **Win condition:** 5 consecutive pieces (horizontal, vertical, or diagonal) that are NOT blocked on both ends by the opponent
@@ -50,7 +52,7 @@ Design a **single main screen** following Streamlit's typical sidebar + main con
 │  │    • MCTS                          │                  │
 │  │    • Neural Network                │                  │
 │  │                                    │                  │
-│  │  Board Size: [9x9 ▼]              │                  │
+│  │  Board Size: [11x11]               │                  │
 │  │                                    │                  │
 │  │  [🔄 New Game]                    │                  │
 │  │                                    │                  │
@@ -73,15 +75,15 @@ Design a **single main screen** following Streamlit's typical sidebar + main con
 │  │                                                │      │
 │  │   ┌─ STATUS BAR ────────────────────────┐     │      │
 │  │   │  🔵 Current Turn: Player X           │     │      │
-│  │   │  Moves: 5 / 81                       │     │      │
+│  │   │  Moves: 5 / 121                      │     │      │
 │  │   └─────────────────────────────────────┘     │      │
 │  │                                                │      │
 │  │   ┌─ ERROR / NOTIFICATION ZONE ─────────┐     │      │
 │  │   │  ⚠️ Cell already occupied! (toast)   │     │      │
 │  │   └─────────────────────────────────────┘     │      │
 │  │                                                │      │
-│  │   ┌─ GAME BOARD 9×9 ───────────────────┐     │      │
-│  │   │  9-column × 9-row button grid      │     │      │
+│  │   ┌─ GAME BOARD 11×11 ──────────────────┐     │      │
+│  │   │  11-column × 11-row button grid     │     │      │
 │  │   │  Each cell is one st.button         │     │      │
 │  │   │                                      │     │      │
 │  │   │  [ ][ ][ ][ ][ ][ ][ ][ ][ ]       │     │      │
@@ -115,7 +117,7 @@ Design a **single main screen** following Streamlit's typical sidebar + main con
 | App Title / Logo | `st.sidebar.title()` | Display "🎮 CARO AI" |
 | Game Mode | `st.sidebar.selectbox()` | 3 options: Human vs Human, Human vs AI, AI vs AI |
 | AI Algorithm Selector | `st.sidebar.selectbox()` | Shown only when mode includes AI. Options: Random, Heuristic, Minimax, MCTS, Neural Network |
-| Board Size | `st.sidebar.selectbox()` | Options: 9×9, 11×11 |
+| Board Size | `st.sidebar.selectbox()` | 11×11 only; configuration keeps the extension point |
 | New Game Button | `st.sidebar.button()` | Resets all state, starts a fresh game |
 | Statistics | `st.sidebar.metric()` | Session win/loss/draw counts for X and O |
 | Move History | `st.sidebar.expander()` | Scrollable list: "1. X → (row, col)", "2. O → (row, col)", ... |
@@ -130,7 +132,7 @@ Design a **single main screen** following Streamlit's typical sidebar + main con
 
 ### 3. Game Board (Grid) — Primary Component
 
-- **Rendering:** Use `st.columns(9)` repeated for 9 rows. Each column contains one `st.button()`
+- **Rendering:** Use `st.columns(board_size)` for `board_size` rows. Each column contains one `st.button()`
 - **Each cell has 5 visual states:**
 
 | State | Display | Color / Style | Condition |
@@ -142,7 +144,7 @@ Design a **single main screen** following Streamlit's typical sidebar + main con
 | **Game over** | Keep existing pieces | All cells set to `disabled=True`, reduced opacity | `terminated == True` |
 
 - **Cell size:** Square, minimum 48×48px, large readable font
-- **Interaction:** Click empty cell → call `env.step(action)` where `action = row * 9 + col`
+- **Interaction:** Click empty cell → call `env.step((row, col))`
 - **Click occupied cell:** No action or show error toast
 
 ### 4. Error / Notification Zone
@@ -188,25 +190,25 @@ Design a **single main screen** following Streamlit's typical sidebar + main con
 [Sidebar] Click "🔄 New Game"
     │
     ▼
-[Main] Empty 9×9 board renders
-[Status] "🔵 Current Turn: Player X | Moves: 0/81"
+[Main] Empty 11×11 board renders
+[Status] "🔵 Current Turn: Player X | Moves: 0/121"
     │
     ▼
 [Human Player X] Clicks cell (4, 4) ─────────────────┐
     │                                                   │
     ▼                                                   │
-action = 4 * 9 + 4 = 40                                │
+action = (5, 5)                                       │
 env.step(40)                                            │
     │                                                   │
     ▼                                                   │
 [Board updates] Cell (4,4) shows "X" with yellow border │
-[Status] "🔴 Current Turn: Player O (AI) | Moves: 1/81"│
+[Status] "🔴 Current Turn: Player O (AI) | Moves: 1/121"│
 [Sidebar] History: "1. X → (4,4)"                      │
     │                                                   │
     ▼                                                   │
 [AI auto-plays] env.step(ai_action)                     │
 [Board updates] AI's chosen cell shows "O" highlighted  │
-[Status] "🔵 Current Turn: Player X | Moves: 2/81"     │
+[Status] "🔵 Current Turn: Player X | Moves: 2/121"    │
 [Sidebar] History: "2. O → (r, c)"                     │
     │                                                   │
     ▼                                                   │
@@ -300,7 +302,7 @@ InvalidActionError is raised
 
 Design the following frames/screens in the Figma file:
 
-1. **Main Screen — Initial State:** Empty 9×9 board, full sidebar with all controls, status shows "Player X's turn"
+1. **Main Screen — Initial State:** Empty 11×11 board, full sidebar with all controls, status shows "Player X's turn"
 2. **Main Screen — Mid-Game:** 10+ pieces on board, last move highlighted with yellow/orange border, move history populated in sidebar
 3. **Main Screen — X Wins:** Result banner displayed, 5 winning pieces highlighted, entire board disabled (grayed out)
 4. **Main Screen — Draw:** Draw banner, board completely full, all cells occupied
@@ -326,5 +328,5 @@ Design the following frames/screens in the Figma file:
 - **API Contract:** `docs/contracts/caro_v1.md`
 - **Data Types:** `core/engine/interfaces.py` — `GameState`, `StepResult`, `Player`, `InvalidActionError`
 - **Action Encoding:** Tuple `(row, col)` passed to `env.step()` (per contract v1)
-- **Board Sizes:** 9×9 (default), 11×11 (optional)
+- **Board Sizes:** 11×11 only in the current scope; 9×9 is deferred
 - **Target Framework:** Streamlit (Python)
