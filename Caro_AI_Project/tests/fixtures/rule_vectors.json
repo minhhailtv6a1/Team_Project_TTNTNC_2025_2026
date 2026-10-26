@@ -1,0 +1,581 @@
+{
+  "contract": "caro-v2",
+  "board_size": 11,
+  "win_length": 5,
+  "stone_format": "[row, col, player] với X=1, O=-1; board đặt trực tiếp (không cần xen kẽ lượt)",
+  "expected_winner": "1 (X) | -1 (O) | null (chưa có người thắng, gồm cả hòa)",
+  "test_cases": [
+    {
+      "id": "W2_WIN_H_X",
+      "group": "WIN",
+      "description": "X thắng ngang, hai đầu trống",
+      "direction": "ngang",
+      "pattern": ".XXXXX.",
+      "stones": [[5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_WIN_H_O",
+      "group": "WIN",
+      "description": "O thắng ngang, hai đầu trống",
+      "direction": "ngang",
+      "pattern": ".OOOOO.",
+      "stones": [[5, 3, -1], [5, 4, -1], [5, 5, -1], [5, 6, -1], [5, 7, -1]],
+      "expected_winner": -1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_WIN_V_X",
+      "group": "WIN",
+      "description": "X thắng dọc, hai đầu trống",
+      "direction": "dọc",
+      "pattern": ".XXXXX.",
+      "stones": [[3, 5, 1], [4, 5, 1], [5, 5, 1], [6, 5, 1], [7, 5, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_WIN_V_O",
+      "group": "WIN",
+      "description": "O thắng dọc, hai đầu trống",
+      "direction": "dọc",
+      "pattern": ".OOOOO.",
+      "stones": [[3, 5, -1], [4, 5, -1], [5, 5, -1], [6, 5, -1], [7, 5, -1]],
+      "expected_winner": -1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_WIN_D_X",
+      "group": "WIN",
+      "description": "X thắng chéo chính, hai đầu trống",
+      "direction": "chéo chính",
+      "pattern": ".XXXXX.",
+      "stones": [[3, 3, 1], [4, 4, 1], [5, 5, 1], [6, 6, 1], [7, 7, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_WIN_D_O",
+      "group": "WIN",
+      "description": "O thắng chéo chính, hai đầu trống",
+      "direction": "chéo chính",
+      "pattern": ".OOOOO.",
+      "stones": [[3, 3, -1], [4, 4, -1], [5, 5, -1], [6, 6, -1], [7, 7, -1]],
+      "expected_winner": -1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_WIN_A_X",
+      "group": "WIN",
+      "description": "X thắng chéo phụ, hai đầu trống",
+      "direction": "chéo phụ",
+      "pattern": ".XXXXX.",
+      "stones": [[3, 7, 1], [4, 6, 1], [5, 5, 1], [6, 4, 1], [7, 3, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_WIN_A_O",
+      "group": "WIN",
+      "description": "O thắng chéo phụ, hai đầu trống",
+      "direction": "chéo phụ",
+      "pattern": ".OOOOO.",
+      "stones": [[3, 7, -1], [4, 6, -1], [5, 5, -1], [6, 4, -1], [7, 3, -1]],
+      "expected_winner": -1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_LEFT_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 ngang chạm biên LEFT, đầu kia trống -> thắng",
+      "direction": "ngang",
+      "pattern": "XXXXX.",
+      "stones": [[4, 0, 1], [4, 1, 1], [4, 2, 1], [4, 3, 1], [4, 4, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_LEFT_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 ngang chạm biên LEFT, đầu kia bị O chặn -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "XXXXXO",
+      "stones": [[4, 0, 1], [4, 1, 1], [4, 2, 1], [4, 3, 1], [4, 4, 1], [4, 5, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_RIGHT_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 ngang chạm biên RIGHT, đầu kia trống -> thắng",
+      "direction": "ngang",
+      "pattern": ".XXXXX",
+      "stones": [[4, 6, 1], [4, 7, 1], [4, 8, 1], [4, 9, 1], [4, 10, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_RIGHT_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 ngang chạm biên RIGHT, đầu kia bị O chặn -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "OXXXXX",
+      "stones": [[4, 5, -1], [4, 6, 1], [4, 7, 1], [4, 8, 1], [4, 9, 1], [4, 10, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_TOP_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 dọc chạm biên TOP, đầu kia trống -> thắng",
+      "direction": "dọc",
+      "pattern": "XXXXX.",
+      "stones": [[0, 3, 1], [1, 3, 1], [2, 3, 1], [3, 3, 1], [4, 3, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_TOP_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 dọc chạm biên TOP, đầu kia bị O chặn -> chưa thắng",
+      "direction": "dọc",
+      "pattern": "XXXXXO",
+      "stones": [[0, 3, 1], [1, 3, 1], [2, 3, 1], [3, 3, 1], [4, 3, 1], [5, 3, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_BOTTOM_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 dọc chạm biên BOTTOM, đầu kia trống -> thắng",
+      "direction": "dọc",
+      "pattern": ".XXXXX",
+      "stones": [[6, 3, 1], [7, 3, 1], [8, 3, 1], [9, 3, 1], [10, 3, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_BOTTOM_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 dọc chạm biên BOTTOM, đầu kia bị O chặn -> chưa thắng",
+      "direction": "dọc",
+      "pattern": "OXXXXX",
+      "stones": [[5, 3, -1], [6, 3, 1], [7, 3, 1], [8, 3, 1], [9, 3, 1], [10, 3, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_CORNER_TL_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo chính chạm biên CORNER_TL, đầu kia trống -> thắng",
+      "direction": "chéo chính",
+      "pattern": "XXXXX.",
+      "stones": [[0, 0, 1], [1, 1, 1], [2, 2, 1], [3, 3, 1], [4, 4, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_CORNER_TL_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo chính chạm biên CORNER_TL, đầu kia bị O chặn -> chưa thắng",
+      "direction": "chéo chính",
+      "pattern": "XXXXXO",
+      "stones": [[0, 0, 1], [1, 1, 1], [2, 2, 1], [3, 3, 1], [4, 4, 1], [5, 5, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_CORNER_BR_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo chính chạm biên CORNER_BR, đầu kia trống -> thắng",
+      "direction": "chéo chính",
+      "pattern": ".XXXXX",
+      "stones": [[6, 6, 1], [7, 7, 1], [8, 8, 1], [9, 9, 1], [10, 10, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_CORNER_BR_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo chính chạm biên CORNER_BR, đầu kia bị O chặn -> chưa thắng",
+      "direction": "chéo chính",
+      "pattern": "OXXXXX",
+      "stones": [[5, 5, -1], [6, 6, 1], [7, 7, 1], [8, 8, 1], [9, 9, 1], [10, 10, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_CORNER_TR_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo phụ chạm biên CORNER_TR, đầu kia trống -> thắng",
+      "direction": "chéo phụ",
+      "pattern": "XXXXX.",
+      "stones": [[0, 10, 1], [1, 9, 1], [2, 8, 1], [3, 7, 1], [4, 6, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_CORNER_TR_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo phụ chạm biên CORNER_TR, đầu kia bị O chặn -> chưa thắng",
+      "direction": "chéo phụ",
+      "pattern": "XXXXXO",
+      "stones": [[0, 10, 1], [1, 9, 1], [2, 8, 1], [3, 7, 1], [4, 6, 1], [5, 5, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_CORNER_BL_OPEN",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo phụ chạm biên CORNER_BL, đầu kia trống -> thắng",
+      "direction": "chéo phụ",
+      "pattern": ".XXXXX",
+      "stones": [[6, 4, 1], [7, 3, 1], [8, 2, 1], [9, 1, 1], [10, 0, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_EDGE_CORNER_BL_BLOCKED",
+      "group": "EDGE",
+      "description": "Chuỗi 5 chéo phụ chạm biên CORNER_BL, đầu kia bị O chặn -> chưa thắng",
+      "direction": "chéo phụ",
+      "pattern": "OXXXXX",
+      "stones": [[5, 5, -1], [6, 4, 1], [7, 3, 1], [8, 2, 1], [9, 1, 1], [10, 0, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_EDGE_FULLROW_11",
+      "group": "EDGE",
+      "description": "Cả hàng 11 quân X: biên chặn cả 2 đầu -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "XXXXXXXXXXX",
+      "stones": [[0, 0, 1], [0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 4, 1], [0, 5, 1], [0, 6, 1], [0, 7, 1], [0, 8, 1], [0, 9, 1], [0, 10, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_BLOCK_NONE",
+      "group": "BLOCK",
+      "description": "Không bị chặn",
+      "direction": "ngang",
+      "pattern": ".XXXXX.",
+      "stones": [[5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_BLOCK_LEFT_O",
+      "group": "BLOCK",
+      "description": "Bị O chặn đầu trái, đầu phải trống -> thắng",
+      "direction": "ngang",
+      "pattern": "OXXXXX.",
+      "stones": [[5, 1, -1], [5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_BLOCK_RIGHT_O",
+      "group": "BLOCK",
+      "description": "Bị O chặn đầu phải, đầu trái trống -> thắng",
+      "direction": "ngang",
+      "pattern": ".XXXXXO",
+      "stones": [[5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, -1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_BLOCK_BOTH_H",
+      "group": "BLOCK",
+      "description": "Bị O chặn cả 2 đầu (ngang) -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "OXXXXXO",
+      "stones": [[5, 1, -1], [5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_BLOCK_BOTH_V",
+      "group": "BLOCK",
+      "description": "Bị O chặn cả 2 đầu (dọc) -> chưa thắng",
+      "direction": "dọc",
+      "pattern": "OXXXXXO",
+      "stones": [[1, 5, -1], [2, 5, 1], [3, 5, 1], [4, 5, 1], [5, 5, 1], [6, 5, 1], [7, 5, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_BLOCK_BOTH_D",
+      "group": "BLOCK",
+      "description": "Bị O chặn cả 2 đầu (chéo chính) -> chưa thắng",
+      "direction": "chéo chính",
+      "pattern": "OXXXXXO",
+      "stones": [[1, 1, -1], [2, 2, 1], [3, 3, 1], [4, 4, 1], [5, 5, 1], [6, 6, 1], [7, 7, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_BLOCK_BOTH_A",
+      "group": "BLOCK",
+      "description": "Bị O chặn cả 2 đầu (chéo phụ) -> chưa thắng",
+      "direction": "chéo phụ",
+      "pattern": "OXXXXXO",
+      "stones": [[1, 8, -1], [2, 7, 1], [3, 6, 1], [4, 5, 1], [5, 4, 1], [6, 3, 1], [7, 2, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_BLOCK_BOTH_O_PLAYER",
+      "group": "BLOCK",
+      "description": "O bị X chặn cả 2 đầu -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "XOOOOOX",
+      "stones": [[5, 1, 1], [5, 2, -1], [5, 3, -1], [5, 4, -1], [5, 5, -1], [5, 6, -1], [5, 7, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_OVERLINE_6_OPEN",
+      "group": "OVERLINE",
+      "description": "6 quân, hai đầu trống -> thắng",
+      "direction": "ngang",
+      "pattern": ".XXXXXX.",
+      "stones": [[5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_OVERLINE_7_OPEN",
+      "group": "OVERLINE",
+      "description": "7 quân, hai đầu trống -> thắng",
+      "direction": "ngang",
+      "pattern": ".XXXXXXX.",
+      "stones": [[5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, 1], [5, 8, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_OVERLINE_6_ONE_END",
+      "group": "OVERLINE",
+      "description": "6 quân, một đầu bị chặn -> thắng",
+      "direction": "ngang",
+      "pattern": "OXXXXXX.",
+      "stones": [[5, 1, -1], [5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_OVERLINE_6_BOTH",
+      "group": "OVERLINE",
+      "description": "6 quân bị chặn cả 2 đầu -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "OXXXXXXO",
+      "stones": [[5, 1, -1], [5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, 1], [5, 8, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_OVERLINE_7_BOTH",
+      "group": "OVERLINE",
+      "description": "7 quân bị chặn cả 2 đầu -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "OXXXXXXXO",
+      "stones": [[5, 0, -1], [5, 1, 1], [5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, 1], [5, 7, 1], [5, 8, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_OVERLINE_6_EDGE_O",
+      "group": "OVERLINE",
+      "description": "6 quân: biên + O chặn -> chưa thắng",
+      "direction": "ngang",
+      "pattern": "XXXXXXO",
+      "stones": [[5, 0, 1], [5, 1, 1], [5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1], [5, 6, -1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_OVERLINE_6_DIAG",
+      "group": "OVERLINE",
+      "description": "6 quân chéo chính, hai đầu trống -> thắng",
+      "direction": "chéo chính",
+      "pattern": ".XXXXXX.",
+      "stones": [[2, 2, 1], [3, 3, 1], [4, 4, 1], [5, 5, 1], [6, 6, 1], [7, 7, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_SHORT_4_OPEN",
+      "group": "SHORT",
+      "description": "Chỉ 4 quân, trống 2 đầu",
+      "direction": "ngang",
+      "pattern": ".XXXX.",
+      "stones": [[5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_SHORT_4_ONE_END",
+      "group": "SHORT",
+      "description": "Chỉ 4 quân, một đầu bị chặn",
+      "direction": "ngang",
+      "pattern": "OXXXX.",
+      "stones": [[5, 1, -1], [5, 2, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_4_GAP_1",
+      "group": "FAKE",
+      "description": "4 quân + 1 quân cách 1 ô (tổng 5, không liên tiếp)",
+      "direction": "ngang",
+      "pattern": "XXXX.X",
+      "stones": [[5, 0, 1], [5, 1, 1], [5, 2, 1], [5, 3, 1], [5, 5, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_3_GAP_2",
+      "group": "FAKE",
+      "description": "3 quân + 2 quân cách 1 ô",
+      "direction": "ngang",
+      "pattern": "XXX.XX",
+      "stones": [[5, 0, 1], [5, 1, 1], [5, 2, 1], [5, 4, 1], [5, 5, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_2_GAP_3",
+      "group": "FAKE",
+      "description": "2 + 3 quân cách 1 ô",
+      "direction": "ngang",
+      "pattern": "XX.XXX",
+      "stones": [[5, 0, 1], [5, 1, 1], [5, 3, 1], [5, 4, 1], [5, 5, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_SPLIT_BY_O",
+      "group": "FAKE",
+      "description": "4 X | O | 4 X: O chen giữa, không có chuỗi 5",
+      "direction": "ngang",
+      "pattern": "XXXXOXXXX",
+      "stones": [[5, 0, 1], [5, 1, 1], [5, 2, 1], [5, 3, 1], [5, 4, -1], [5, 5, 1], [5, 6, 1], [5, 7, 1], [5, 8, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_SPLIT_BY_O_5_1",
+      "group": "FAKE",
+      "description": "4 X, O, 1 X: không thắng",
+      "direction": "ngang",
+      "pattern": "XXXXOX",
+      "stones": [[5, 0, 1], [5, 1, 1], [5, 2, 1], [5, 3, 1], [5, 4, -1], [5, 5, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_SPLIT_DIAG",
+      "group": "FAKE",
+      "description": "Chéo chính 3 + 2 cách 1 ô",
+      "direction": "chéo chính",
+      "pattern": "XXX.XX",
+      "stones": [[1, 1, 1], [2, 2, 1], [3, 3, 1], [5, 5, 1], [6, 6, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_SPLIT_ANTI",
+      "group": "FAKE",
+      "description": "Chéo phụ 2 + 3 cách 1 ô",
+      "direction": "chéo phụ",
+      "pattern": "XX.XXX",
+      "stones": [[1, 9, 1], [2, 8, 1], [4, 6, 1], [5, 5, 1], [6, 4, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_L_SHAPE",
+      "group": "FAKE",
+      "description": "5 quân X hình chữ L (3 ngang + 3 dọc chung góc) không thẳng hàng",
+      "direction": "-",
+      "pattern": "-",
+      "stones": [[5, 5, 1], [5, 6, 1], [5, 7, 1], [6, 5, 1], [7, 5, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_PLUS",
+      "group": "FAKE",
+      "description": "5 quân X hình dấu cộng",
+      "direction": "-",
+      "pattern": "-",
+      "stones": [[5, 5, 1], [4, 5, 1], [6, 5, 1], [5, 4, 1], [5, 6, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_FAKE_KNIGHT_ZIGZAG",
+      "group": "FAKE",
+      "description": "5 quân X zig-zag",
+      "direction": "-",
+      "pattern": "-",
+      "stones": [[2, 2, 1], [3, 3, 1], [3, 4, 1], [4, 5, 1], [4, 6, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_MULTI_BLOCKED_X_OPEN_O",
+      "group": "MULTI",
+      "description": "X năm quân bị chặn 2 đầu (không thắng); O năm quân mở ở hàng khác -> O thắng",
+      "direction": "-",
+      "pattern": "-",
+      "stones": [[1, 0, -1], [1, 1, 1], [1, 2, 1], [1, 3, 1], [1, 4, 1], [1, 5, 1], [1, 6, -1], [8, 2, -1], [8, 3, -1], [8, 4, -1], [8, 5, -1], [8, 6, -1]],
+      "expected_winner": -1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_MULTI_X_OPEN_O_BLOCKED",
+      "group": "MULTI",
+      "description": "X năm quân mở -> X thắng dù O có chuỗi bị chặn",
+      "direction": "-",
+      "pattern": "-",
+      "stones": [[1, 0, 1], [1, 1, -1], [1, 2, -1], [1, 3, -1], [1, 4, -1], [1, 5, -1], [1, 6, 1], [8, 2, 1], [8, 3, 1], [8, 4, 1], [8, 5, 1], [8, 6, 1]],
+      "expected_winner": 1,
+      "expected_terminated": true
+    },
+    {
+      "id": "W2_MULTI_NONE",
+      "group": "MULTI",
+      "description": "Nhiều chuỗi 4 ở các hướng, không chuỗi nào đủ 5",
+      "direction": "-",
+      "pattern": "-",
+      "stones": [[0, 0, 1], [0, 1, 1], [0, 2, 1], [0, 3, 1], [0, 10, -1], [1, 10, -1], [2, 10, -1], [3, 10, -1], [5, 5, 1], [6, 6, 1], [7, 7, 1], [8, 8, 1]],
+      "expected_winner": null,
+      "expected_terminated": false
+    },
+    {
+      "id": "W2_DRAW_FULL_BOARD",
+      "group": "DRAW",
+      "description": "Bàn đầy 121 ô (61 X / 60 O), không chuỗi 5 -> hòa (winner=null, terminated=true)",
+      "direction": "-",
+      "pattern": "-",
+      "stones": [
+        [0, 0, 1], [0, 1, -1], [0, 2, 1], [0, 3, -1], [0, 4, 1], [0, 5, -1], [0, 6, 1], [0, 7, -1], [0, 8, 1], [0, 9, -1], [0, 10, 1],
+        [1, 0, 1], [1, 1, -1], [1, 2, 1], [1, 3, -1], [1, 4, 1], [1, 5, -1], [1, 6, 1], [1, 7, -1], [1, 8, 1], [1, 9, -1], [1, 10, 1],
+        [2, 0, -1], [2, 1, 1], [2, 2, -1], [2, 3, 1], [2, 4, -1], [2, 5, 1], [2, 6, -1], [2, 7, 1], [2, 8, -1], [2, 9, 1], [2, 10, -1],
+        [3, 0, -1], [3, 1, 1], [3, 2, -1], [3, 3, 1], [3, 4, -1], [3, 5, 1], [3, 6, -1], [3, 7, 1], [3, 8, -1], [3, 9, 1], [3, 10, -1],
+        [4, 0, 1], [4, 1, -1], [4, 2, 1], [4, 3, -1], [4, 4, 1], [4, 5, -1], [4, 6, 1], [4, 7, -1], [4, 8, 1], [4, 9, -1], [4, 10, 1],
+        [5, 0, 1], [5, 1, -1], [5, 2, 1], [5, 3, -1], [5, 4, 1], [5, 5, -1], [5, 6, 1], [5, 7, -1], [5, 8, 1], [5, 9, -1], [5, 10, 1],
+        [6, 0, -1], [6, 1, 1], [6, 2, -1], [6, 3, 1], [6, 4, -1], [6, 5, 1], [6, 6, -1], [6, 7, 1], [6, 8, -1], [6, 9, 1], [6, 10, -1],
+        [7, 0, -1], [7, 1, 1], [7, 2, -1], [7, 3, 1], [7, 4, -1], [7, 5, 1], [7, 6, -1], [7, 7, 1], [7, 8, -1], [7, 9, 1], [7, 10, -1],
+        [8, 0, 1], [8, 1, -1], [8, 2, 1], [8, 3, -1], [8, 4, 1], [8, 5, -1], [8, 6, 1], [8, 7, -1], [8, 8, 1], [8, 9, -1], [8, 10, 1],
+        [9, 0, 1], [9, 1, -1], [9, 2, 1], [9, 3, -1], [9, 4, 1], [9, 5, -1], [9, 6, 1], [9, 7, -1], [9, 8, 1], [9, 9, -1], [9, 10, 1],
+        [10, 0, -1], [10, 1, 1], [10, 2, -1], [10, 3, 1], [10, 4, -1], [10, 5, 1], [10, 6, -1], [10, 7, 1], [10, 8, -1], [10, 9, 1], [10, 10, -1]
+      ],
+      "expected_winner": null,
+      "expected_terminated": true
+    }
+  ]
+}
