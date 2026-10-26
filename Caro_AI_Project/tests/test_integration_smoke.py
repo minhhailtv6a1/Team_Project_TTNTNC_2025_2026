@@ -21,7 +21,7 @@ from core.engine.interfaces import (
     Player,
     UndoError,
 )
-from tests.helpers_contract import (
+from helpers.helpers_contract import (
     check_record_invariants,
     check_state_invariants,
     record_from_json,
