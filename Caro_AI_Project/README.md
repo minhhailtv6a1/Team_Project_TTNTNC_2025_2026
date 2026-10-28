@@ -89,5 +89,6 @@ Sau đó truy cập `http://localhost:8502`.
   triển và kiểm thử.
 - 9x9 đang tạm ngưng. Kiến trúc vẫn đọc `board_size` từ `GameConfig` để có thể
   mở rộng trong tương lai.
+- Chế độ Human vs Human chạy trực tiếp với `CaroEnv` theo contract `caro-v2`.
 - Các lựa chọn AI đã có trên UI nhưng chưa kết nối với agent.
 - UI đọc `GameState` và gọi API của môi trường, không tự xử lý logic thắng thua.

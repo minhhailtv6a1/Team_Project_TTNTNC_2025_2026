@@ -1,18 +1,19 @@
-"""Smoke and contract tests for Hải's W1-M1-02 mock environment."""
+"""Isolated tests for the caro-v2-compatible mock environment."""
 
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
-from core.engine.interfaces import GameConfig, InvalidActionError, Player
+from core.engine.interfaces import GameEnv, InvalidActionError, Player, UndoError
 from ui.mock_game_env import MockGameEnv
 
 
 def test_default_mock_is_an_11x11_int8_board() -> None:
     env = MockGameEnv()
-    state = env.reset()
+    state = env.reset(seed=42)
 
+    assert isinstance(env, GameEnv)
     assert env.board_array.shape == (11, 11)
     assert env.board_array.dtype == np.int8
     assert len(state.board) == 11
@@ -120,8 +121,22 @@ def test_full_board_is_reported_as_draw_without_win_logic() -> None:
     assert result.reward == 0.0
     assert env.is_terminal() is True
     assert env.legal_actions() == []
-    assert env.result() == result
+    assert env.result(Player.X) == 0.0
 
     with pytest.raises(InvalidActionError, match="already finished"):
         env.step((0, 0))
+
+
+def test_mock_undo_restores_caro_v2_metadata() -> None:
+    env = MockGameEnv()
+    initial = env.state
+
+    env.step((4, 4))
+    restored = env.undo()
+
+    assert restored == initial
+    assert env.state == initial
+
+    with pytest.raises(UndoError):
+        env.undo()
 
