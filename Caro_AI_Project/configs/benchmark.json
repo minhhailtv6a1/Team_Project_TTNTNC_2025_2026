@@ -1,0 +1,148 @@
+{
+  "contract_version": "caro-v2",
+  "sprint": "w34",
+  "game_config": {
+    "board_size": 11,
+    "win_length": 5
+  },
+  "seeds": [11, 22, 33],
+  "profiles": {
+    "FAST": {
+      "description": "UI/demo và smoke nhanh",
+      "budgets": [{ "label": "fast-100ms", "time_limit_ms": 100 }]
+    },
+    "FAIR": {
+      "description": "So sánh chính ban đầu",
+      "budgets": [{ "label": "fair-500ms", "time_limit_ms": 500 }]
+    },
+    "MCTS-S": {
+      "description": "Sensitivity MCTS theo số simulations",
+      "budgets": [
+        { "label": "sims-100", "simulations": 100 },
+        { "label": "sims-400", "simulations": 400 },
+        { "label": "sims-1000", "simulations": 1000 }
+      ]
+    },
+    "AB-D": {
+      "description": "Sensitivity Alpha-Beta theo độ sâu",
+      "budgets": [
+        { "label": "depth-2", "max_depth": 2 },
+        { "label": "depth-3", "max_depth": 3 },
+        { "label": "depth-4", "max_depth": 4 }
+      ]
+    }
+  },
+  "budget_semantics": {
+    "precedence": "stop_at_first_limit_reached",
+    "time_limit_ms": "Wall-clock cho một lần choose_action",
+    "max_depth": "Độ sâu tối đa của Minimax/Alpha-Beta",
+    "max_nodes": "Số node tối đa được mở rộng",
+    "simulations": "Số rollout hoàn tất tối đa của MCTS",
+    "seed": "Seed cục bộ, không gọi random.seed() ở global scope"
+  },
+  "budget_enforcer": {
+    "tolerance_ms": 50,
+    "mode": "record",
+    "fail_fast_in_tests": true
+  },
+  "agents": {
+    "random": {
+      "factory": "core.agents.random_ai:RandomAgent",
+      "profiles": ["FAST"]
+    },
+    "heuristic": {
+      "factory": "core.agents.heuristic_ai:HeuristicAgent",
+      "profiles": ["FAST"]
+    },
+    "minimax": {
+      "factory": "core.agents.minimax_ai:MinimaxAgent",
+      "options": { "alpha_beta": true },
+      "profiles": ["AB-D"]
+    },
+    "mcts": {
+      "factory": "core.agents.mcts_ai:MCTSAgent",
+      "profiles": ["MCTS-S"]
+    }
+  },
+  "scenarios": [
+    {
+      "id": "opening_empty",
+      "description": "Bàn trống, X đi trước, branching lớn nhất",
+      "actions": [],
+      "expect": { "to_move": 1 }
+    },
+    {
+      "id": "opening_two_plies",
+      "description": "Hai nước đầu ở giữa bàn, X đi tiếp",
+      "actions": [
+        [5, 5],
+        [5, 6]
+      ],
+      "expect": { "to_move": 1 }
+    },
+    {
+      "id": "tactical_win_in_one",
+      "description": "X có bốn quân liền hàng 5, hai đầu trống; X đi và thắng ngay tại [5,3] hoặc [5,8]",
+      "actions": [
+        [5, 4],
+        [0, 0],
+        [5, 5],
+        [0, 2],
+        [5, 6],
+        [0, 4],
+        [5, 7],
+        [10, 10]
+      ],
+      "expect": {
+        "to_move": 1,
+        "winning_actions": [
+          [5, 3],
+          [5, 8]
+        ]
+      }
+    },
+    {
+      "id": "tactical_block_in_one",
+      "description": "X có thế X X _ X X ở hàng 5 (ô thiếu là [5,5], hai đầu trống); O phải chặn đúng [5,5]",
+      "actions": [
+        [5, 3],
+        [0, 0],
+        [5, 4],
+        [0, 2],
+        [5, 6],
+        [0, 4],
+        [5, 7]
+      ],
+      "expect": { "to_move": -1, "forced_actions": [[5, 5]] }
+    },
+    {
+      "id": "midgame_mixed",
+      "description": "Nhiều candidate, chưa có nước thắng ngay, X đi tiếp",
+      "actions": [
+        [5, 5],
+        [4, 4],
+        [5, 6],
+        [6, 6],
+        [3, 3],
+        [7, 7]
+      ],
+      "expect": { "to_move": 1 }
+    }
+  ],
+  "smoke_tournament": {
+    "games_per_pair": 4,
+    "swap_sides": true,
+    "profile": "FAST",
+    "pairs": "all",
+    "log_dir": "artifacts/w34_smoke",
+    "log_format": "jsonl",
+    "encoding": "utf-8"
+  },
+  "report": {
+    "include_hardware": true,
+    "include_seeds": true,
+    "include_profile": true,
+    "include_game_count": true,
+    "include_log_paths": true
+  }
+}
