@@ -1,7 +1,7 @@
-"""Figma-aligned Streamlit UI for W1-M1-03.
+"""Streamlit UI backed by the real ``caro-v2`` game environment.
 
-Run from the project root with ``streamlit run ui/app.py``. The view talks
-only to the ``caro-v1`` environment contract; week 1 uses ``MockGameEnv``.
+Run from the project root with ``streamlit run ui/app.py``.  This module only
+uses public ``GameEnv`` data and delegates all game rules to ``CaroEnv``.
 """
 
 from __future__ import annotations
@@ -20,18 +20,20 @@ if str(PROJECT_ROOT) not in sys.path:
 from core.engine.interfaces import (
     DEFAULT_BOARD_SIZE,
     SUPPORTED_BOARD_SIZES,
+    GameEnv,
     GameConfig,
     InvalidActionError,
     Player,
     StepResult,
 )
-from ui.mock_game_env import MockGameEnv
+from core.engine.game_env import CaroEnv
+from ui.human_controller import submit_human_action
 
 
 # The selector intentionally exposes only the active 11x11 module. Adding a
 # future board size only requires extending SUPPORTED_BOARD_SIZES centrally.
 BOARD_SIZES = SUPPORTED_BOARD_SIZES
-GAME_MODES = ("Human vs AI", "Human vs Human", "AI vs AI")
+GAME_MODES = ("Human vs Human", "Human vs AI", "AI vs AI")
 AI_ALGORITHMS = (
     "Random",
     "Heuristic",
@@ -46,17 +48,16 @@ def _new_stats() -> dict[str, int]:
 
 
 def _start_new_game(board_size: int | None = None) -> None:
-    """Create a clean environment while keeping session statistics."""
+    """Reset the public environment while keeping session statistics."""
 
     size = int(board_size or st.session_state.get("board_size", DEFAULT_BOARD_SIZE))
-    current_env: MockGameEnv | None = st.session_state.get("env")
+    current_env: GameEnv | None = st.session_state.get("env")
     if current_env is not None and current_env.config.board_size == size:
         current_env.reset()
         st.session_state.env = current_env
     else:
-        st.session_state.env = MockGameEnv(GameConfig(board_size=size))
+        st.session_state.env = CaroEnv(GameConfig(board_size=size))
     st.session_state.move_history = []
-    st.session_state.last_result = None
     st.session_state.error_message = None
 
 
@@ -67,8 +68,6 @@ def _initialize_session() -> None:
         st.session_state.stats = _new_stats()
     if "move_history" not in st.session_state:
         st.session_state.move_history = []
-    if "last_result" not in st.session_state:
-        st.session_state.last_result = None
     if "error_message" not in st.session_state:
         st.session_state.error_message = None
     if "env" not in st.session_state:
@@ -87,25 +86,23 @@ def _record_result(result: StepResult) -> None:
 
 
 def _play_move(row: int, col: int) -> None:
-    """Execute one contract action and persist display-only metadata."""
+    """Send one public ``(row, col)`` action through the human controller."""
 
-    env: MockGameEnv = st.session_state.env
-    player = env.state.current_player
+    env: GameEnv = st.session_state.env
     try:
-        result = env.step((row, col))
+        move = submit_human_action(env, (row, col))
     except InvalidActionError as exc:
         st.session_state.error_message = str(exc)
         return
 
+    result = move.result
     st.session_state.move_history.append(
         {
-            "number": env.move_count,
-            "player": player,
-            "row": row,
-            "col": col,
+            "number": result.next_state.move_count,
+            "player": move.player,
+            "action": move.action,
         }
     )
-    st.session_state.last_result = result
     st.session_state.error_message = None
     _record_result(result)
 
@@ -122,15 +119,16 @@ def _cell_label(value: int) -> str:
     return " "
 
 
-def _build_dynamic_cell_css(env: MockGameEnv) -> str:
+def _build_dynamic_cell_css(env: GameEnv) -> str:
     """Style occupied and last-move cells from environment state."""
 
-    board = env.board_array
+    state = env.state
+    board = state.board
     size = env.config.board_size
     rules: list[str] = []
     for row in range(size):
         for col in range(size):
-            value = int(board[row, col])
+            value = int(board[row][col])
             selector = f".st-key-cell_{size}_{row}_{col} button"
             if value == Player.X:
                 rules.append(
@@ -142,7 +140,7 @@ def _build_dynamic_cell_css(env: MockGameEnv) -> str:
                     f"{selector} {{color:#E53935!important;"
                     "background:#FDEEEE!important;font-weight:700!important;}"
                 )
-            if env.last_action == (row, col):
+            if state.last_action == (row, col):
                 rules.append(
                     f"{selector} {{border:2px solid #FFA726!important;"
                     "box-shadow:none!important;}"
@@ -150,7 +148,7 @@ def _build_dynamic_cell_css(env: MockGameEnv) -> str:
     return "\n".join(rules)
 
 
-def _inject_styles(env: MockGameEnv) -> None:
+def _inject_styles(env: GameEnv) -> None:
     size = env.config.board_size
     cell_size = max(30, min(44, 484 // size))
     board_width = cell_size * size + 2 * (size - 1)
@@ -456,7 +454,8 @@ def _history_html() -> str:
     if not history:
         return '<span style="font-family:Inter,Segoe UI,sans-serif">No moves yet.<br>Your first move will appear here.</span>'
     return "<br>".join(
-        f"{move['number']:>2}. {_player_name(move['player'])[-1]} → ({move['row']}, {move['col']})"
+        f"{move['number']:>2}. {_player_name(move['player'])[-1]} → "
+        f"({move['action'][0]}, {move['action'][1]})"
         for move in history
     )
 
@@ -514,11 +513,12 @@ def _render_sidebar() -> None:
         )
 
 
-def _render_status(env: MockGameEnv) -> None:
-    if env.is_terminal():
+def _render_status(env: GameEnv) -> None:
+    state = env.state
+    if state.terminated:
         dot_class, label = "caro-dot-done", "Game complete"
     else:
-        current = env.state.current_player
+        current = state.current_player
         dot_class = "caro-dot-x" if current == Player.X else "caro-dot-o"
         label = f"{_player_name(current)}'s turn"
 
@@ -526,14 +526,14 @@ def _render_status(env: MockGameEnv) -> None:
         f"""
         <div class="caro-status">
           <span><span class="caro-dot {dot_class}"></span>{html.escape(label)}</span>
-          <span class="caro-moves">Moves: {env.move_count} / {env.config.board_size**2}</span>
+          <span class="caro-moves">Moves: {state.move_count} / {env.config.board_size**2}</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def _render_board(env: MockGameEnv) -> None:
+def _render_board(env: GameEnv) -> None:
     state = env.state
     size = env.config.board_size
     with st.container(key="board_stage"):
@@ -544,7 +544,7 @@ def _render_board(env: MockGameEnv) -> None:
                     _cell_label(int(state.board[row][col])),
                     key=f"cell_{size}_{row}_{col}",
                     use_container_width=True,
-                    disabled=env.is_terminal(),
+                    disabled=state.terminated,
                     on_click=_play_move,
                     args=(row, col),
                 )
@@ -552,8 +552,8 @@ def _render_board(env: MockGameEnv) -> None:
     st.markdown(
         """
         <div class="caro-legend">
-          <span><b style="color:#1E88E5">X · You</b>&nbsp;&nbsp;&nbsp;
-                <b style="color:#E53935">O · Minimax</b></span>
+          <span><b style="color:#1E88E5">X · Player 1</b>&nbsp;&nbsp;&nbsp;
+                <b style="color:#E53935">O · Player 2</b></span>
           <span class="caro-last-move"><i class="caro-last-box"></i>Last move</span>
         </div>
         """,
@@ -561,14 +561,14 @@ def _render_board(env: MockGameEnv) -> None:
     )
 
 
-def _render_result(env: MockGameEnv) -> None:
-    if not env.is_terminal():
+def _render_result(env: GameEnv) -> None:
+    state = env.state
+    if not state.terminated:
         return
 
-    result: StepResult | None = st.session_state.last_result
-    if result and result.winner == Player.X:
+    if state.winner == Player.X:
         title, copy = "🎉 Player X wins!", "Five in a row. Well played."
-    elif result and result.winner == Player.O:
+    elif state.winner == Player.O:
         title, copy = "🎉 Player O wins!", "Five in a row. Well played."
     else:
         title = "🤝 It's a draw!"
@@ -598,7 +598,7 @@ def main() -> None:
         initial_sidebar_state="expanded",
     )
     _initialize_session()
-    env: MockGameEnv = st.session_state.env
+    env: GameEnv = st.session_state.env
     _inject_styles(env)
     _render_sidebar()
 
@@ -610,7 +610,7 @@ def main() -> None:
     with st.container(key="game_panel"):
         st.markdown(
             '<div class="caro-header"><h1>Five in a row.</h1></div>'
-            '<div class="caro-subtitle">You play X. Find your line before Minimax finds theirs.</div>',
+            '<div class="caro-subtitle">Player X starts. Take turns and connect five to win.</div>',
             unsafe_allow_html=True,
         )
         _render_status(env)
@@ -619,10 +619,11 @@ def main() -> None:
             st.warning(f"⚠  {error_message}")
         _render_board(env)
         _render_result(env)
-        if not env.is_terminal():
+        state = env.state
+        if not state.terminated:
             hint = (
                 "Choose any empty cell to make the first move."
-                if env.move_count == 0
+                if state.move_count == 0
                 else "Choose an empty cell to continue."
             )
             st.markdown(f'<div class="caro-hint">{hint}</div>', unsafe_allow_html=True)
