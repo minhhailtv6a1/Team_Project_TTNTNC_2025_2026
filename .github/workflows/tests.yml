@@ -1,0 +1,89 @@
+# File: .github/workflows/tests.yml
+# CI của Caro_AI_Project (W2-M3-03): Python 3.13, pytest, coverage core.engine >= 90%,
+# riêng game_env.py >= 90%. PR chỉ được merge khi workflow này xanh (bật branch protection).
+name: tests
+
+on:
+  push:
+    branches: [main]
+    tags: ["caro-v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Thư mục chứa core/, tests/ và requirements.txt.
+  # Đổi thành "." nếu thư mục gốc của repo chính là thư mục dự án.
+  PROJECT_DIR: Caro_AI_Project
+  PYTHON_VERSION: "3.13"
+
+jobs:
+  test:
+    name: pytest (${{ matrix.os }}, python 3.13)
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # Linux phân biệt hoa/thường và dấu phân cách đường dẫn; Windows là máy của nhóm.
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ${{ env.PROJECT_DIR }}/requirements.txt
+
+      - name: Guard - the local xfail switch must not exist in CI
+        run: |
+          if [ -n "${CARO_C2_XFAIL:-}" ]; then
+            echo "::error::CARO_C2_XFAIL is set. CI must never hide failing tests."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: |
+          cd "$PROJECT_DIR"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run tests with coverage (core.engine >= 90%)
+        run: |
+          cd "$PROJECT_DIR"
+          python -m pytest tests -q -rxX \
+            --cov=core/engine --cov-report=term-missing --cov-report=xml \
+            --cov-fail-under=90
+
+      - name: Coverage gate for game_env.py (>= 90%)
+        run: |
+          cd "$PROJECT_DIR"
+          python -m coverage report --include="*game_env.py" --fail-under=90
+
+      - name: Freeze gate - no xfail marker may hide a failure (tags and manual runs)
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        run: |
+          cd "$PROJECT_DIR"
+          python -m pytest tests -q --runxfail
+
+      - name: Upload coverage report
+        if: always() && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: ${{ env.PROJECT_DIR }}/coverage.xml
+          if-no-files-found: ignore
