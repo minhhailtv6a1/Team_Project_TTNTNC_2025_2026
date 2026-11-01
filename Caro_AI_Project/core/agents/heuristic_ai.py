@@ -1,4 +1,6 @@
-"""
+# File: core/agents/heuristic_ai.py
+"""HeuristicAgent theo contract ``caro-v2`` (W34-M2-01, commit 1).
+
 Thứ tự ưu tiên công bố (cao -> thấp):
 
     1. WIN     : nước đi thắng ngay cho người đang đi.
@@ -16,7 +18,7 @@ row-major (hàng nhỏ trước, rồi cột nhỏ).
 Chỉ dùng public API của ``GameEnv`` (``state``, ``legal_actions``, ``config``).
 Agent không mutation env và không dùng RNG nên luôn tái lập.
 
-Các hàm ``cell_potential`` và ``center_bonus`` được để public
+Các hàm ``cell_potential`` và ``center_bonus`` được để public để commit 2
 (Minimax) dùng lại làm evaluation chung, tránh hai implementation lệch nhau.
 """
 from __future__ import annotations
@@ -39,6 +41,8 @@ __all__ = [
     "DEFENSE_FACTOR",
     "cell_potential",
     "center_bonus",
+    "pattern_score",
+    "action_priority",
 ]
 
 # --- Hằng số điểm ------------------------------------------------------------
@@ -62,6 +66,14 @@ _PATTERN_SCORES: dict[tuple[int, int], float] = {
     (3, 2): 100.0,     # open two
     (3, 1): 10.0,      # closed two
 }
+
+
+def pattern_score(missing: int, open_ends: int) -> float:
+    """Điểm của một chuỗi còn thiếu ``missing`` quân để thắng, có ``open_ends`` đầu trống.
+
+    Public để evaluation của Minimax dùng chung đúng bảng điểm với Heuristic.
+    """
+    return _PATTERN_SCORES.get((missing, open_ends), 0.0)
 
 
 def _scan_direction(
@@ -116,7 +128,7 @@ def cell_potential(
         if run >= win_length:
             wins = True
             continue
-        total += _PATTERN_SCORES.get((win_length - run, open_ends), 0.0)
+        total += pattern_score(win_length - run, open_ends)
     return total, wins
 
 
@@ -130,6 +142,28 @@ def center_bonus(action: Action, board_size: int) -> float:
     max_d2 = 2 * center * center
     d2 = (action[0] - center) ** 2 + (action[1] - center) ** 2
     return (max_d2 - d2) / (max_d2 + 1)
+
+
+def action_priority(
+    board: BoardMatrix,
+    action: Action,
+    player: Player,
+    win_length: int,
+) -> float:
+    """Điểm ưu tiên của ``action`` cho ``player`` theo thứ tự công bố.
+
+    thắng ngay > chặn thua ngay > threat (tấn công + phòng thủ) > trung tâm.
+    Là nguồn sự thật duy nhất cho cả ``HeuristicAgent`` lẫn move ordering của
+    Minimax. Chỉ đọc ``board``.
+    """
+    opponent = Player.O if player == Player.X else Player.X
+    attack, wins = cell_potential(board, action, player, win_length)
+    if wins:
+        score = WIN_SCORE
+    else:
+        defend, blocks = cell_potential(board, action, opponent, win_length)
+        score = BLOCK_SCORE if blocks else attack + DEFENSE_FACTOR * defend
+    return score + center_bonus(action, len(board))
 
 
 class HeuristicAgent:
@@ -163,25 +197,13 @@ class HeuristicAgent:
 
         board = state.board
         win_length = env.config.win_length
-        size = env.config.board_size
         me = state.current_player
-        opponent = Player.O if me == Player.X else Player.X
 
         best_action: Action | None = None
         best_score = float("-inf")
         # Duyệt row-major + chỉ thay khi điểm lớn hơn hẳn => tie-break row-major.
         for action in sorted(legal):
-            attack, wins = cell_potential(board, action, me, win_length)
-            if wins:
-                score = WIN_SCORE
-            else:
-                defend, blocks = cell_potential(board, action, opponent, win_length)
-                if blocks:
-                    score = BLOCK_SCORE
-                else:
-                    score = attack + DEFENSE_FACTOR * defend
-            score += center_bonus(action, size)
-
+            score = action_priority(board, action, me, win_length)
             if score > best_score:
                 best_action, best_score = action, score
 
