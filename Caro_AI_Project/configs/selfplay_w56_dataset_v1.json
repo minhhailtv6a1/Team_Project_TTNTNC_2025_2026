@@ -1,0 +1,46 @@
+{
+  "contract_version": "caro-v2",
+  "run_id": "w56-dataset-v1-three-agents-2000",
+  "game_config": {
+    "board_size": 11,
+    "win_length": 5
+  },
+  "base_seed": 1107,
+  "swap_sides": true,
+  "agents": {
+    "heuristic": {
+      "factory": "core.agents.heuristic_ai:HeuristicAgent",
+      "options": {},
+      "budget": {}
+    },
+    "minimax": {
+      "factory": "core.agents.minimax_ai:MinimaxAgent",
+      "options": {
+        "alpha_beta": true,
+        "default_depth": 2
+      },
+      "budget": {
+        "max_depth": 2
+      }
+    },
+    "mcts": {
+      "factory": "core.agents.mcts_ai:MCTSAgent",
+      "options": {
+        "default_simulations": 20
+      },
+      "budget": {
+        "simulations": 20
+      }
+    }
+  },
+  "pairs": [
+    ["heuristic", "minimax"],
+    ["heuristic", "mcts"],
+    ["minimax", "mcts"]
+  ],
+  "pair_games": [668, 666, 666],
+  "budget_enforcer": {
+    "tolerance_ms": 50,
+    "mode": "record"
+  }
+}
