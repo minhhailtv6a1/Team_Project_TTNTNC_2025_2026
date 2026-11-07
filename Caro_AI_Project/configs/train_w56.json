@@ -1,0 +1,7 @@
+{
+  "contract_version": "caro-v2",
+  "dataset_version": "dataset-v1-three-agents-2000",
+  "split_seed": 20261107,
+  "train_d4_augmentation": true,
+  "export_format": "npz"
+}

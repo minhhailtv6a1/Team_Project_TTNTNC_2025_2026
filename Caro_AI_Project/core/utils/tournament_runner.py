@@ -358,11 +358,14 @@ def run_match(
     swap_sides: bool = True,
     enforcer: BudgetEnforcer | None = None,
     logger: GameLogger | None = None,
+    game_id_prefix: str | None = None,
 ) -> list[GameOutcome]:
     """Chạy ``games`` ván giữa ``a`` và ``b``, đổi bên luân phiên.
 
     Ván chẵn: ``a`` là X; ván lẻ: ``a`` là O. Hai ván đổi bên liền nhau dùng
     chung seed để so sánh công bằng. Cùng ``base_seed`` luôn cho cùng chuỗi seed.
+    ``game_id_prefix`` cho phép self-play run gắn run ID vào mọi game ID mà
+    không thay đổi nhãn agent được ghi trong record.
     """
     if games < 1:
         raise ValueError("games must be >= 1")
@@ -370,6 +373,8 @@ def run_match(
         raise ValueError("swap_sides requires games >= 2 so both sides are played")
     if a.label == b.label:
         raise ValueError(f"participants must have distinct labels, got {a.label!r} twice")
+    if game_id_prefix is not None and not game_id_prefix:
+        raise ValueError("game_id_prefix must be a non-empty string or None")
 
     outcomes: list[GameOutcome] = []
     for game_index in range(games):
@@ -378,6 +383,8 @@ def run_match(
         seed_index = game_index // 2 if swap_sides else game_index
         seed = derive_seed(base_seed, pair_index, seed_index)
         game_id = f"s{base_seed}-p{pair_index}-g{game_index:03d}-{x.label}-vs-{o.label}"
+        if game_id_prefix is not None:
+            game_id = f"{game_id_prefix}-{game_id}"
         outcomes.append(
             play_game(
                 env_factory, x, o,

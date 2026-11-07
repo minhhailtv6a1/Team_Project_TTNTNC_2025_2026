@@ -74,7 +74,7 @@ Chỉ chạy batch self-play lớn khi đủ tất cả điều kiện:
 1. Bốn agent chạy qua cùng `TournamentRunner` và không mutation environment.
 2. Test logger round-trip và agent integration xanh trong môi trường có quyền ghi temp.
 3. Cấu hình teacher, seed, budget và luật đã freeze trong file config.
-4. Pilot self-play ít nhất 20 ván hoàn tất, replay lại được 100% và không có action invalid.
+4. Pilot self-play 60 ván hoàn tất: đủ ba cặp Heuristic-Minimax, Heuristic-MCTS và Minimax-MCTS, mỗi cặp 20 ván đổi bên; replay lại được 100% và không có action invalid.
 5. M1 xác nhận encoder đọc được một fixture raw và tạo tensor đúng shape.
 6. M2 xác nhận teacher vẫn vượt các tactical tests bắt buộc.
 
@@ -151,8 +151,8 @@ Quy ước:
 
 | Hạng mục | Giá trị khóa |
 |---|---|
-| Cặp sinh dữ liệu | `HeuristicAgent` vs `MCTSAgent` |
-| Pilot | 20 ván, đổi bên, dùng để kiểm schema và throughput |
+| Cặp sinh dữ liệu production `dataset-v1` | `HeuristicAgent` vs `MCTSAgent` |
+| Pilot | Ba cặp Heuristic-Minimax, Heuristic-MCTS và Minimax-MCTS; mỗi cặp 20 ván đổi bên (tổng 60), dùng để kiểm schema, throughput và runner |
 | Production tối thiểu | 200 ván hợp lệ |
 | Production mục tiêu | 300 ván nếu runtime đáp ứng |
 | Đổi bên | Bắt buộc 50/50 X-O theo từng cặp seed |
@@ -379,7 +379,7 @@ M3 sở hữu đường dữ liệu từ runner đến raw log, tensor split và
 4. Hỗ trợ pilot, production, output shard, resume và dry-run config validation.
 5. Nếu dùng multiprocessing trên Windows, worker phải spawn-safe, seed không trùng và mỗi worker ghi shard riêng; tiến trình chính merge/manifest sau khi validate.
 6. Game ID phải unique và ổn định từ run id, seed, side assignment và game index.
-7. Chạy pilot 20 game, replay 100%, kiểm cân bằng side, winner distribution và budget violation.
+7. Chạy pilot ba cặp Heuristic-Minimax, Heuristic-MCTS và Minimax-MCTS, mỗi cặp 20 game; replay 100%, kiểm cân bằng side, winner distribution và budget violation.
 8. Sau khi M2 freeze teacher config, chạy production tối thiểu 200 game; không thay config giữa shard.
 9. Log failed games riêng với loại lỗi; failed game không được chèn nửa dòng vào raw JSONL.
 10. Hoàn thiện `notebooks/01_SelfPlay_DataGen.ipynb` để đọc config, gọi script/module, hiển thị thống kê và đường dẫn artifact.
@@ -461,7 +461,7 @@ Ba task có thể khởi động song song ở mức fixture/prototype, nhưng p
         |                      |                      |
         +----------------------+----------------------+
                                |
-3. M2 freeze teacher_w56 -> M3 chạy pilot 20 game và validate
+3. M2 freeze teacher_w56 -> M3 chạy pilot 60 game (20 game/cặp) và validate
                                |
 4. M3 chạy production self-play -> build/freeze dataset-v1
                                |
@@ -481,7 +481,7 @@ Ba task có thể khởi động song song ở mức fixture/prototype, nhưng p
 | 1 | Schema sample/raw + fixture | M3 | M1, M2 | Replay được; tensor expectation được M1 xác nhận |
 | 2 | PolicyNet + mask/loss tests | M1 | M2, M3 | Shape, gradient, illegal mask và serialization xanh |
 | 3 | Teacher profile/config | M2 | M1, M3 | Tactical regression xanh; có throughput và ETA |
-| 4 | Self-play pilot/generator | M3 | M1, M2 | 20 game replay 100%, manifest/checksum hợp lệ |
+| 4 | Self-play pilot/generator | M3 | M1, M2 | 60 game (20 game/cặp) replay 100%, manifest/checksum hợp lệ |
 | 5 | Data pipeline + dataset-v1 | M3 | M1, M2 | Split theo game, leakage audit và loader xanh |
 | 6 | Train loop + best checkpoint | M1 | M2, M3 | Smoke train xanh; config/checksum ghi đủ |
 | 7 | NeuralAgent | M1 | M2, M3 | Agent contract, legal mask và no-mutation xanh |
@@ -505,7 +505,7 @@ Ba task có thể khởi động song song ở mức fixture/prototype, nhưng p
 | W5-D1 | Chốt tensor/model contract | Chốt candidate teacher budgets | Chốt raw/sample schema, manifest và run id | Decision note được cả ba duyệt |
 | W5-D2 | PolicyNet forward + shape tests | Tactical regression + benchmark harness | Self-play CLI + deterministic game IDs | Fixture raw -> tensor expectation thống nhất |
 | W5-D3 | Legal mask + loss + backward smoke | Profile teacher budgets, ETA 200/300 game | Pilot generator, shard/resume | Chọn được 1-2 profile khả thi |
-| W5-D4 | Serialization + notebook smoke | Tối ưu Heuristic/cache nếu có bằng chứng | Chạy pilot 20 game, replay/manifest audit | Pilot 100% replay hoặc dừng sửa blocker |
+| W5-D4 | Serialization + notebook smoke | Tối ưu Heuristic/cache nếu có bằng chứng | Chạy pilot 60 game (20/cặp), replay/manifest audit | Pilot 100% replay hoặc dừng sửa blocker |
 | W5-D5 | Review pilot tensor, chuẩn bị train script | Freeze `teacher_w56.json` | Merge pilot PR, bắt đầu production | Teacher config freeze; không đổi âm thầm |
 | W6-D1 | DataLoader/train loop + metrics | Chuẩn bị tactical acceptance fixtures | Hoàn tất production self-play | Đủ >=200 valid games và raw checksum |
 | W6-D2 | Early stop/checkpoint/resume | Review data distribution/teacher source | Split, dedup, leakage audit, augmentation | `dataset-v1` candidate và data card draft |
@@ -663,7 +663,6 @@ Các CLI dưới đây là contract đầu ra mong muốn của sprint. Nếu t�
 # Pilot
 .\myenv\Scripts\python.exe scripts/generate_selfplay.py `
   --config configs/selfplay_w56.json `
-  --games 20 `
   --output data/raw_logs/w56_selfplay_pilot
 
 # Production
@@ -767,7 +766,7 @@ Cổng đề xuất:
 
 ### M3 - Self-play và dataset
 
-- [ ] Pilot 20 game replay 100%.
+- [ ] Pilot 60 game (20 game cho mỗi trong ba cặp tác tử) replay 100%.
 - [ ] Production có tối thiểu 200 game hợp lệ, đổi bên cân bằng.
 - [ ] Không chọn lọc ván thắng.
 - [ ] Raw manifest có config, seed, budget, hardware và checksum.
