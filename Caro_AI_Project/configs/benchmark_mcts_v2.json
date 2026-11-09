@@ -1,0 +1,171 @@
+{
+  "contract_version": "caro-v2",
+  "benchmark_version": "mcts-upgrade-phase1-v1",
+  "game_config": {
+    "board_size": 11,
+    "win_length": 5
+  },
+  "seeds": [11, 22, 33],
+  "profiles": {
+    "MCTS-S": {
+      "description": "Legacy sensitivity baseline",
+      "agent_options": {
+        "tactical_precheck": false,
+        "candidate_policy": "legacy_random",
+        "progressive_widening_c": null
+      },
+      "budgets": [
+        {"label": "legacy-100", "simulations": 100},
+        {"label": "legacy-400", "simulations": 400},
+        {"label": "legacy-1000", "simulations": 1000}
+      ]
+    },
+    "MCTS-PHASE1": {
+      "description": "Tactical pre-check plus progressive widening",
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "progressive_widening_c": 2.0,
+        "progressive_widening_alpha": 0.5
+      },
+      "budgets": [
+        {"label": "phase1-100", "simulations": 100},
+        {"label": "phase1-400", "simulations": 400},
+        {"label": "phase1-1000", "simulations": 1000}
+      ]
+    },
+    "MCTS-TACTICAL": {
+      "description": "Tactical pre-check only with legacy expansion and rollout",
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "legacy_random",
+        "progressive_widening_c": null,
+        "rollout_policy": "random",
+        "reuse_simulation_env": false
+      },
+      "budgets": [
+        {"label": "tactical-100", "simulations": 100}
+      ]
+    },
+    "MCTS-PHASE2-GUIDED": {
+      "description": "Guided rollout before clone-once optimization",
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "progressive_widening_c": 2.0,
+        "progressive_widening_alpha": 0.5,
+        "rollout_policy": "epsilon_tactical_local",
+        "rollout_epsilon": 0.15,
+        "reuse_simulation_env": false
+      },
+      "budgets": [
+        {"label": "guided-100", "simulations": 100},
+        {"label": "guided-400", "simulations": 400},
+        {"label": "guided-1000", "simulations": 1000}
+      ]
+    },
+    "MCTS-PHASE2-OPT": {
+      "description": "Guided rollout with clone-once and undo",
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "progressive_widening_c": 2.0,
+        "progressive_widening_alpha": 0.5,
+        "rollout_policy": "epsilon_tactical_local",
+        "rollout_epsilon": 0.15,
+        "reuse_simulation_env": true
+      },
+      "budgets": [
+        {"label": "optimized-100", "simulations": 100},
+        {"label": "optimized-400", "simulations": 400},
+        {"label": "optimized-1000", "simulations": 1000}
+      ]
+    },
+    "MCTS-PHASE3-H20": {
+      "description": "Compute-bounded guided rollout with normalized horizon evaluation",
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "progressive_widening_c": 2.0,
+        "progressive_widening_alpha": 0.5,
+        "rollout_policy": "epsilon_tactical_local",
+        "rollout_epsilon": 0.15,
+        "rollout_horizon": 20,
+        "reuse_simulation_env": true
+      },
+      "budgets": [
+        {"label": "h20-100", "simulations": 100},
+        {"label": "h20-400", "simulations": 400},
+        {"label": "h20-1000", "simulations": 1000}
+      ]
+    },
+    "MCTS-PHASE3-H8": {
+      "description": "Short normalized rollout horizon for compute ablation",
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "progressive_widening_c": 2.0,
+        "progressive_widening_alpha": 0.5,
+        "rollout_policy": "epsilon_tactical_local",
+        "rollout_epsilon": 0.15,
+        "rollout_horizon": 8,
+        "reuse_simulation_env": true
+      },
+      "budgets": [
+        {"label": "h8-100", "simulations": 100},
+        {"label": "h8-400", "simulations": 400}
+      ]
+    },
+    "MCTS-STRENGTH": {
+      "description": "Heuristic-guided MCTS with bounded pattern leaf evaluation",
+      "agent_options": {
+        "exploration_weight": 0.7,
+        "tactical_precheck": true,
+        "candidate_policy": "heuristic_seeded",
+        "neighbor_radius": 2,
+        "progressive_widening_c": 1.5,
+        "progressive_widening_alpha": 0.5,
+        "rollout_policy": "epsilon_heuristic",
+        "rollout_epsilon": 0.15,
+        "rollout_horizon": 8,
+        "leaf_evaluation": "pattern",
+        "reuse_simulation_env": true
+      },
+      "budgets": [
+        {"label": "strength-8", "simulations": 8},
+        {"label": "strength-16", "simulations": 16},
+        {"label": "strength-64", "simulations": 64},
+        {"label": "strength-100", "simulations": 100},
+        {"label": "strength-200", "simulations": 200},
+        {"label": "strength-400", "simulations": 400}
+      ]
+    }
+  },
+  "scenarios": [
+    {
+      "id": "opening_empty",
+      "description": "Empty 11x11 board",
+      "actions": []
+    },
+    {
+      "id": "midgame_mixed",
+      "description": "Non-terminal mixed midgame",
+      "actions": [[5, 5], [4, 4], [5, 6], [6, 6], [3, 3], [7, 7]]
+    },
+    {
+      "id": "tactical_win_in_one",
+      "actions": [[5, 4], [0, 0], [5, 5], [0, 2], [5, 6], [0, 4], [5, 7], [10, 10]],
+      "winning_actions": [[5, 3], [5, 8]]
+    },
+    {
+      "id": "tactical_block_in_one",
+      "actions": [[5, 3], [0, 0], [5, 4], [0, 2], [5, 6], [0, 4], [5, 7]],
+      "forced_actions": [[5, 5]]
+    }
+  ]
+}
