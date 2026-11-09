@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from collections import Counter
 
 import json
 import numpy as np
@@ -14,6 +15,7 @@ from core.engine.interfaces import Player, SearchBudget
 from core.ml.data_pipeline import (
     RAW_SCHEMA_NAME,
     RawDataError,
+    balance_samples_by_source,
     d4_augment,
     build_dataset,
     iter_raw_games,
@@ -97,6 +99,34 @@ def test_d4_transforms_keep_mask_and_target_aligned():
     for variant in variants:
         assert variant.legal_mask[variant.target]
         assert (variant.x[2].reshape(-1).astype(bool) == variant.legal_mask).all()
+
+
+def test_source_agent_balancing_is_equal_and_deterministic():
+    base = samples_from_raw_game(next(iter_raw_games(FIXTURE)))
+    counts = {"heuristic": 5, "mcts": 4, "minimax": 3}
+    samples = []
+    for source, count in counts.items():
+        for sample in base[:count]:
+            samples.append(type(sample)(
+                x=sample.x,
+                legal_mask=sample.legal_mask,
+                target=sample.target,
+                metadata={**sample.metadata, "source_agent": source},
+            ))
+
+    balanced, report = balance_samples_by_source(samples, seed=17)
+    repeated, repeated_report = balance_samples_by_source(samples, seed=17)
+
+    assert Counter(item.metadata["source_agent"] for item in balanced) == {
+        "heuristic": 3,
+        "mcts": 3,
+        "minimax": 3,
+    }
+    assert [(item.metadata["source_agent"], item.target) for item in balanced] == [
+        (item.metadata["source_agent"], item.target) for item in repeated
+    ]
+    assert report == repeated_report
+    assert report["removed"] == 3
 
 
 def test_game_split_is_deterministic_and_disjoint():

@@ -12,11 +12,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import platform
 import statistics
 import sys
+import time
 from typing import Any
 
 
@@ -76,15 +78,19 @@ def run_profile(
     budget_data: dict[str, Any],
     seed: int,
     repeats: int,
+    agent_options: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     decisions: list[AgentDecision] = []
+    search_stats: list[dict[str, Any]] = []
     budget = make_budget(budget_data, seed)
     for _ in range(repeats):
         env = build_env(scenario["actions"])
-        decision = MCTSAgent().choose_action(env, budget)
+        agent = MCTSAgent(**(agent_options or {}))
+        decision = agent.choose_action(env, budget)
         if decision.action not in env.legal_actions():
             raise RuntimeError(f"MCTS returned illegal action {decision.action!r}")
         decisions.append(decision)
+        search_stats.append(agent.last_search_stats)
 
     logical = {
         (d.action, d.score, d.nodes, d.simulations)
@@ -95,20 +101,37 @@ def run_profile(
 
     first = decisions[0]
     elapsed_ms = statistics.median(d.elapsed_ms for d in decisions)
+    ordered_elapsed = sorted(d.elapsed_ms for d in decisions)
+    p95_elapsed_ms = ordered_elapsed[max(0, math.ceil(0.95 * len(ordered_elapsed)) - 1)]
     throughput = (
         first.simulations / (elapsed_ms / 1000.0)
         if elapsed_ms > 0.0
         else float("inf")
     )
+    first_stats = search_stats[0]
+    timing_keys = ("clone", "selection", "expansion", "rollout")
+    timing_ms = {
+        key: statistics.median(
+            float(stats.get("timing_ms", {}).get(key, 0.0)) for stats in search_stats
+        )
+        for key in timing_keys
+    }
     return {
         "profile": budget_data.get("label", "mcts"),
         "seed": seed,
         "action": first.action,
         "score": first.score,
         "elapsed_ms": elapsed_ms,
+        "p95_elapsed_ms": p95_elapsed_ms,
         "nodes": first.nodes,
         "simulations": first.simulations,
         "simulations_per_second": throughput,
+        "root_children": int(first_stats.get("root_children", 0)),
+        "root_max_visits": int(first_stats.get("root_max_visits", 0)),
+        "root_mean_visits": float(first_stats.get("root_mean_visits", 0.0)),
+        "mean_tree_depth": float(first_stats.get("mean_tree_depth", 0.0)),
+        "max_tree_depth": int(first_stats.get("max_tree_depth", 0)),
+        "timing_ms": timing_ms,
     }
 
 
@@ -125,14 +148,23 @@ def print_report(
     print(f"scenario={scenario_id} | repeats={repeats} | contract=caro-v2")
     print(
         f"{'profile':<12}{'seed':>7}{'action':>13}{'score':>10}"
-        f"{'elapsed ms':>14}{'nodes':>10}{'sims':>10}{'sims/s':>12}"
+        f"{'elapsed ms':>14}{'p95 ms':>11}{'nodes':>9}{'sims':>8}"
+        f"{'children':>10}{'max-v':>8}{'depth':>7}{'sims/s':>11}"
     )
     for row in rows:
         print(
             f"{row['profile']:<12}{row['seed']:>7}{str(row['action']):>13}"
             f"{row['score']:>10.3f}{row['elapsed_ms']:>14.2f}"
-            f"{row['nodes']:>10}{row['simulations']:>10}"
-            f"{row['simulations_per_second']:>12.1f}"
+            f"{row['p95_elapsed_ms']:>11.2f}{row['nodes']:>9}"
+            f"{row['simulations']:>8}{row['root_children']:>10}"
+            f"{row['root_max_visits']:>8}{row['max_tree_depth']:>7}"
+            f"{row['simulations_per_second']:>11.1f}"
+        )
+        timing = row["timing_ms"]
+        print(
+            " " * 4
+            + "timing ms: "
+            + ", ".join(f"{key}={value:.2f}" for key, value in timing.items())
         )
 
     slowest = min(rows, key=lambda row: row["simulations_per_second"])
@@ -150,8 +182,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--scenario", default="midgame_mixed")
+    parser.add_argument("--profile", default="MCTS-S")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--repeats", type=int, default=1)
+    parser.add_argument("--json", type=Path)
     args = parser.parse_args()
     if args.repeats <= 0:
         parser.error("--repeats must be positive")
@@ -167,17 +201,48 @@ def main() -> None:
     config = load_config(args.config)
     scenario = find_scenario(config, args.scenario)
     seed = config["seeds"][0] if args.seed is None else args.seed
-    budgets = config["profiles"]["MCTS-S"]["budgets"]
+    try:
+        profile = config["profiles"][args.profile]
+    except KeyError as exc:
+        known = ", ".join(sorted(config["profiles"]))
+        raise ValueError(f"unknown profile {args.profile!r}; choose one of: {known}") from exc
+    budgets = profile["budgets"]
+    agent_options = dict(profile.get("agent_options", {}))
     rows = [
         run_profile(
             scenario=scenario,
             budget_data=budget_data,
             seed=seed,
             repeats=args.repeats,
+            agent_options=agent_options,
         )
         for budget_data in budgets
     ]
     print_report(rows, scenario_id=args.scenario, repeats=args.repeats)
+    if args.json is not None:
+        payload = {
+            "contract_version": config["contract_version"],
+            "benchmark_profile": args.profile,
+            "scenario": args.scenario,
+            "seed": seed,
+            "repeats": args.repeats,
+            "agent_options": agent_options,
+            "hardware": {
+                "python": platform.python_version(),
+                "system": platform.system(),
+                "release": platform.release(),
+                "machine": platform.machine(),
+                "cpu_count": os.cpu_count(),
+            },
+            "generated_unix_time": time.time(),
+            "rows": rows,
+        }
+        args.json.parent.mkdir(parents=True, exist_ok=True)
+        args.json.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"json -> {args.json}")
 
 
 if __name__ == "__main__":

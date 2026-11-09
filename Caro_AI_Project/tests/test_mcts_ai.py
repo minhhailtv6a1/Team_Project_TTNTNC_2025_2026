@@ -11,10 +11,17 @@ from core.agents.mcts_ai import (
     MCTSAgent,
     _MCTSNode,
     _backpropagate,
+    _allowed_children,
     _expand,
     _rollout,
     _select_child,
     _uct_score,
+)
+from core.agents.search_utils import (
+    choose_tactical_local_action,
+    immediate_winning_actions,
+    normalized_line_value,
+    tactical_summary,
 )
 from core.engine.game_env import CaroEnv
 from core.engine.interfaces import Agent, Player, SearchBudget, UndoError
@@ -86,6 +93,296 @@ def test_invalid_exploration_weight_is_rejected(bad):
 def test_invalid_default_simulations_is_rejected(bad):
     with pytest.raises(ValueError):
         MCTSAgent(default_simulations=bad)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "message"),
+    [
+        ({"tactical_precheck": 1}, "tactical_precheck"),
+        ({"candidate_policy": "heuristic"}, "candidate_policy"),
+        ({"neighbor_radius": 0}, "neighbor_radius"),
+        ({"progressive_widening_c": 0}, "progressive_widening_c"),
+        ({"progressive_widening_c": math.inf}, "progressive_widening_c"),
+        ({"progressive_widening_alpha": 0}, "progressive_widening_alpha"),
+        ({"progressive_widening_alpha": 1.1}, "progressive_widening_alpha"),
+        ({"rollout_policy": "greedy"}, "rollout_policy"),
+        ({"rollout_epsilon": -0.1}, "rollout_epsilon"),
+        ({"rollout_epsilon": 1.1}, "rollout_epsilon"),
+        ({"reuse_simulation_env": 1}, "reuse_simulation_env"),
+        ({"rollout_horizon": 0}, "rollout_horizon"),
+        ({"leaf_evaluation": "network"}, "leaf_evaluation"),
+    ],
+)
+def test_invalid_phase1_options_are_rejected(kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        MCTSAgent(**kwargs)
+
+
+# ---------------------------------------------------------------------------
+# Phase 1: pure tactical helpers and tactical pre-check
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    "stones",
+    [
+        [(5, 2), (5, 3), (5, 4), (5, 5)],
+        [(2, 5), (3, 5), (4, 5), (5, 5)],
+        [(2, 2), (3, 3), (4, 4), (5, 5)],
+        [(2, 8), (3, 7), (4, 6), (5, 5)],
+        [(0, 0), (0, 1), (0, 2), (0, 3)],
+    ],
+)
+def test_phase1_immediate_win_detects_directions_and_edge_without_mutation(stones):
+    board = [[0] * 11 for _ in range(11)]
+    for row, col in stones:
+        board[row][col] = int(Player.X)
+    before = [row[:] for row in board]
+    legal = [(r, c) for r in range(11) for c in range(11) if board[r][c] == 0]
+
+    wins = immediate_winning_actions(board, legal, Player.X, CaroEnv().config)
+
+    assert wins
+    assert board == before
+
+
+def test_phase1_immediate_win_detects_o_and_no_false_positive():
+    board = [[0] * 11 for _ in range(11)]
+    for col in range(3, 7):
+        board[6][col] = int(Player.O)
+    legal = [(r, c) for r in range(11) for c in range(11) if board[r][c] == 0]
+    assert set(immediate_winning_actions(board, legal, Player.O, CaroEnv().config)) == {
+        (6, 2),
+        (6, 7),
+    }
+
+    quiet = [[0] * 11 for _ in range(11)]
+    quiet[5][5] = int(Player.X)
+    quiet_legal = [(r, c) for r in range(11) for c in range(11) if quiet[r][c] == 0]
+    assert immediate_winning_actions(quiet, quiet_legal, Player.X, CaroEnv().config) == []
+
+
+def test_phase1_tactical_summary_reports_unique_block_and_multiple_threats():
+    block_env = env_from([(5, 3), (0, 0), (5, 4), (0, 2), (5, 6), (0, 4), (5, 7)])
+    state = block_env.state
+    summary = tactical_summary(
+        state.board, block_env.legal_actions(), state.current_player, block_env.config
+    )
+    assert summary.unique_forced_block == (5, 5)
+    assert not summary.has_unanswerable_threats
+
+    board = [[0] * 11 for _ in range(11)]
+    for col in range(3, 7):
+        board[4][col] = int(Player.X)
+    legal = [(r, c) for r in range(11) for c in range(11) if board[r][c] == 0]
+    multiple = tactical_summary(board, legal, Player.O, CaroEnv().config)
+    assert set(multiple.opponent_winning_actions) == {(4, 2), (4, 7)}
+    assert multiple.unique_forced_block is None
+    assert multiple.has_unanswerable_threats
+
+
+def upgraded_agent(**kwargs) -> MCTSAgent:
+    options = {
+        "tactical_precheck": True,
+        "candidate_policy": "tactical_local_seeded",
+        "progressive_widening_c": 2.0,
+        "progressive_widening_alpha": 0.5,
+    }
+    options.update(kwargs)
+    return MCTSAgent(**options)
+
+
+def test_phase1_tactical_override_win_and_block_have_defined_counters():
+    win_env = env_from([(5, 4), (0, 0), (5, 5), (0, 2), (5, 6), (0, 4), (5, 7), (10, 10)])
+    win = upgraded_agent().choose_action(win_env, SearchBudget(simulations=100, seed=11))
+    assert win.action in {(5, 3), (5, 8)}
+    assert (win.nodes, win.simulations, win.score) == (1, 0, 1.0)
+
+    block_env = env_from([(5, 3), (0, 0), (5, 4), (0, 2), (5, 6), (0, 4), (5, 7)])
+    agent = upgraded_agent()
+    block = agent.choose_action(block_env, SearchBudget(simulations=100, seed=11))
+    assert block.action == (5, 5)
+    assert (block.nodes, block.simulations, block.score) == (1, 0, 0.0)
+    assert agent.last_search_stats["tactical_override"] == "block"
+
+
+def test_phase1_progressive_widening_revisits_root_and_reaches_depth_two():
+    agent = upgraded_agent(tactical_precheck=False)
+    decision = agent.choose_action(env_from(MIDGAME), SearchBudget(simulations=100, seed=11))
+    stats = agent.last_search_stats
+
+    assert decision.simulations == 100
+    assert stats["root_children"] < 100
+    assert stats["root_max_visits"] > 1
+    assert stats["max_tree_depth"] >= 2
+
+
+def test_phase1_progressive_widening_limits_and_eventually_allows_every_action():
+    root = node(visits=0)
+    root.untried_actions = [(0, i) for i in range(10)]
+    assert _allowed_children(root, widening_c=2.0, widening_alpha=0.5) == 2
+    root.visits = 10_000
+    assert _allowed_children(root, widening_c=2.0, widening_alpha=0.5) == 10
+    assert _allowed_children(root, widening_c=None, widening_alpha=0.5) == 10
+
+
+def test_phase1_upgraded_mode_respects_node_budget_and_is_reproducible():
+    budget = SearchBudget(simulations=100, max_nodes=20, seed=33)
+    first_agent = upgraded_agent(tactical_precheck=False)
+    second_agent = upgraded_agent(tactical_precheck=False)
+    first_env, second_env = env_from(MIDGAME), env_from(MIDGAME)
+    first = first_agent.choose_action(first_env, budget)
+    second = second_agent.choose_action(second_env, budget)
+    assert first.nodes <= 20
+    assert first.action == second.action
+    assert first.score == second.score
+    assert first.nodes == second.nodes
+    assert first.simulations == second.simulations
+    assert first_env.state == env_from(MIDGAME).state
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: tactical-local rollout and clone-once/undo optimization
+# ---------------------------------------------------------------------------
+def test_phase2_rollout_policy_takes_immediate_win_and_unique_block():
+    win_env = env_from([(5, 4), (0, 0), (5, 5), (0, 2), (5, 6), (0, 4), (5, 7), (10, 10)])
+    state = win_env.state
+    action = choose_tactical_local_action(
+        state.board,
+        win_env.legal_actions(),
+        state.current_player,
+        win_env.config,
+        neighbor_radius=2,
+        epsilon=1.0,
+        rng=random.Random(1),
+    )
+    assert action in {(5, 3), (5, 8)}
+
+    block_env = env_from([(5, 3), (0, 0), (5, 4), (0, 2), (5, 6), (0, 4), (5, 7)])
+    state = block_env.state
+    action = choose_tactical_local_action(
+        state.board,
+        block_env.legal_actions(),
+        state.current_player,
+        block_env.config,
+        neighbor_radius=2,
+        epsilon=1.0,
+        rng=random.Random(1),
+    )
+    assert action == (5, 5)
+
+
+def test_phase2_guided_rollout_is_seeded_and_reaches_terminal():
+    def run():
+        env = env_from(MIDGAME)
+        reward = _rollout(
+            env,
+            root_player=env.state.current_player,
+            rng=random.Random(19),
+            deadline=None,
+            policy="epsilon_tactical_local",
+            epsilon=0.15,
+            neighbor_radius=2,
+        )
+        return reward, env.state
+
+    assert run() == run()
+    reward, state = run()
+    assert state.terminated
+    assert reward in (-1.0, 0.0, 1.0)
+
+
+def phase2_agent(*, reuse_simulation_env: bool) -> MCTSAgent:
+    return upgraded_agent(
+        tactical_precheck=False,
+        rollout_policy="epsilon_tactical_local",
+        rollout_epsilon=0.15,
+        reuse_simulation_env=reuse_simulation_env,
+    )
+
+
+def test_phase2_clone_once_undo_matches_per_simulation_clone_and_preserves_env():
+    budget = SearchBudget(simulations=80, seed=23)
+    original = env_from(MIDGAME)
+    before = original.state
+    clone_each = phase2_agent(reuse_simulation_env=False).choose_action(original, budget)
+    shared_agent = phase2_agent(reuse_simulation_env=True)
+    clone_once = shared_agent.choose_action(original, budget)
+
+    assert (clone_once.action, clone_once.score, clone_once.nodes, clone_once.simulations) == (
+        clone_each.action,
+        clone_each.score,
+        clone_each.nodes,
+        clone_each.simulations,
+    )
+    assert original.state == before
+    assert shared_agent.last_search_stats["timing_ms"]["clone"] >= 0.0
+
+
+def test_phase2_clone_once_rewinds_when_time_budget_interrupts_rollout():
+    env = env_from(MIDGAME)
+    before = env.state
+    decision = phase2_agent(reuse_simulation_env=True).choose_action(
+        env, SearchBudget(simulations=100_000, time_limit_ms=10, seed=7)
+    )
+    assert decision.action in env.legal_actions()
+    assert decision.simulations < 100_000
+    assert env.state == before
+
+
+def test_phase2_normalized_line_value_is_bounded_and_antisymmetric():
+    env = env_from(MIDGAME)
+    board = env.state.board
+    x_value = normalized_line_value(board, Player.X, env.config.win_length)
+    o_value = normalized_line_value(board, Player.O, env.config.win_length)
+    assert -1.0 <= x_value <= 1.0
+    assert -1.0 <= o_value <= 1.0
+    assert x_value == pytest.approx(-o_value)
+
+
+def test_phase2_rollout_horizon_uses_normalized_nonterminal_value():
+    env = env_from(MIDGAME)
+    before_count = env.state.move_count
+    reward = _rollout(
+        env,
+        root_player=env.state.current_player,
+        rng=random.Random(5),
+        deadline=None,
+        policy="epsilon_tactical_local",
+        epsilon=0.15,
+        neighbor_radius=2,
+        horizon=4,
+    )
+    assert not env.is_terminal()
+    assert env.state.move_count == before_count + 4
+    assert reward is not None and -1.0 <= reward <= 1.0
+
+
+def test_strength_profile_is_seeded_legal_and_uses_bounded_pattern_leaf():
+    options = {
+        "tactical_precheck": True,
+        "candidate_policy": "heuristic_seeded",
+        "progressive_widening_c": 1.5,
+        "progressive_widening_alpha": 0.5,
+        "rollout_policy": "epsilon_heuristic",
+        "rollout_epsilon": 0.15,
+        "rollout_horizon": 8,
+        "leaf_evaluation": "pattern",
+        "reuse_simulation_env": True,
+        "exploration_weight": 0.7,
+    }
+    budget = SearchBudget(simulations=80, seed=31)
+    env = env_from(MIDGAME)
+    before = env.state
+    first = MCTSAgent(**options).choose_action(env, budget)
+    second = MCTSAgent(**options).choose_action(env, budget)
+    assert first.action in env.legal_actions()
+    assert (first.action, first.score, first.nodes, first.simulations) == (
+        second.action,
+        second.score,
+        second.nodes,
+        second.simulations,
+    )
+    assert -1.0 <= float(first.score) <= 1.0
+    assert env.state == before
 
 
 # ---------------------------------------------------------------------------

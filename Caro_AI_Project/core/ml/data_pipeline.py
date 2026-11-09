@@ -216,6 +216,40 @@ def deduplicate_splits(
     return clean, removed
 
 
+def balance_samples_by_source(
+    samples: list[PolicySample],
+    *,
+    seed: int,
+) -> tuple[list[PolicySample], dict[str, Any]]:
+    """Deterministically downsample each teacher source to the smallest group."""
+
+    groups: dict[str, list[PolicySample]] = {}
+    for sample in samples:
+        source = sample.metadata.get("source_agent")
+        if not isinstance(source, str) or not source:
+            raise RawDataError("source-agent balancing requires source_agent metadata")
+        groups.setdefault(source, []).append(sample)
+    if not groups:
+        raise RawDataError("cannot balance an empty sample list")
+    target = min(len(group) for group in groups.values())
+    rng = random.Random(seed)
+    balanced: list[PolicySample] = []
+    before = {name: len(group) for name, group in sorted(groups.items())}
+    for name in sorted(groups):
+        group = list(groups[name])
+        rng.shuffle(group)
+        balanced.extend(group[:target])
+    rng.shuffle(balanced)
+    after = {name: target for name in sorted(groups)}
+    return balanced, {
+        "enabled": True,
+        "before": before,
+        "after": after,
+        "per_source_target": target,
+        "removed": sum(before.values()) - sum(after.values()),
+    }
+
+
 def d4_augment(sample: PolicySample) -> list[PolicySample]:
     """Create all D4 transforms while transforming action and legal mask too."""
     size = sample.x.shape[-1]
@@ -325,16 +359,24 @@ def build_dataset(raw_dir: str | Path, output_dir: str | Path, config: Mapping[s
         splits[name].extend(samples_from_raw_game(record))
     before = {name: len(value) for name, value in splits.items()}
     splits, removed = deduplicate_splits(splits)
+    source_balance: dict[str, Any] = {
+        name: {"enabled": False} for name in ("train", "val", "test")
+    }
+    if config.get("balance_source_agents", False):
+        for offset, name in enumerate(("train", "val", "test")):
+            splits[name], source_balance[name] = balance_samples_by_source(
+                splits[name], seed=seed + offset
+            )
     if config.get("train_d4_augmentation", True):
         splits["train"] = [variant for sample in splits["train"] for variant in d4_augment(sample)]
     output.mkdir(parents=True, exist_ok=True)
     split_path = output / "split_game_ids.json"
     split_path.write_text(json.dumps(assignments, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     artifacts = {name: _write_split(output, name, samples) for name, samples in splits.items()}
-    validation = {"games": {name: len(value) for name, value in assignments.items()}, "samples_before_dedup": before, "duplicates_removed": removed, "samples_after_export": {name: item["samples"] for name, item in artifacts.items()}, "cross_split_game_overlap": 0}
+    validation = {"games": {name: len(value) for name, value in assignments.items()}, "samples_before_dedup": before, "duplicates_removed": removed, "source_agent_balance": source_balance, "samples_after_export": {name: item["samples"] for name, item in artifacts.items()}, "cross_split_game_overlap": 0}
     report_path = output / "validation_report.json"
     report_path.write_text(json.dumps(validation, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return {"dataset_schema": DATASET_SCHEMA_NAME, "dataset_version": config.get("dataset_version", "dataset-v1"), "contract_version": CONTRACT_VERSION, "board_size": records[0].config.board_size, "win_length": records[0].config.win_length, "raw_run_id": raw_manifest.get("run_id"), "raw_manifest_sha256": sha256_file(raw_manifest_path), "split_seed": seed, "split_game_ids": {"path": split_path.name, "sha256": sha256_file(split_path)}, "encoder": {"channels": ["current_player", "opponent", "legal"], "dtype": "float32"}, "train_d4_augmentation": bool(config.get("train_d4_augmentation", True)), "artifacts": artifacts, "validation": validation, "validation_report": {"path": report_path.name, "sha256": sha256_file(report_path)}}
+    return {"dataset_schema": DATASET_SCHEMA_NAME, "dataset_version": config.get("dataset_version", "dataset-v1"), "contract_version": CONTRACT_VERSION, "board_size": records[0].config.board_size, "win_length": records[0].config.win_length, "raw_run_id": raw_manifest.get("run_id"), "raw_manifest_sha256": sha256_file(raw_manifest_path), "split_seed": seed, "split_game_ids": {"path": split_path.name, "sha256": sha256_file(split_path)}, "encoder": {"channels": ["current_player", "opponent", "legal"], "dtype": "float32"}, "train_d4_augmentation": bool(config.get("train_d4_augmentation", True)), "balance_source_agents": bool(config.get("balance_source_agents", False)), "artifacts": artifacts, "validation": validation, "validation_report": {"path": report_path.name, "sha256": sha256_file(report_path)}}
 
 
-__all__ = ["RAW_SCHEMA_NAME", "DATASET_SCHEMA_NAME", "RawDataError", "PolicySample", "sha256_file", "iter_raw_games", "replay_raw_game", "encode_policy_state", "samples_from_raw_game", "split_game_ids", "deduplicate_splits", "d4_augment", "load_dataset_split", "build_dataset"]
+__all__ = ["RAW_SCHEMA_NAME", "DATASET_SCHEMA_NAME", "RawDataError", "PolicySample", "sha256_file", "iter_raw_games", "replay_raw_game", "encode_policy_state", "samples_from_raw_game", "split_game_ids", "deduplicate_splits", "balance_samples_by_source", "d4_augment", "load_dataset_split", "build_dataset"]
