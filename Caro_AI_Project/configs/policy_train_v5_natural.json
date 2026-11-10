@@ -1,0 +1,26 @@
+{
+  "contract_version": "caro-v2",
+  "run_id": "policy-v5-natural-teachers-colab",
+  "dataset": {
+    "version": "dataset-v5-clean-d4-natural-teachers",
+    "manifest_sha256": "2515e17c3037a4c632ce96d8f95ee3b9197c939f18464d14cd8c22c8a266fc72"
+  },
+  "model": {
+    "architecture_version": "caro-policynet-resnet-v1",
+    "board_size": 11,
+    "input_channels": 3,
+    "channels": 64,
+    "residual_blocks": 4,
+    "policy_channels": 32,
+    "dropout": 0.1
+  },
+  "training": {
+    "seed": 20261109,
+    "batch_size": 256,
+    "epochs": 30,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "early_stopping_patience": 5,
+    "num_workers": 2
+  }
+}

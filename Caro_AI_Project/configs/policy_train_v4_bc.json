@@ -1,0 +1,26 @@
+{
+  "contract_version": "caro-v2",
+  "run_id": "policy-v4-bc-mcts70-outcome-colab",
+  "dataset": {
+    "version": "dataset-v4-clean-d4-mcts70-outcome-weighted",
+    "manifest_sha256": "3f927d0f301a107ee8e44948c35e143940eb3e54b5f49faa9e15d8ad69e8d868"
+  },
+  "model": {
+    "architecture_version": "caro-policynet-resnet-v1",
+    "board_size": 11,
+    "input_channels": 3,
+    "channels": 64,
+    "residual_blocks": 4,
+    "policy_channels": 32,
+    "dropout": 0.1
+  },
+  "training": {
+    "seed": 20261109,
+    "batch_size": 256,
+    "epochs": 30,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "early_stopping_patience": 5,
+    "num_workers": 2
+  }
+}
