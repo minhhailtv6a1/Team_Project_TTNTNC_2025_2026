@@ -11,7 +11,8 @@ import math
 import random
 
 from core.engine.interfaces import Action, BoardMatrix, GameConfig, Player
-from core.engine.rules import DIRECTIONS, RuleEngine
+
+DIRECTIONS: tuple[tuple[int, int], ...] = ((0, 1), (1, 0), (1, 1), (1, -1))
 
 __all__ = [
     "TacticalSummary",
@@ -45,6 +46,53 @@ def _opponent(player: Player) -> Player:
     return Player.O if player == Player.X else Player.X
 
 
+def _wins_from_action(
+    board: BoardMatrix,
+    action: Action,
+    player: Player,
+    config: GameConfig,
+) -> bool:
+    """Apply the public caro-v2 contiguous-line and blocked-ends contract."""
+
+    size = config.board_size
+    row, col = action
+    value = int(player)
+    opponent = -value
+    for dr, dc in DIRECTIONS:
+        start_row, start_col = row, col
+        while (
+            0 <= start_row - dr < size
+            and 0 <= start_col - dc < size
+            and board[start_row - dr][start_col - dc] == value
+        ):
+            start_row -= dr
+            start_col -= dc
+        count = 0
+        end_row, end_col = start_row, start_col
+        while (
+            0 <= end_row < size
+            and 0 <= end_col < size
+            and board[end_row][end_col] == value
+        ):
+            count += 1
+            end_row += dr
+            end_col += dc
+        if count < config.win_length:
+            continue
+        before_row, before_col = start_row - dr, start_col - dc
+        blocked_before = (
+            not (0 <= before_row < size and 0 <= before_col < size)
+            or board[before_row][before_col] == opponent
+        )
+        blocked_after = (
+            not (0 <= end_row < size and 0 <= end_col < size)
+            or board[end_row][end_col] == opponent
+        )
+        if not (blocked_before and blocked_after):
+            return True
+    return False
+
+
 def immediate_winning_actions(
     board: BoardMatrix,
     legal_actions: list[Action],
@@ -54,7 +102,7 @@ def immediate_winning_actions(
     """Return sorted legal actions that immediately win for ``player``.
 
     A private board copy is reused across probes, so the input board remains
-    unchanged and the exact Caro blocked-end rule stays delegated to RuleEngine.
+    unchanged. The helper implements the public caro-v2 blocked-end contract.
     """
 
     work = [row[:] for row in board]
@@ -66,7 +114,7 @@ def immediate_winning_actions(
         if work[row][col] != empty:
             continue
         work[row][col] = value
-        if RuleEngine.check_winner_from_action(work, action, config) == player:
+        if _wins_from_action(work, action, player, config):
             wins.append(action)
         work[row][col] = empty
     return wins
