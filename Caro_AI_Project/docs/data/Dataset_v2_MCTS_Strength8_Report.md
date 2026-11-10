@@ -98,8 +98,43 @@ Raw manifest ghi 4 `elapsed_mismatch` ở mức 55–77 ms trong lúc chạy 16 
 
 Các nhóm test data pipeline, self-play, MCTS và tournament đã chạy lại:
 
+Sau kiểm tra lại toàn bộ nhánh `main` và bổ sung luồng train:
+
 ```text
-105 passed in 7.01s
+1786 passed, 2 skipped in 42.14s
 ```
 
 Dataset có thể được đưa vào bước train thông qua `dataset_manifest.json` trong thư mục processed `_balanced`. Không cần chạy lại self-play trừ khi thay đổi teacher config hoặc muốn tăng quy mô dữ liệu.
+
+## Luồng train đã xác nhận sau merge
+
+Train phải đọc NPZ thông qua `load_dataset_split()`; không đọc raw JSONL. Entry point và config riêng cho model:
+
+- `scripts/train_policy.py`
+- `configs/policy_train_v2_mcts_strength.json`
+- `core/ml/architectures.py`
+
+Smoke test trên dataset thật, chỉ chạy hai batch train và hai batch validation:
+
+```powershell
+.\myenv\Scripts\python.exe scripts/train_policy.py `
+  --config configs/policy_train_v2_mcts_strength.json `
+  --dataset data/processed_tensors/w56_dataset_v2_mcts_strength8_2000_balanced `
+  --output tmp/policy_train_smoke_v2 `
+  --device cpu `
+  --smoke
+```
+
+Production training:
+
+```powershell
+.\myenv\Scripts\python.exe scripts/train_policy.py `
+  --config configs/policy_train_v2_mcts_strength.json `
+  --dataset data/processed_tensors/w56_dataset_v2_mcts_strength8_2000_balanced `
+  --output models/checkpoints/policy_v2_mcts_strength8 `
+  --device auto
+```
+
+Script chỉ load `train` và `val`; test set không được dùng để chọn checkpoint. Checkpoint tốt nhất dựa trên validation loss và chứa model config, optimizer state, seed, dataset version cùng SHA-256 của `dataset_manifest.json`.
+
+Smoke run sau merge đạt một epoch giới hạn với train loss `4,1908`, validation loss `4,0320`; checkpoint load lại thành công và mọi action dự đoán được xác nhận legal. Đây chỉ là kiểm tra tích hợp, không phải metric chất lượng model production.
