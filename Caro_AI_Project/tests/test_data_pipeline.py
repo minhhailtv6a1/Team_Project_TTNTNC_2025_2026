@@ -16,6 +16,7 @@ from core.ml.data_pipeline import (
     RAW_SCHEMA_NAME,
     RawDataError,
     balance_samples_by_source,
+    canonical_d4_state_hash,
     d4_augment,
     build_dataset,
     iter_raw_games,
@@ -23,7 +24,9 @@ from core.ml.data_pipeline import (
     load_dataset_split,
     sha256_file,
     samples_from_raw_game,
+    sample_train_by_source_and_outcome,
     split_game_ids,
+    purge_cross_split_d4_state_overlap,
 )
 from core.utils.logger import GameLogger, game_to_dict, write_manifest
 from core.utils.tournament_runner import Participant, play_game, run_match
@@ -101,6 +104,50 @@ def test_d4_transforms_keep_mask_and_target_aligned():
         assert (variant.x[2].reshape(-1).astype(bool) == variant.legal_mask).all()
 
 
+def test_d4_state_hash_is_invariant_and_excludes_target():
+    sample = samples_from_raw_game(next(iter_raw_games(FIXTURE)))[6]
+    variants = d4_augment(sample)
+
+    assert {canonical_d4_state_hash(variant) for variant in variants} == {
+        canonical_d4_state_hash(sample)
+    }
+    alternate_target = next(
+        index
+        for index, legal in enumerate(sample.legal_mask)
+        if legal and index != sample.target
+    )
+    alternate = type(sample)(
+        x=sample.x,
+        legal_mask=sample.legal_mask,
+        target=alternate_target,
+        metadata=sample.metadata,
+    )
+    assert canonical_d4_state_hash(alternate) == canonical_d4_state_hash(sample)
+
+
+def test_d4_split_isolation_purges_later_orbits_but_keeps_local_targets():
+    samples = samples_from_raw_game(next(iter_raw_games(FIXTURE)))
+    train_sample = samples[6]
+    train_variant = d4_augment(train_sample)[3]
+    val_variant = d4_augment(train_sample)[5]
+    unrelated_test_sample = samples[5]
+
+    clean, report = purge_cross_split_d4_state_overlap({
+        "train": [train_sample, train_variant],
+        "val": [val_variant],
+        "test": [unrelated_test_sample],
+    })
+
+    assert clean == {
+        "train": [train_sample, train_variant],
+        "val": [],
+        "test": [unrelated_test_sample],
+    }
+    assert report["priority"] == ["train", "val", "test"]
+    assert report["removed"] == {"train": 0, "val": 1, "test": 0}
+    assert report["cross_split_d4_state_overlap"] == 0
+
+
 def test_source_agent_balancing_is_equal_and_deterministic():
     base = samples_from_raw_game(next(iter_raw_games(FIXTURE)))
     counts = {"heuristic": 5, "mcts": 4, "minimax": 3}
@@ -127,6 +174,32 @@ def test_source_agent_balancing_is_equal_and_deterministic():
     ]
     assert report == repeated_report
     assert report["removed"] == 3
+
+
+def test_train_sampling_applies_source_quotas_and_is_deterministic():
+    base = samples_from_raw_game(next(iter_raw_games(FIXTURE)))
+    samples = []
+    for source, count in {"heuristic": 10, "mcts": 30, "minimax": 10}.items():
+        for index in range(count):
+            sample = base[index % len(base)]
+            samples.append(type(sample)(
+                x=sample.x,
+                legal_mask=sample.legal_mask,
+                target=sample.target,
+                metadata={**sample.metadata, "source_agent": source},
+            ))
+    kwargs = {
+        "source_ratios": {"heuristic": 0.1, "mcts": 0.7, "minimax": 0.2},
+        "outcome_weights": {"win": 1.0, "draw": 0.5, "loss": 0.25},
+        "seed": 19,
+    }
+    selected, report = sample_train_by_source_and_outcome(samples, **kwargs)
+    repeated, repeated_report = sample_train_by_source_and_outcome(samples, **kwargs)
+    assert Counter(item.metadata["source_agent"] for item in selected) == {
+        "heuristic": 4, "mcts": 29, "minimax": 9,
+    }
+    assert [item.metadata for item in selected] == [item.metadata for item in repeated]
+    assert report == repeated_report
 
 
 def test_game_split_is_deterministic_and_disjoint():
@@ -178,9 +251,12 @@ def test_integration_raw_replay_split_export_and_load_batch(tmp_path):
     manifest = build_dataset(raw_dir, dataset_dir, {
         "contract_version": "caro-v2", "dataset_version": "fixture-v1",
         "split_seed": 7, "train_d4_augmentation": False,
+        "d4_split_isolation": True,
     })
     write_manifest(dataset_dir / "dataset_manifest.json", manifest)
     assert manifest["validation"]["games"] == {"train": 14, "val": 3, "test": 3}
+    assert manifest["d4_split_isolation"] is True
+    assert manifest["validation"]["d4_split_isolation"]["cross_split_d4_state_overlap"] == 0
     for split in ("train", "val", "test"):
         batch = load_dataset_split(dataset_dir, split)
         assert batch["x"].shape[1:] == (3, 11, 11)
