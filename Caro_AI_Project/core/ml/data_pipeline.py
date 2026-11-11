@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import random
+from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -216,6 +217,71 @@ def deduplicate_splits(
     return clean, removed
 
 
+def canonical_d4_state_hash(sample: PolicySample) -> bytes:
+    """Return a symmetry-invariant hash for the encoded policy state.
+
+    The target is deliberately excluded.  A board position and every one of
+    its rotations/reflections must belong to only one dataset split even when
+    different teachers selected different legal actions from that position.
+    """
+
+    variants: list[bytes] = []
+    for turns in range(4):
+        rotated = np.rot90(sample.x, turns, axes=(1, 2))
+        for reflected in (False, True):
+            transformed = np.flip(rotated, axis=2) if reflected else rotated
+            packed = np.packbits(
+                np.ascontiguousarray(transformed, dtype=np.float32)
+                .astype(bool, copy=False)
+                .reshape(-1),
+                bitorder="little",
+            )
+            variants.append(packed.tobytes())
+    return hashlib.sha256(min(variants)).digest()
+
+
+def purge_cross_split_d4_state_overlap(
+    splits: Mapping[str, list[PolicySample]],
+) -> tuple[dict[str, list[PolicySample]], dict[str, Any]]:
+    """Keep each D4 state orbit in only one split.
+
+    Existing game assignments remain unchanged.  When games in multiple
+    splits visit symmetry-equivalent states, ownership follows the explicit
+    train, validation, test priority and later copies are purged.  Alternative
+    teacher targets inside the owning split are retained.
+    """
+
+    order = ("train", "val", "test")
+    if set(splits) != set(order):
+        raise RawDataError("D4 split isolation requires train, val, and test splits")
+    owners: dict[bytes, str] = {}
+    clean: dict[str, list[PolicySample]] = {}
+    removed: dict[str, int] = {}
+    unique_orbits: dict[str, int] = {}
+    for name in order:
+        kept: list[PolicySample] = []
+        local_orbits: set[bytes] = set()
+        count = 0
+        for sample in splits[name]:
+            key = canonical_d4_state_hash(sample)
+            owner = owners.setdefault(key, name)
+            if owner != name:
+                count += 1
+                continue
+            kept.append(sample)
+            local_orbits.add(key)
+        clean[name] = kept
+        removed[name] = count
+        unique_orbits[name] = len(local_orbits)
+    return clean, {
+        "enabled": True,
+        "priority": list(order),
+        "removed": removed,
+        "unique_orbits": unique_orbits,
+        "cross_split_d4_state_overlap": 0,
+    }
+
+
 def balance_samples_by_source(
     samples: list[PolicySample],
     *,
@@ -250,6 +316,74 @@ def balance_samples_by_source(
     }
 
 
+def sample_train_by_source_and_outcome(
+    samples: list[PolicySample],
+    *,
+    source_ratios: Mapping[str, float],
+    outcome_weights: Mapping[str, float],
+    seed: int,
+) -> tuple[list[PolicySample], dict[str, Any]]:
+    """Deterministically curate train samples by teacher and game outcome."""
+
+    ratios = {str(name): float(value) for name, value in source_ratios.items()}
+    weights = {str(name): float(value) for name, value in outcome_weights.items()}
+    if not ratios or any(value <= 0 for value in ratios.values()) or not math.isclose(sum(ratios.values()), 1.0):
+        raise RawDataError("train source ratios must be positive and sum to one")
+    if set(weights) != {"win", "draw", "loss"} or any(value <= 0 for value in weights.values()):
+        raise RawDataError("outcome weights must contain positive win, draw, and loss values")
+    groups: dict[str, list[PolicySample]] = {name: [] for name in ratios}
+    for sample in samples:
+        source = sample.metadata.get("source_agent")
+        if source not in groups:
+            raise RawDataError(f"unexpected source agent for train sampling: {source!r}")
+        groups[str(source)].append(sample)
+    total = math.floor(min(len(groups[name]) / ratio for name, ratio in ratios.items()))
+    quotas = {name: math.floor(total * ratio) for name, ratio in ratios.items()}
+    remainder = total - sum(quotas.values())
+    ranked = sorted(ratios, key=lambda name: (-(total * ratios[name] - quotas[name]), name))
+    for name in ranked:
+        if remainder <= 0:
+            break
+        if quotas[name] < len(groups[name]):
+            quotas[name] += 1
+            remainder -= 1
+    rng = random.Random(seed)
+
+    def outcome(sample: PolicySample) -> str:
+        winner, player = sample.metadata.get("winner"), sample.metadata.get("player")
+        if winner is None:
+            return "draw"
+        if not isinstance(player, int) or not isinstance(winner, int):
+            raise RawDataError("outcome sampling requires integer player/winner metadata")
+        return "win" if winner == player else "loss"
+
+    selected: list[PolicySample] = []
+    before_outcomes: Counter[str] = Counter()
+    after_outcomes: Counter[str] = Counter()
+    for name in sorted(groups):
+        group = groups[name]
+        before_outcomes.update(outcome(sample) for sample in group)
+        scored = [
+            (math.log(max(rng.random(), 1e-300)) / weights[outcome(sample)], index, sample)
+            for index, sample in enumerate(group)
+        ]
+        chosen = [item[2] for item in sorted(scored, reverse=True)[:quotas[name]]]
+        selected.extend(chosen)
+        after_outcomes.update(outcome(sample) for sample in chosen)
+    rng.shuffle(selected)
+    return selected, {
+        "enabled": True,
+        "seed": seed,
+        "source_ratios": ratios,
+        "outcome_weights": weights,
+        "source_counts_before": {name: len(groups[name]) for name in sorted(groups)},
+        "source_counts_after": {name: quotas[name] for name in sorted(quotas)},
+        "outcome_counts_before": dict(sorted(before_outcomes.items())),
+        "outcome_counts_after": dict(sorted(after_outcomes.items())),
+        "samples_after": len(selected),
+    }
+
+
 def d4_augment(sample: PolicySample) -> list[PolicySample]:
     """Create all D4 transforms while transforming action and legal mask too."""
     size = sample.x.shape[-1]
@@ -276,13 +410,30 @@ def d4_augment(sample: PolicySample) -> list[PolicySample]:
 def _write_split(output: Path, name: str, samples: list[PolicySample]) -> dict[str, Any]:
     if not samples:
         raise RawDataError(f"{name} split is empty")
-    x = np.stack([sample.x for sample in samples]).astype(np.float32, copy=False)
-    mask = np.stack([sample.legal_mask for sample in samples]).astype(bool, copy=False)
-    target = np.asarray([sample.target for sample in samples], dtype=np.int64)
-    if not np.all(mask[np.arange(len(target)), target]):
-        raise RawDataError(f"{name} split has illegal target")
     tensors, metadata = output / f"{name}.npz", output / f"{name}_metadata.jsonl"
-    np.savez_compressed(tensors, x=x, legal_mask=mask, target=target)
+    cache = output / ".build_cache"
+    cache.mkdir(exist_ok=True)
+    paths = {field: cache / f"{name}_{field}.npy" for field in ("x", "legal_mask", "target")}
+    x = np.lib.format.open_memmap(paths["x"], mode="w+", dtype=np.float32, shape=(len(samples), *samples[0].x.shape))
+    mask = np.lib.format.open_memmap(paths["legal_mask"], mode="w+", dtype=bool, shape=(len(samples), *samples[0].legal_mask.shape))
+    target = np.lib.format.open_memmap(paths["target"], mode="w+", dtype=np.int64, shape=(len(samples),))
+    try:
+        for index, sample in enumerate(samples):
+            x[index] = sample.x
+            mask[index] = sample.legal_mask
+            target[index] = sample.target
+        if not np.all(mask[np.arange(len(target)), target]):
+            raise RawDataError(f"{name} split has illegal target")
+        x.flush(); mask.flush(); target.flush()
+        np.savez_compressed(tensors, x=x, legal_mask=mask, target=target)
+    finally:
+        del x, mask, target
+        for path in paths.values():
+            path.unlink(missing_ok=True)
+        try:
+            cache.rmdir()
+        except OSError:
+            pass
     with metadata.open("w", encoding="utf-8", newline="\n") as stream:
         for sample in samples:
             stream.write(json.dumps(sample.metadata, ensure_ascii=False, separators=(",", ":")) + "\n")
@@ -359,11 +510,33 @@ def build_dataset(raw_dir: str | Path, output_dir: str | Path, config: Mapping[s
         splits[name].extend(samples_from_raw_game(record))
     before = {name: len(value) for name, value in splits.items()}
     splits, removed = deduplicate_splits(splits)
+    d4_split_isolation: dict[str, Any] = {
+        "enabled": False,
+        "cross_split_d4_state_overlap": None,
+    }
+    if config.get("d4_split_isolation", False):
+        splits, d4_split_isolation = purge_cross_split_d4_state_overlap(splits)
     source_balance: dict[str, Any] = {
         name: {"enabled": False} for name in ("train", "val", "test")
     }
+    train_policy_sampling: dict[str, Any] = {"enabled": False}
+    train_source_ratios = config.get("train_source_ratios")
+    if train_source_ratios is not None:
+        if not isinstance(train_source_ratios, Mapping) or not isinstance(config.get("train_outcome_weights"), Mapping):
+            raise RawDataError("train source ratios and outcome weights must be mappings")
+        splits["train"], train_policy_sampling = sample_train_by_source_and_outcome(
+            splits["train"],
+            source_ratios=train_source_ratios,
+            outcome_weights=config["train_outcome_weights"],
+            seed=seed,
+        )
+        source_balance["train"] = {"enabled": False, "replaced_by": "train_policy_sampling"}
     if config.get("balance_source_agents", False):
-        for offset, name in enumerate(("train", "val", "test")):
+        balance_train = bool(config.get("balance_train_source_agents", True))
+        names = ("val", "test") if train_source_ratios is not None or not balance_train else ("train", "val", "test")
+        if not balance_train and train_source_ratios is None:
+            source_balance["train"] = {"enabled": False, "reason": "natural_source_distribution"}
+        for offset, name in enumerate(names):
             splits[name], source_balance[name] = balance_samples_by_source(
                 splits[name], seed=seed + offset
             )
@@ -373,10 +546,10 @@ def build_dataset(raw_dir: str | Path, output_dir: str | Path, config: Mapping[s
     split_path = output / "split_game_ids.json"
     split_path.write_text(json.dumps(assignments, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     artifacts = {name: _write_split(output, name, samples) for name, samples in splits.items()}
-    validation = {"games": {name: len(value) for name, value in assignments.items()}, "samples_before_dedup": before, "duplicates_removed": removed, "source_agent_balance": source_balance, "samples_after_export": {name: item["samples"] for name, item in artifacts.items()}, "cross_split_game_overlap": 0}
+    validation = {"games": {name: len(value) for name, value in assignments.items()}, "samples_before_dedup": before, "duplicates_removed": removed, "d4_split_isolation": d4_split_isolation, "train_policy_sampling": train_policy_sampling, "source_agent_balance": source_balance, "samples_after_export": {name: item["samples"] for name, item in artifacts.items()}, "cross_split_game_overlap": 0}
     report_path = output / "validation_report.json"
     report_path.write_text(json.dumps(validation, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return {"dataset_schema": DATASET_SCHEMA_NAME, "dataset_version": config.get("dataset_version", "dataset-v1"), "contract_version": CONTRACT_VERSION, "board_size": records[0].config.board_size, "win_length": records[0].config.win_length, "raw_run_id": raw_manifest.get("run_id"), "raw_manifest_sha256": sha256_file(raw_manifest_path), "split_seed": seed, "split_game_ids": {"path": split_path.name, "sha256": sha256_file(split_path)}, "encoder": {"channels": ["current_player", "opponent", "legal"], "dtype": "float32"}, "train_d4_augmentation": bool(config.get("train_d4_augmentation", True)), "balance_source_agents": bool(config.get("balance_source_agents", False)), "artifacts": artifacts, "validation": validation, "validation_report": {"path": report_path.name, "sha256": sha256_file(report_path)}}
+    return {"dataset_schema": DATASET_SCHEMA_NAME, "dataset_version": config.get("dataset_version", "dataset-v1"), "contract_version": CONTRACT_VERSION, "board_size": records[0].config.board_size, "win_length": records[0].config.win_length, "raw_run_id": raw_manifest.get("run_id"), "raw_manifest_sha256": sha256_file(raw_manifest_path), "split_seed": seed, "split_game_ids": {"path": split_path.name, "sha256": sha256_file(split_path)}, "encoder": {"channels": ["current_player", "opponent", "legal"], "dtype": "float32"}, "train_d4_augmentation": bool(config.get("train_d4_augmentation", True)), "d4_split_isolation": bool(config.get("d4_split_isolation", False)), "balance_source_agents": bool(config.get("balance_source_agents", False)), "balance_train_source_agents": bool(config.get("balance_train_source_agents", True)), "train_source_ratios": train_source_ratios, "train_outcome_weights": config.get("train_outcome_weights"), "artifacts": artifacts, "validation": validation, "validation_report": {"path": report_path.name, "sha256": sha256_file(report_path)}}
 
 
-__all__ = ["RAW_SCHEMA_NAME", "DATASET_SCHEMA_NAME", "RawDataError", "PolicySample", "sha256_file", "iter_raw_games", "replay_raw_game", "encode_policy_state", "samples_from_raw_game", "split_game_ids", "deduplicate_splits", "balance_samples_by_source", "d4_augment", "load_dataset_split", "build_dataset"]
+__all__ = ["RAW_SCHEMA_NAME", "DATASET_SCHEMA_NAME", "RawDataError", "PolicySample", "sha256_file", "iter_raw_games", "replay_raw_game", "encode_policy_state", "samples_from_raw_game", "split_game_ids", "deduplicate_splits", "canonical_d4_state_hash", "purge_cross_split_d4_state_overlap", "balance_samples_by_source", "sample_train_by_source_and_outcome", "d4_augment", "load_dataset_split", "build_dataset"]

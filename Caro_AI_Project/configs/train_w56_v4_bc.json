@@ -1,0 +1,19 @@
+{
+  "contract_version": "caro-v2",
+  "dataset_version": "dataset-v4-clean-d4-mcts70-outcome-weighted",
+  "split_seed": 20261109,
+  "balance_source_agents": true,
+  "train_d4_augmentation": true,
+  "d4_split_isolation": true,
+  "train_source_ratios": {
+    "heuristic": 0.1,
+    "mcts": 0.7,
+    "minimax": 0.2
+  },
+  "train_outcome_weights": {
+    "win": 1.0,
+    "draw": 0.5,
+    "loss": 0.25
+  },
+  "export_format": "npz"
+}

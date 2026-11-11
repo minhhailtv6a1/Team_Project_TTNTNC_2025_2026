@@ -1,0 +1,9 @@
+{
+  "contract_version": "caro-v2",
+  "dataset_version": "dataset-v3-three-agents-mcts-strength8-2000-clean-d4",
+  "split_seed": 20261109,
+  "balance_source_agents": true,
+  "train_d4_augmentation": true,
+  "d4_split_isolation": true,
+  "export_format": "npz"
+}

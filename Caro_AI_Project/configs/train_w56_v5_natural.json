@@ -1,0 +1,10 @@
+{
+  "contract_version": "caro-v2",
+  "dataset_version": "dataset-v5-clean-d4-natural-teachers",
+  "split_seed": 20261109,
+  "balance_source_agents": true,
+  "balance_train_source_agents": false,
+  "train_d4_augmentation": true,
+  "d4_split_isolation": true,
+  "export_format": "npz"
+}
