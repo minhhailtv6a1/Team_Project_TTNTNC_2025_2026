@@ -9,15 +9,15 @@
 
 ## 1. Baseline hiện tại và phần còn thiếu
 
-| Hạng mục | Đã có | Cần hoàn tất trong Tuần 7-8 |
-|---|---|---|
-| Engine và agent | Engine, Random, Heuristic, Minimax, MCTS, NeuralAgent và test | Freeze phiên bản; chỉ sửa lỗi correctness có bằng chứng |
-| Dữ liệu và model | Dataset v5, checkpoint Policy v5, báo cáo train/eval riêng | Khóa checkpoint/checksum, learning curve và failure cases |
-| Đánh giá | Có kết quả Policy v5 đấu 3 agent | Round-robin đủ 5 agent, đủ 100 ván/cặp, 2 chế độ, CI và chi phí |
-| Ablation | Có benchmark rời; `05_Ablation_Study.ipynb` rỗng | Alpha-Beta ON/OFF và MCTS 100/400/1000 simulations |
-| UI | Có lựa chọn Human vs AI, AI vs AI nhưng chưa gọi agent | Kết nối 5 agent, demo ổn định và video |
-| Báo cáo | Có khung và phân công chương | Viết bản thảo theo owner, ghép bản cuối, slide và poster |
-| Tái lập | Có test, config, scripts train/self-play | Một luồng setup -> test -> evaluate -> demo; README và ZIP checksum |
+| Hạng mục         | Đã có                                                         | Cần hoàn tất trong Tuần 7-8                                         |
+| ---------------- | ------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Engine và agent  | Engine, Random, Heuristic, Minimax, MCTS, NeuralAgent và test | Freeze phiên bản; chỉ sửa lỗi correctness có bằng chứng             |
+| Dữ liệu và model | Dataset v5, checkpoint Policy v5, báo cáo train/eval riêng    | Khóa checkpoint/checksum, learning curve và failure cases           |
+| Đánh giá         | Có kết quả Policy v5 đấu 3 agent                              | Round-robin đủ 5 agent, đủ 100 ván/cặp, 2 chế độ, CI và chi phí     |
+| Ablation         | Có benchmark rời; `05_Ablation_Study.ipynb` rỗng              | Alpha-Beta ON/OFF và MCTS 100/400/1000 simulations                  |
+| UI               | Có lựa chọn Human vs AI, AI vs AI nhưng chưa gọi agent        | Kết nối 5 agent, demo ổn định và video                              |
+| Báo cáo          | Có khung và phân công chương                                  | Viết bản thảo theo owner, ghép bản cuối, slide và poster            |
+| Tái lập          | Có test, config, scripts train/self-play                      | Một luồng setup -> test -> evaluate -> demo; README và ZIP checksum |
 
 **Cổng bắt đầu:** hợp nhất xong thay đổi Tuần 5-6, working tree sạch, full test không có assertion failure, ghi lại commit SHA, checkpoint SHA-256, dataset manifest SHA-256, phần cứng, phiên bản thư viện và seed. Chưa đạt cổng thì chưa chạy tournament chính thức.
 
@@ -35,11 +35,11 @@
 
 ## 3. Phân công không conflict
 
-| Thành viên | Task xuyên suốt | File/thư mục được sửa chính |
-|---|---|---|
-| **M1 - Trần Hồ Minh Hải** | `W78-M1-01` - Tích hợp UI, bằng chứng model, demo và slide | `ui/app.py`, `ui/human_controller.py`, `tests/test_ui_ai_modes.py`, `docs/report/drafts/hai_ch06_ch07.md`, `docs/report/assets/hai/`, `docs/presentation/`, `docs/demo/` |
-| **M2 - Lê Thị Trúc Ly** | `W78-M2-01` - Hai ablation, phân tích chiến thuật, chương thuật toán và poster | `benchmarks/run_ablation_w78.py`, `configs/ablation_w78.json`, `notebooks/05_Ablation_Study.ipynb`, `tests/test_ablation_w78.py`, `docs/report/drafts/ly_ch02_ch04.md`, `docs/report/assets/ly/`, `docs/poster/`, `docs/review/Kiem_tra_ky_thuat_W78.md` |
-| **M3 - Trương Văn Thiện** | `W78-M3-01` - Round-robin, thống kê, chương thực nghiệm, README và release | `scripts/run_tournament_w78.py`, `scripts/analyze_results_w78.py`, `configs/tournament_w78.json`, `notebooks/04_Tournament_Eval.ipynb`, `tests/test_tournament_w78.py`, `tests/test_result_analysis_w78.py`, `docs/report/drafts/thien_ch01_ch03_ch05.md`, `docs/report/assets/thien/`, `docs/results/`, `README.md`, `docs/final/`, `docs/release/` |
+| Thành viên                | Task xuyên suốt                                                                | File/thư mục được sửa chính                                                                                                                                                                                                                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M1 - Trần Hồ Minh Hải** | `W78-M1-01` - Tích hợp UI, bằng chứng model, demo và slide                     | `ui/app.py`, `ui/human_controller.py`, `tests/test_ui_ai_modes.py`, `docs/report/drafts/hai_ch06_ch07.md`, `docs/report/assets/hai/`, `docs/presentation/`, `docs/demo/`                                                                                                                                                                             |
+| **M2 - Lê Thị Trúc Ly**   | `W78-M2-01` - Hai ablation, phân tích chiến thuật, chương thuật toán và poster | `benchmarks/run_ablation_w78.py`, `configs/ablation_w78.json`, `notebooks/05_Ablation_Study.ipynb`, `tests/test_ablation_w78.py`, `docs/report/drafts/ly_ch02_ch04.md`, `docs/report/assets/ly/`, `docs/poster/`, `docs/review/Kiem_tra_ky_thuat_W78.md`                                                                                             |
+| **M3 - Trương Văn Thiện** | `W78-M3-01` - Round-robin, thống kê, chương thực nghiệm, README và release     | `scripts/run_tournament_w78.py`, `scripts/analyze_results_w78.py`, `configs/tournament_w78.json`, `notebooks/04_Tournament_Eval.ipynb`, `tests/test_tournament_w78.py`, `tests/test_result_analysis_w78.py`, `docs/report/drafts/thien_ch01_ch03_ch05.md`, `docs/report/assets/thien/`, `docs/results/`, `README.md`, `docs/final/`, `docs/release/` |
 
 Quy tắc chống conflict:
 
@@ -66,7 +66,6 @@ Quy tắc chống conflict:
 
 #### Tuần 8
 
-- Viết trọn Chương 6 và 7 trong `hai_ch06_ch07.md`; không sửa chương của M2/M3.
 - Chụp ảnh demo, chuẩn bị slide thuyết trình và quay video ngắn: Human vs AI, AI vs AI, chọn đủ cấp độ.
 - Chạy fresh demo smoke theo README do M3 cung cấp; báo lỗi để M3 sửa README, không tự sửa.
 
@@ -97,7 +96,6 @@ Quy tắc chống conflict:
 
 #### Tuần 8
 
-- Viết trọn Chương 2 và 4 trong `ly_ch02_ch04.md`; nhận mô tả MCTS/Neural từ M1 và contract/metric từ M3.
 - Làm poster tóm tắt bài toán, 5 agent, pipeline, kết quả chính, 2 ablation và hạn chế.
 - Review kỹ thuật bản cuối: luật, thuật ngữ, công thức UCT/Alpha-Beta, ngân sách, số liệu và trích dẫn.
 
@@ -129,8 +127,6 @@ Quy tắc chống conflict:
 
 #### Tuần 8
 
-- Viết trọn Chương 1, 3 và 5 trong `thien_ch01_ch03_ch05.md`.
-- Sau khi M1/M2 bàn giao bản khóa, ghép báo cáo cuối; không viết lại nội dung chuyên môn của họ nếu chưa review.
 - Cập nhật README với setup, test, train hoặc tải checkpoint, evaluate và demo.
 - Kiểm tra fresh install, full test, link/artifact, đóng gói ZIP đúng tên và tạo SHA-256.
 - Gắn tag `results-v1` sau W7 và `v1.0` chỉ khi pre-flight cuối đạt.
@@ -218,10 +214,10 @@ Checklist cuối:
 
 ## 9. Sản phẩm bàn giao theo người
 
-| Người | Bàn giao bắt buộc |
-|---|---|
-| **Hải** | UI tích hợp 5 agent, test UI, learning/cost figures, 4 case boards, Chương 6-7, slide, video demo |
-| **Ly** | Hai ablation, notebook 05, tactical analysis, Chương 2-4, poster, checklist review kỹ thuật |
+| Người     | Bàn giao bắt buộc                                                                                                      |
+| --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Hải**   | UI tích hợp 5 agent, test UI, learning/cost figures, 4 case boards, Chương 6-7, slide, video demo                      |
+| **Ly**    | Hai ablation, notebook 05, tactical analysis, Chương 2-4, poster, checklist review kỹ thuật                            |
 | **Thiện** | Round-robin và analyzer, notebook 04, results-v1/checksum, Chương 1-3-5, báo cáo ghép, README, release manifest và ZIP |
 
 Hoàn thành Tuần 7-8 khi toàn bộ checklist đạt và mỗi artifact cuối truy ngược được về config, seed, commit và raw log tương ứng.
