@@ -1,0 +1,5385 @@
+{
+  "contract_version": "caro-v2",
+  "agent": "heuristic",
+  "checkpoint_load_status": "not_checked_by_generic_harness",
+  "fixture_sha256": "f1f6f184ce9ccbde69ff47d8ca7718411f8f794703effa45deaaaf95de9ad68f",
+  "contract_pass": true,
+  "quality_is_advisory": true,
+  "cases": [
+    {
+      "case_id": "opening_x",
+      "actions": [],
+      "expected_actions": [],
+      "kind": "opening",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        5,
+        5
+      ],
+      "teacher_action": [
+        5,
+        5
+      ],
+      "quality_action_hit": null,
+      "contract_pass": true
+    },
+    {
+      "case_id": "opening_o",
+      "actions": [
+        [
+          4,
+          6
+        ]
+      ],
+      "expected_actions": [],
+      "kind": "opening",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        5,
+        5
+      ],
+      "teacher_action": [
+        5,
+        5
+      ],
+      "quality_action_hit": null,
+      "contract_pass": true
+    },
+    {
+      "case_id": "midgame_x",
+      "actions": [
+        [
+          4,
+          6
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "expected_actions": [],
+      "kind": "midgame",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        2,
+        8
+      ],
+      "teacher_action": [
+        2,
+        8
+      ],
+      "quality_action_hit": null,
+      "contract_pass": true
+    },
+    {
+      "case_id": "win_x_gap",
+      "actions": [
+        [
+          6,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          8,
+          9
+        ]
+      ],
+      "expected_actions": [
+        [
+          6,
+          4
+        ]
+      ],
+      "kind": "win",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        6,
+        4
+      ],
+      "teacher_action": [
+        6,
+        4
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "block_o_gap",
+      "actions": [
+        [
+          6,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          6,
+          6
+        ]
+      ],
+      "expected_actions": [
+        [
+          6,
+          4
+        ]
+      ],
+      "kind": "block",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        6,
+        4
+      ],
+      "teacher_action": [
+        6,
+        4
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "block_x_gap",
+      "actions": [
+        [
+          1,
+          1
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          4,
+          7
+        ]
+      ],
+      "expected_actions": [
+        [
+          4,
+          5
+        ]
+      ],
+      "kind": "block",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        4,
+        5
+      ],
+      "teacher_action": [
+        4,
+        5
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "win_o_gap",
+      "actions": [
+        [
+          1,
+          1
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          9,
+          1
+        ]
+      ],
+      "expected_actions": [
+        [
+          4,
+          5
+        ]
+      ],
+      "kind": "win",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        4,
+        5
+      ],
+      "teacher_action": [
+        4,
+        5
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "win_before_block",
+      "actions": [
+        [
+          3,
+          2
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "expected_actions": [
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "kind": "win",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        3,
+        6
+      ],
+      "teacher_action": [
+        3,
+        6
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "win_edge",
+      "actions": [
+        [
+          0,
+          6
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          7,
+          3
+        ]
+      ],
+      "expected_actions": [
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          10
+        ]
+      ],
+      "kind": "win",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        0,
+        5
+      ],
+      "teacher_action": [
+        0,
+        5
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "terminal_win",
+      "actions": [
+        [
+          6,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      "expected_actions": [],
+      "kind": "terminal",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "contract_pass": true
+    },
+    {
+      "case_id": "win_vertical",
+      "actions": [
+        [
+          2,
+          6
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "expected_actions": [
+        [
+          4,
+          6
+        ]
+      ],
+      "kind": "win",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        4,
+        6
+      ],
+      "teacher_action": [
+        4,
+        6
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "win_diagonal",
+      "actions": [
+        [
+          2,
+          2
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "expected_actions": [
+        [
+          4,
+          4
+        ]
+      ],
+      "kind": "win",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        4,
+        4
+      ],
+      "teacher_action": [
+        4,
+        4
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "win_antidiagonal",
+      "actions": [
+        [
+          2,
+          8
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "expected_actions": [
+        [
+          4,
+          6
+        ]
+      ],
+      "kind": "win",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        4,
+        6
+      ],
+      "teacher_action": [
+        4,
+        6
+      ],
+      "quality_action_hit": true,
+      "contract_pass": true
+    },
+    {
+      "case_id": "near_full_x",
+      "actions": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          10
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          3,
+          10
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          4,
+          10
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          7,
+          10
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          8,
+          6
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          9,
+          6
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          2
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          4
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          5
+        ],
+        [
+          10,
+          8
+        ]
+      ],
+      "expected_actions": [],
+      "kind": "near_full",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        10,
+        7
+      ],
+      "teacher_action": [
+        10,
+        7
+      ],
+      "quality_action_hit": null,
+      "contract_pass": true
+    },
+    {
+      "case_id": "near_full_o",
+      "actions": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          10
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          3,
+          10
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          4,
+          10
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          7,
+          10
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          8,
+          6
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          9,
+          6
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          2
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          4
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          5
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          10,
+          7
+        ]
+      ],
+      "expected_actions": [],
+      "kind": "near_full",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "action": [
+        10,
+        9
+      ],
+      "teacher_action": [
+        10,
+        9
+      ],
+      "quality_action_hit": null,
+      "contract_pass": true
+    },
+    {
+      "case_id": "terminal_draw",
+      "actions": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          10
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          3,
+          10
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          4,
+          10
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          7,
+          10
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          8,
+          6
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          9,
+          6
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          2
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          4
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          5
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          9
+        ]
+      ],
+      "expected_actions": [],
+      "kind": "terminal",
+      "contract_errors": [],
+      "top5": null,
+      "top5_status": "unavailable: no probability reader",
+      "contract_pass": true
+    }
+  ],
+  "factory": "core.agents.heuristic_ai:HeuristicAgent",
+  "smoke": {
+    "purpose": "pipeline only; no strength conclusion",
+    "pairs": [
+      {
+        "opponent": "random",
+        "records": [
+          {
+            "contract_version": "caro-v2",
+            "game_id": "s11-p0-g000-candidate-vs-opponent-random",
+            "config": {
+              "board_size": 11,
+              "win_length": 5
+            },
+            "seed": 550865691,
+            "x_agent": "candidate",
+            "o_agent": "opponent-random",
+            "moves": [
+              {
+                "ply": 1,
+                "player": 1,
+                "action": [
+                  5,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0911999852396548,
+                "nodes": 121,
+                "simulations": 0
+              },
+              {
+                "ply": 2,
+                "player": -1,
+                "action": [
+                  7,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.025999994250014424,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 3,
+                "player": 1,
+                "action": [
+                  4,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0817000002134591,
+                "nodes": 119,
+                "simulations": 0
+              },
+              {
+                "ply": 4,
+                "player": -1,
+                "action": [
+                  4,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.02239999594166875,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 5,
+                "player": 1,
+                "action": [
+                  6,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.6253000067081302,
+                "nodes": 117,
+                "simulations": 0
+              },
+              {
+                "ply": 6,
+                "player": -1,
+                "action": [
+                  5,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.034500000765547156,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 7,
+                "player": 1,
+                "action": [
+                  3,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.06969999615103,
+                "nodes": 115,
+                "simulations": 0
+              },
+              {
+                "ply": 8,
+                "player": -1,
+                "action": [
+                  6,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.023900007363408804,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 9,
+                "player": 1,
+                "action": [
+                  7,
+                  5
+                ],
+                "reward": 1.0,
+                "elapsed_ms": 1.0260999843012542,
+                "nodes": 113,
+                "simulations": 0
+              }
+            ],
+            "terminated": true,
+            "winner": 1
+          },
+          {
+            "contract_version": "caro-v2",
+            "game_id": "s11-p0-g001-opponent-random-vs-candidate",
+            "config": {
+              "board_size": 11,
+              "win_length": 5
+            },
+            "seed": 550865691,
+            "x_agent": "opponent-random",
+            "o_agent": "candidate",
+            "moves": [
+              {
+                "ply": 1,
+                "player": 1,
+                "action": [
+                  10,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.024899985874071717,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 2,
+                "player": -1,
+                "action": [
+                  10,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0976999765262008,
+                "nodes": 120,
+                "simulations": 0
+              },
+              {
+                "ply": 3,
+                "player": 1,
+                "action": [
+                  4,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.022799998987466097,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 4,
+                "player": -1,
+                "action": [
+                  5,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0710000060498714,
+                "nodes": 118,
+                "simulations": 0
+              },
+              {
+                "ply": 5,
+                "player": 1,
+                "action": [
+                  4,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.022799998987466097,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 6,
+                "player": -1,
+                "action": [
+                  4,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.056199980666861,
+                "nodes": 116,
+                "simulations": 0
+              },
+              {
+                "ply": 7,
+                "player": 1,
+                "action": [
+                  7,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.02139998832717538,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 8,
+                "player": -1,
+                "action": [
+                  6,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0556000052019954,
+                "nodes": 114,
+                "simulations": 0
+              },
+              {
+                "ply": 9,
+                "player": 1,
+                "action": [
+                  2,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.020599982235580683,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 10,
+                "player": -1,
+                "action": [
+                  3,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0257000103592873,
+                "nodes": 112,
+                "simulations": 0
+              },
+              {
+                "ply": 11,
+                "player": 1,
+                "action": [
+                  7,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.020599982235580683,
+                "nodes": 0,
+                "simulations": 0
+              },
+              {
+                "ply": 12,
+                "player": -1,
+                "action": [
+                  2,
+                  5
+                ],
+                "reward": 1.0,
+                "elapsed_ms": 1.77650002297014,
+                "nodes": 110,
+                "simulations": 0
+              }
+            ],
+            "terminated": true,
+            "winner": -1
+          }
+        ],
+        "errors": [],
+        "pass": true
+      },
+      {
+        "opponent": "heuristic",
+        "records": [
+          {
+            "contract_version": "caro-v2",
+            "game_id": "s11-p0-g000-candidate-vs-opponent-heuristic",
+            "config": {
+              "board_size": 11,
+              "win_length": 5
+            },
+            "seed": 550865691,
+            "x_agent": "candidate",
+            "o_agent": "opponent-heuristic",
+            "moves": [
+              {
+                "ply": 1,
+                "player": 1,
+                "action": [
+                  5,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0927999974228442,
+                "nodes": 121,
+                "simulations": 0
+              },
+              {
+                "ply": 2,
+                "player": -1,
+                "action": [
+                  4,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0837000154424459,
+                "nodes": 120,
+                "simulations": 0
+              },
+              {
+                "ply": 3,
+                "player": 1,
+                "action": [
+                  5,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.072799990652129,
+                "nodes": 119,
+                "simulations": 0
+              },
+              {
+                "ply": 4,
+                "player": -1,
+                "action": [
+                  5,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.497299992479384,
+                "nodes": 118,
+                "simulations": 0
+              },
+              {
+                "ply": 5,
+                "player": 1,
+                "action": [
+                  3,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0786000057123601,
+                "nodes": 117,
+                "simulations": 0
+              },
+              {
+                "ply": 6,
+                "player": -1,
+                "action": [
+                  4,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0476000024937093,
+                "nodes": 116,
+                "simulations": 0
+              },
+              {
+                "ply": 7,
+                "player": 1,
+                "action": [
+                  4,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.053699990734458,
+                "nodes": 115,
+                "simulations": 0
+              },
+              {
+                "ply": 8,
+                "player": -1,
+                "action": [
+                  6,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.028400001814589,
+                "nodes": 114,
+                "simulations": 0
+              },
+              {
+                "ply": 9,
+                "player": 1,
+                "action": [
+                  2,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.024700002744794,
+                "nodes": 113,
+                "simulations": 0
+              },
+              {
+                "ply": 10,
+                "player": -1,
+                "action": [
+                  5,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.010099978884682,
+                "nodes": 112,
+                "simulations": 0
+              },
+              {
+                "ply": 11,
+                "player": 1,
+                "action": [
+                  1,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0059000051114708,
+                "nodes": 111,
+                "simulations": 0
+              },
+              {
+                "ply": 12,
+                "player": -1,
+                "action": [
+                  0,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0023000068031251,
+                "nodes": 110,
+                "simulations": 0
+              },
+              {
+                "ply": 13,
+                "player": 1,
+                "action": [
+                  4,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9938000002875924,
+                "nodes": 109,
+                "simulations": 0
+              },
+              {
+                "ply": 14,
+                "player": -1,
+                "action": [
+                  3,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.980199984041974,
+                "nodes": 108,
+                "simulations": 0
+              },
+              {
+                "ply": 15,
+                "player": 1,
+                "action": [
+                  4,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9960999886970967,
+                "nodes": 107,
+                "simulations": 0
+              },
+              {
+                "ply": 16,
+                "player": -1,
+                "action": [
+                  3,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0370999807491899,
+                "nodes": 106,
+                "simulations": 0
+              },
+              {
+                "ply": 17,
+                "player": 1,
+                "action": [
+                  3,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.963500002399087,
+                "nodes": 105,
+                "simulations": 0
+              },
+              {
+                "ply": 18,
+                "player": -1,
+                "action": [
+                  2,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9481000015512109,
+                "nodes": 104,
+                "simulations": 0
+              },
+              {
+                "ply": 19,
+                "player": 1,
+                "action": [
+                  1,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0585000272840261,
+                "nodes": 103,
+                "simulations": 0
+              },
+              {
+                "ply": 20,
+                "player": -1,
+                "action": [
+                  2,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9872000082395971,
+                "nodes": 102,
+                "simulations": 0
+              },
+              {
+                "ply": 21,
+                "player": 1,
+                "action": [
+                  1,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9566000080667436,
+                "nodes": 101,
+                "simulations": 0
+              },
+              {
+                "ply": 22,
+                "player": -1,
+                "action": [
+                  1,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9288000001106411,
+                "nodes": 100,
+                "simulations": 0
+              },
+              {
+                "ply": 23,
+                "player": 1,
+                "action": [
+                  1,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9052999957930297,
+                "nodes": 99,
+                "simulations": 0
+              },
+              {
+                "ply": 24,
+                "player": -1,
+                "action": [
+                  1,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9153999853879213,
+                "nodes": 98,
+                "simulations": 0
+              },
+              {
+                "ply": 25,
+                "player": 1,
+                "action": [
+                  2,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9052999957930297,
+                "nodes": 97,
+                "simulations": 0
+              },
+              {
+                "ply": 26,
+                "player": -1,
+                "action": [
+                  3,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.901399995200336,
+                "nodes": 96,
+                "simulations": 0
+              },
+              {
+                "ply": 27,
+                "player": 1,
+                "action": [
+                  5,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8744999940972775,
+                "nodes": 95,
+                "simulations": 0
+              },
+              {
+                "ply": 28,
+                "player": -1,
+                "action": [
+                  6,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8662999898660928,
+                "nodes": 94,
+                "simulations": 0
+              },
+              {
+                "ply": 29,
+                "player": 1,
+                "action": [
+                  6,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8684999775141478,
+                "nodes": 93,
+                "simulations": 0
+              },
+              {
+                "ply": 30,
+                "player": -1,
+                "action": [
+                  7,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8455000061076134,
+                "nodes": 92,
+                "simulations": 0
+              },
+              {
+                "ply": 31,
+                "player": 1,
+                "action": [
+                  7,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8875000057742,
+                "nodes": 91,
+                "simulations": 0
+              },
+              {
+                "ply": 32,
+                "player": -1,
+                "action": [
+                  8,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.835299986647442,
+                "nodes": 90,
+                "simulations": 0
+              },
+              {
+                "ply": 33,
+                "player": 1,
+                "action": [
+                  7,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8314000151585788,
+                "nodes": 89,
+                "simulations": 0
+              },
+              {
+                "ply": 34,
+                "player": -1,
+                "action": [
+                  4,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8111000061035156,
+                "nodes": 88,
+                "simulations": 0
+              },
+              {
+                "ply": 35,
+                "player": 1,
+                "action": [
+                  6,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8134999952744693,
+                "nodes": 87,
+                "simulations": 0
+              },
+              {
+                "ply": 36,
+                "player": -1,
+                "action": [
+                  8,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7934999885037541,
+                "nodes": 86,
+                "simulations": 0
+              },
+              {
+                "ply": 37,
+                "player": 1,
+                "action": [
+                  8,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.1224999907426536,
+                "nodes": 85,
+                "simulations": 0
+              },
+              {
+                "ply": 38,
+                "player": -1,
+                "action": [
+                  9,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7770000083837658,
+                "nodes": 84,
+                "simulations": 0
+              },
+              {
+                "ply": 39,
+                "player": 1,
+                "action": [
+                  7,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7634000212419778,
+                "nodes": 83,
+                "simulations": 0
+              },
+              {
+                "ply": 40,
+                "player": -1,
+                "action": [
+                  7,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7844999781809747,
+                "nodes": 82,
+                "simulations": 0
+              },
+              {
+                "ply": 41,
+                "player": 1,
+                "action": [
+                  6,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7479000196326524,
+                "nodes": 81,
+                "simulations": 0
+              },
+              {
+                "ply": 42,
+                "player": -1,
+                "action": [
+                  8,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7482999935746193,
+                "nodes": 80,
+                "simulations": 0
+              },
+              {
+                "ply": 43,
+                "player": 1,
+                "action": [
+                  9,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.72900002123788,
+                "nodes": 79,
+                "simulations": 0
+              },
+              {
+                "ply": 44,
+                "player": -1,
+                "action": [
+                  8,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7213999924715608,
+                "nodes": 78,
+                "simulations": 0
+              },
+              {
+                "ply": 45,
+                "player": 1,
+                "action": [
+                  9,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7195000071078539,
+                "nodes": 77,
+                "simulations": 0
+              },
+              {
+                "ply": 46,
+                "player": -1,
+                "action": [
+                  8,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7065999961923808,
+                "nodes": 76,
+                "simulations": 0
+              },
+              {
+                "ply": 47,
+                "player": 1,
+                "action": [
+                  8,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6938999867998064,
+                "nodes": 75,
+                "simulations": 0
+              },
+              {
+                "ply": 48,
+                "player": -1,
+                "action": [
+                  3,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6886000046506524,
+                "nodes": 74,
+                "simulations": 0
+              },
+              {
+                "ply": 49,
+                "player": 1,
+                "action": [
+                  2,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.675899995258078,
+                "nodes": 73,
+                "simulations": 0
+              },
+              {
+                "ply": 50,
+                "player": -1,
+                "action": [
+                  2,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.321500021731481,
+                "nodes": 72,
+                "simulations": 0
+              },
+              {
+                "ply": 51,
+                "player": 1,
+                "action": [
+                  4,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6832000217400491,
+                "nodes": 71,
+                "simulations": 0
+              },
+              {
+                "ply": 52,
+                "player": -1,
+                "action": [
+                  3,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6510000093840063,
+                "nodes": 70,
+                "simulations": 0
+              },
+              {
+                "ply": 53,
+                "player": 1,
+                "action": [
+                  9,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6442999874707311,
+                "nodes": 69,
+                "simulations": 0
+              },
+              {
+                "ply": 54,
+                "player": -1,
+                "action": [
+                  9,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6418999982997775,
+                "nodes": 68,
+                "simulations": 0
+              },
+              {
+                "ply": 55,
+                "player": 1,
+                "action": [
+                  7,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6232000014279038,
+                "nodes": 67,
+                "simulations": 0
+              },
+              {
+                "ply": 56,
+                "player": -1,
+                "action": [
+                  3,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6197000038810074,
+                "nodes": 66,
+                "simulations": 0
+              },
+              {
+                "ply": 57,
+                "player": 1,
+                "action": [
+                  5,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6190999993123114,
+                "nodes": 65,
+                "simulations": 0
+              },
+              {
+                "ply": 58,
+                "player": -1,
+                "action": [
+                  7,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.3580000086221844,
+                "nodes": 64,
+                "simulations": 0
+              },
+              {
+                "ply": 59,
+                "player": 1,
+                "action": [
+                  6,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6325000140350312,
+                "nodes": 63,
+                "simulations": 0
+              },
+              {
+                "ply": 60,
+                "player": -1,
+                "action": [
+                  6,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5870999884791672,
+                "nodes": 62,
+                "simulations": 0
+              },
+              {
+                "ply": 61,
+                "player": 1,
+                "action": [
+                  5,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5677000153809786,
+                "nodes": 61,
+                "simulations": 0
+              },
+              {
+                "ply": 62,
+                "player": -1,
+                "action": [
+                  6,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5629000079352409,
+                "nodes": 60,
+                "simulations": 0
+              },
+              {
+                "ply": 63,
+                "player": 1,
+                "action": [
+                  4,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5501999985426664,
+                "nodes": 59,
+                "simulations": 0
+              },
+              {
+                "ply": 64,
+                "player": -1,
+                "action": [
+                  4,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5502999993041158,
+                "nodes": 58,
+                "simulations": 0
+              },
+              {
+                "ply": 65,
+                "player": 1,
+                "action": [
+                  5,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5301999917719513,
+                "nodes": 57,
+                "simulations": 0
+              },
+              {
+                "ply": 66,
+                "player": -1,
+                "action": [
+                  3,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5257000157143921,
+                "nodes": 56,
+                "simulations": 0
+              },
+              {
+                "ply": 67,
+                "player": 1,
+                "action": [
+                  5,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5146999901626259,
+                "nodes": 55,
+                "simulations": 0
+              },
+              {
+                "ply": 68,
+                "player": -1,
+                "action": [
+                  8,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5062999844085425,
+                "nodes": 54,
+                "simulations": 0
+              },
+              {
+                "ply": 69,
+                "player": 1,
+                "action": [
+                  9,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4938000056426972,
+                "nodes": 53,
+                "simulations": 0
+              },
+              {
+                "ply": 70,
+                "player": -1,
+                "action": [
+                  8,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4850999976042658,
+                "nodes": 52,
+                "simulations": 0
+              },
+              {
+                "ply": 71,
+                "player": 1,
+                "action": [
+                  8,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6545000069309026,
+                "nodes": 51,
+                "simulations": 0
+              },
+              {
+                "ply": 72,
+                "player": -1,
+                "action": [
+                  9,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0566999844741076,
+                "nodes": 50,
+                "simulations": 0
+              },
+              {
+                "ply": 73,
+                "player": 1,
+                "action": [
+                  7,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7083000091370195,
+                "nodes": 49,
+                "simulations": 0
+              },
+              {
+                "ply": 74,
+                "player": -1,
+                "action": [
+                  6,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.451300002168864,
+                "nodes": 48,
+                "simulations": 0
+              },
+              {
+                "ply": 75,
+                "player": 1,
+                "action": [
+                  7,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.44499998330138624,
+                "nodes": 47,
+                "simulations": 0
+              },
+              {
+                "ply": 76,
+                "player": -1,
+                "action": [
+                  9,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4332000098656863,
+                "nodes": 46,
+                "simulations": 0
+              },
+              {
+                "ply": 77,
+                "player": 1,
+                "action": [
+                  1,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4264999879524112,
+                "nodes": 45,
+                "simulations": 0
+              },
+              {
+                "ply": 78,
+                "player": -1,
+                "action": [
+                  0,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.41259999852627516,
+                "nodes": 44,
+                "simulations": 0
+              },
+              {
+                "ply": 79,
+                "player": 1,
+                "action": [
+                  0,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.40779999108053744,
+                "nodes": 43,
+                "simulations": 0
+              },
+              {
+                "ply": 80,
+                "player": -1,
+                "action": [
+                  0,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.39709999691694975,
+                "nodes": 42,
+                "simulations": 0
+              },
+              {
+                "ply": 81,
+                "player": 1,
+                "action": [
+                  7,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.3947000077459961,
+                "nodes": 41,
+                "simulations": 0
+              },
+              {
+                "ply": 82,
+                "player": -1,
+                "action": [
+                  6,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.38029998540878296,
+                "nodes": 40,
+                "simulations": 0
+              },
+              {
+                "ply": 83,
+                "player": 1,
+                "action": [
+                  9,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.368200009688735,
+                "nodes": 39,
+                "simulations": 0
+              },
+              {
+                "ply": 84,
+                "player": -1,
+                "action": [
+                  9,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.36470001214183867,
+                "nodes": 38,
+                "simulations": 0
+              },
+              {
+                "ply": 85,
+                "player": 1,
+                "action": [
+                  2,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.35000001662410796,
+                "nodes": 37,
+                "simulations": 0
+              },
+              {
+                "ply": 86,
+                "player": -1,
+                "action": [
+                  2,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7421000045724213,
+                "nodes": 36,
+                "simulations": 0
+              },
+              {
+                "ply": 87,
+                "player": 1,
+                "action": [
+                  1,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5335000168997794,
+                "nodes": 35,
+                "simulations": 0
+              },
+              {
+                "ply": 88,
+                "player": -1,
+                "action": [
+                  1,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.3373999788891524,
+                "nodes": 34,
+                "simulations": 0
+              },
+              {
+                "ply": 89,
+                "player": 1,
+                "action": [
+                  0,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.31460000900551677,
+                "nodes": 33,
+                "simulations": 0
+              },
+              {
+                "ply": 90,
+                "player": -1,
+                "action": [
+                  0,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.30980000155977905,
+                "nodes": 32,
+                "simulations": 0
+              },
+              {
+                "ply": 91,
+                "player": 1,
+                "action": [
+                  0,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2969999914057553,
+                "nodes": 31,
+                "simulations": 0
+              },
+              {
+                "ply": 92,
+                "player": -1,
+                "action": [
+                  0,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.29520000680349767,
+                "nodes": 30,
+                "simulations": 0
+              },
+              {
+                "ply": 93,
+                "player": 1,
+                "action": [
+                  5,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.28219999512657523,
+                "nodes": 29,
+                "simulations": 0
+              },
+              {
+                "ply": 94,
+                "player": -1,
+                "action": [
+                  8,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2841999812517315,
+                "nodes": 28,
+                "simulations": 0
+              },
+              {
+                "ply": 95,
+                "player": 1,
+                "action": [
+                  7,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.26309999520890415,
+                "nodes": 27,
+                "simulations": 0
+              },
+              {
+                "ply": 96,
+                "player": -1,
+                "action": [
+                  9,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2573000092525035,
+                "nodes": 26,
+                "simulations": 0
+              },
+              {
+                "ply": 97,
+                "player": 1,
+                "action": [
+                  4,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2449000021442771,
+                "nodes": 25,
+                "simulations": 0
+              },
+              {
+                "ply": 98,
+                "player": -1,
+                "action": [
+                  3,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.23499998496845365,
+                "nodes": 24,
+                "simulations": 0
+              },
+              {
+                "ply": 99,
+                "player": 1,
+                "action": [
+                  6,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2285000227857381,
+                "nodes": 23,
+                "simulations": 0
+              },
+              {
+                "ply": 100,
+                "player": -1,
+                "action": [
+                  5,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.21639998885802925,
+                "nodes": 22,
+                "simulations": 0
+              },
+              {
+                "ply": 101,
+                "player": 1,
+                "action": [
+                  4,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.21180001203902066,
+                "nodes": 21,
+                "simulations": 0
+              },
+              {
+                "ply": 102,
+                "player": -1,
+                "action": [
+                  2,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.1970999874174595,
+                "nodes": 20,
+                "simulations": 0
+              },
+              {
+                "ply": 103,
+                "player": 1,
+                "action": [
+                  1,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.18780000391416252,
+                "nodes": 19,
+                "simulations": 0
+              },
+              {
+                "ply": 104,
+                "player": -1,
+                "action": [
+                  3,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.1778000150807202,
+                "nodes": 18,
+                "simulations": 0
+              },
+              {
+                "ply": 105,
+                "player": 1,
+                "action": [
+                  2,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.16799999866634607,
+                "nodes": 17,
+                "simulations": 0
+              },
+              {
+                "ply": 106,
+                "player": -1,
+                "action": [
+                  1,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.15860001440159976,
+                "nodes": 16,
+                "simulations": 0
+              },
+              {
+                "ply": 107,
+                "player": 1,
+                "action": [
+                  2,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.14970000484026968,
+                "nodes": 15,
+                "simulations": 0
+              },
+              {
+                "ply": 108,
+                "player": -1,
+                "action": [
+                  0,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.14150000060908496,
+                "nodes": 14,
+                "simulations": 0
+              },
+              {
+                "ply": 109,
+                "player": 1,
+                "action": [
+                  10,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.1283000165130943,
+                "nodes": 13,
+                "simulations": 0
+              },
+              {
+                "ply": 110,
+                "player": -1,
+                "action": [
+                  10,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.12550002429634333,
+                "nodes": 12,
+                "simulations": 0
+              },
+              {
+                "ply": 111,
+                "player": 1,
+                "action": [
+                  10,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.11100000119768083,
+                "nodes": 11,
+                "simulations": 0
+              },
+              {
+                "ply": 112,
+                "player": -1,
+                "action": [
+                  10,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.10219999239780009,
+                "nodes": 10,
+                "simulations": 0
+              },
+              {
+                "ply": 113,
+                "player": 1,
+                "action": [
+                  10,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.09240000508725643,
+                "nodes": 9,
+                "simulations": 0
+              },
+              {
+                "ply": 114,
+                "player": -1,
+                "action": [
+                  10,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.0982999918051064,
+                "nodes": 8,
+                "simulations": 0
+              },
+              {
+                "ply": 115,
+                "player": 1,
+                "action": [
+                  10,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.07540002116002142,
+                "nodes": 7,
+                "simulations": 0
+              },
+              {
+                "ply": 116,
+                "player": -1,
+                "action": [
+                  10,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.06630001007579267,
+                "nodes": 6,
+                "simulations": 0
+              },
+              {
+                "ply": 117,
+                "player": 1,
+                "action": [
+                  10,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.056899996707215905,
+                "nodes": 5,
+                "simulations": 0
+              },
+              {
+                "ply": 118,
+                "player": -1,
+                "action": [
+                  0,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.04770001396536827,
+                "nodes": 4,
+                "simulations": 0
+              },
+              {
+                "ply": 119,
+                "player": 1,
+                "action": [
+                  0,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.039000005926936865,
+                "nodes": 3,
+                "simulations": 0
+              },
+              {
+                "ply": 120,
+                "player": -1,
+                "action": [
+                  10,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.030899973353371024,
+                "nodes": 2,
+                "simulations": 0
+              },
+              {
+                "ply": 121,
+                "player": 1,
+                "action": [
+                  10,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.020499981474131346,
+                "nodes": 1,
+                "simulations": 0
+              }
+            ],
+            "terminated": true,
+            "winner": null
+          },
+          {
+            "contract_version": "caro-v2",
+            "game_id": "s11-p0-g001-opponent-heuristic-vs-candidate",
+            "config": {
+              "board_size": 11,
+              "win_length": 5
+            },
+            "seed": 550865691,
+            "x_agent": "opponent-heuristic",
+            "o_agent": "candidate",
+            "moves": [
+              {
+                "ply": 1,
+                "player": 1,
+                "action": [
+                  5,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.1011000024154782,
+                "nodes": 121,
+                "simulations": 0
+              },
+              {
+                "ply": 2,
+                "player": -1,
+                "action": [
+                  4,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0965999972540885,
+                "nodes": 120,
+                "simulations": 0
+              },
+              {
+                "ply": 3,
+                "player": 1,
+                "action": [
+                  5,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0869000107049942,
+                "nodes": 119,
+                "simulations": 0
+              },
+              {
+                "ply": 4,
+                "player": -1,
+                "action": [
+                  5,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0791000095196068,
+                "nodes": 118,
+                "simulations": 0
+              },
+              {
+                "ply": 5,
+                "player": 1,
+                "action": [
+                  3,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0690000199247152,
+                "nodes": 117,
+                "simulations": 0
+              },
+              {
+                "ply": 6,
+                "player": -1,
+                "action": [
+                  4,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.06380000943318,
+                "nodes": 116,
+                "simulations": 0
+              },
+              {
+                "ply": 7,
+                "player": 1,
+                "action": [
+                  4,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.107799995224923,
+                "nodes": 115,
+                "simulations": 0
+              },
+              {
+                "ply": 8,
+                "player": -1,
+                "action": [
+                  6,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.7893000040203333,
+                "nodes": 114,
+                "simulations": 0
+              },
+              {
+                "ply": 9,
+                "player": 1,
+                "action": [
+                  2,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0224000143352896,
+                "nodes": 113,
+                "simulations": 0
+              },
+              {
+                "ply": 10,
+                "player": -1,
+                "action": [
+                  5,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.029300008667633,
+                "nodes": 112,
+                "simulations": 0
+              },
+              {
+                "ply": 11,
+                "player": 1,
+                "action": [
+                  1,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0104999819304794,
+                "nodes": 111,
+                "simulations": 0
+              },
+              {
+                "ply": 12,
+                "player": -1,
+                "action": [
+                  0,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.007899991236627,
+                "nodes": 110,
+                "simulations": 0
+              },
+              {
+                "ply": 13,
+                "player": 1,
+                "action": [
+                  4,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.7988999898079783,
+                "nodes": 109,
+                "simulations": 0
+              },
+              {
+                "ply": 14,
+                "player": -1,
+                "action": [
+                  3,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0617999942041934,
+                "nodes": 108,
+                "simulations": 0
+              },
+              {
+                "ply": 15,
+                "player": 1,
+                "action": [
+                  4,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.7365000094287097,
+                "nodes": 107,
+                "simulations": 0
+              },
+              {
+                "ply": 16,
+                "player": -1,
+                "action": [
+                  3,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.7202000017277896,
+                "nodes": 106,
+                "simulations": 0
+              },
+              {
+                "ply": 17,
+                "player": 1,
+                "action": [
+                  3,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.7989999905694276,
+                "nodes": 105,
+                "simulations": 0
+              },
+              {
+                "ply": 18,
+                "player": -1,
+                "action": [
+                  2,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9661000221967697,
+                "nodes": 104,
+                "simulations": 0
+              },
+              {
+                "ply": 19,
+                "player": 1,
+                "action": [
+                  1,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.4720000035595149,
+                "nodes": 103,
+                "simulations": 0
+              },
+              {
+                "ply": 20,
+                "player": -1,
+                "action": [
+                  2,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0888000251725316,
+                "nodes": 102,
+                "simulations": 0
+              },
+              {
+                "ply": 21,
+                "player": 1,
+                "action": [
+                  1,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.3772999809589237,
+                "nodes": 101,
+                "simulations": 0
+              },
+              {
+                "ply": 22,
+                "player": -1,
+                "action": [
+                  1,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0078000195790082,
+                "nodes": 100,
+                "simulations": 0
+              },
+              {
+                "ply": 23,
+                "player": 1,
+                "action": [
+                  1,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9198000188916922,
+                "nodes": 99,
+                "simulations": 0
+              },
+              {
+                "ply": 24,
+                "player": -1,
+                "action": [
+                  1,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.899200007552281,
+                "nodes": 98,
+                "simulations": 0
+              },
+              {
+                "ply": 25,
+                "player": 1,
+                "action": [
+                  2,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8868000004440546,
+                "nodes": 97,
+                "simulations": 0
+              },
+              {
+                "ply": 26,
+                "player": -1,
+                "action": [
+                  3,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8793000015430152,
+                "nodes": 96,
+                "simulations": 0
+              },
+              {
+                "ply": 27,
+                "player": 1,
+                "action": [
+                  5,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8734999864827842,
+                "nodes": 95,
+                "simulations": 0
+              },
+              {
+                "ply": 28,
+                "player": -1,
+                "action": [
+                  6,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8649999799672514,
+                "nodes": 94,
+                "simulations": 0
+              },
+              {
+                "ply": 29,
+                "player": 1,
+                "action": [
+                  6,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8524000004399568,
+                "nodes": 93,
+                "simulations": 0
+              },
+              {
+                "ply": 30,
+                "player": -1,
+                "action": [
+                  7,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8419999794568866,
+                "nodes": 92,
+                "simulations": 0
+              },
+              {
+                "ply": 31,
+                "player": 1,
+                "action": [
+                  7,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.0047999967355281,
+                "nodes": 91,
+                "simulations": 0
+              },
+              {
+                "ply": 32,
+                "player": -1,
+                "action": [
+                  8,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8413000032305717,
+                "nodes": 90,
+                "simulations": 0
+              },
+              {
+                "ply": 33,
+                "player": 1,
+                "action": [
+                  7,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.839299988001585,
+                "nodes": 89,
+                "simulations": 0
+              },
+              {
+                "ply": 34,
+                "player": -1,
+                "action": [
+                  4,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8094999939203262,
+                "nodes": 88,
+                "simulations": 0
+              },
+              {
+                "ply": 35,
+                "player": 1,
+                "action": [
+                  6,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.8144000021275133,
+                "nodes": 87,
+                "simulations": 0
+              },
+              {
+                "ply": 36,
+                "player": -1,
+                "action": [
+                  8,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7932000153232366,
+                "nodes": 86,
+                "simulations": 0
+              },
+              {
+                "ply": 37,
+                "player": 1,
+                "action": [
+                  8,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7870999979786575,
+                "nodes": 85,
+                "simulations": 0
+              },
+              {
+                "ply": 38,
+                "player": -1,
+                "action": [
+                  9,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7708000193815678,
+                "nodes": 84,
+                "simulations": 0
+              },
+              {
+                "ply": 39,
+                "player": 1,
+                "action": [
+                  7,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7624000136274844,
+                "nodes": 83,
+                "simulations": 0
+              },
+              {
+                "ply": 40,
+                "player": -1,
+                "action": [
+                  7,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7688000041525811,
+                "nodes": 82,
+                "simulations": 0
+              },
+              {
+                "ply": 41,
+                "player": 1,
+                "action": [
+                  6,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.751899991882965,
+                "nodes": 81,
+                "simulations": 0
+              },
+              {
+                "ply": 42,
+                "player": -1,
+                "action": [
+                  8,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7465999806299806,
+                "nodes": 80,
+                "simulations": 0
+              },
+              {
+                "ply": 43,
+                "player": 1,
+                "action": [
+                  9,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7440000190399587,
+                "nodes": 79,
+                "simulations": 0
+              },
+              {
+                "ply": 44,
+                "player": -1,
+                "action": [
+                  8,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7285999890882522,
+                "nodes": 78,
+                "simulations": 0
+              },
+              {
+                "ply": 45,
+                "player": 1,
+                "action": [
+                  9,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7219999970402569,
+                "nodes": 77,
+                "simulations": 0
+              },
+              {
+                "ply": 46,
+                "player": -1,
+                "action": [
+                  8,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7080000068526715,
+                "nodes": 76,
+                "simulations": 0
+              },
+              {
+                "ply": 47,
+                "player": 1,
+                "action": [
+                  8,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7047000108286738,
+                "nodes": 75,
+                "simulations": 0
+              },
+              {
+                "ply": 48,
+                "player": -1,
+                "action": [
+                  3,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6917999999132007,
+                "nodes": 74,
+                "simulations": 0
+              },
+              {
+                "ply": 49,
+                "player": 1,
+                "action": [
+                  2,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6826000171713531,
+                "nodes": 73,
+                "simulations": 0
+              },
+              {
+                "ply": 50,
+                "player": -1,
+                "action": [
+                  2,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6834999949205667,
+                "nodes": 72,
+                "simulations": 0
+              },
+              {
+                "ply": 51,
+                "player": 1,
+                "action": [
+                  4,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.7316000119317323,
+                "nodes": 71,
+                "simulations": 0
+              },
+              {
+                "ply": 52,
+                "player": -1,
+                "action": [
+                  3,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 1.937700028065592,
+                "nodes": 70,
+                "simulations": 0
+              },
+              {
+                "ply": 53,
+                "player": 1,
+                "action": [
+                  9,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6507000070996583,
+                "nodes": 69,
+                "simulations": 0
+              },
+              {
+                "ply": 54,
+                "player": -1,
+                "action": [
+                  9,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6374000222422183,
+                "nodes": 68,
+                "simulations": 0
+              },
+              {
+                "ply": 55,
+                "player": 1,
+                "action": [
+                  7,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6415999960154295,
+                "nodes": 67,
+                "simulations": 0
+              },
+              {
+                "ply": 56,
+                "player": -1,
+                "action": [
+                  3,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6179999909363687,
+                "nodes": 66,
+                "simulations": 0
+              },
+              {
+                "ply": 57,
+                "player": 1,
+                "action": [
+                  5,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6070999952498823,
+                "nodes": 65,
+                "simulations": 0
+              },
+              {
+                "ply": 58,
+                "player": -1,
+                "action": [
+                  7,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6064000190235674,
+                "nodes": 64,
+                "simulations": 0
+              },
+              {
+                "ply": 59,
+                "player": 1,
+                "action": [
+                  6,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5878999945707619,
+                "nodes": 63,
+                "simulations": 0
+              },
+              {
+                "ply": 60,
+                "player": -1,
+                "action": [
+                  6,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5837000207975507,
+                "nodes": 62,
+                "simulations": 0
+              },
+              {
+                "ply": 61,
+                "player": 1,
+                "action": [
+                  5,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5743000074289739,
+                "nodes": 61,
+                "simulations": 0
+              },
+              {
+                "ply": 62,
+                "player": -1,
+                "action": [
+                  6,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5613999965135008,
+                "nodes": 60,
+                "simulations": 0
+              },
+              {
+                "ply": 63,
+                "player": 1,
+                "action": [
+                  4,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5547000037040561,
+                "nodes": 59,
+                "simulations": 0
+              },
+              {
+                "ply": 64,
+                "player": -1,
+                "action": [
+                  4,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5518000107258558,
+                "nodes": 58,
+                "simulations": 0
+              },
+              {
+                "ply": 65,
+                "player": 1,
+                "action": [
+                  5,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5367000121623278,
+                "nodes": 57,
+                "simulations": 0
+              },
+              {
+                "ply": 66,
+                "player": -1,
+                "action": [
+                  3,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5247000080998987,
+                "nodes": 56,
+                "simulations": 0
+              },
+              {
+                "ply": 67,
+                "player": 1,
+                "action": [
+                  5,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5129000055603683,
+                "nodes": 55,
+                "simulations": 0
+              },
+              {
+                "ply": 68,
+                "player": -1,
+                "action": [
+                  8,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.5082999996375293,
+                "nodes": 54,
+                "simulations": 0
+              },
+              {
+                "ply": 69,
+                "player": 1,
+                "action": [
+                  9,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.49530001706443727,
+                "nodes": 53,
+                "simulations": 0
+              },
+              {
+                "ply": 70,
+                "player": -1,
+                "action": [
+                  8,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4865000082645565,
+                "nodes": 52,
+                "simulations": 0
+              },
+              {
+                "ply": 71,
+                "player": 1,
+                "action": [
+                  8,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4774999979417771,
+                "nodes": 51,
+                "simulations": 0
+              },
+              {
+                "ply": 72,
+                "player": -1,
+                "action": [
+                  9,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4751000087708235,
+                "nodes": 50,
+                "simulations": 0
+              },
+              {
+                "ply": 73,
+                "player": 1,
+                "action": [
+                  7,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.461499992525205,
+                "nodes": 49,
+                "simulations": 0
+              },
+              {
+                "ply": 74,
+                "player": -1,
+                "action": [
+                  6,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.45410002348944545,
+                "nodes": 48,
+                "simulations": 0
+              },
+              {
+                "ply": 75,
+                "player": 1,
+                "action": [
+                  7,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.6776000082027167,
+                "nodes": 47,
+                "simulations": 0
+              },
+              {
+                "ply": 76,
+                "player": -1,
+                "action": [
+                  9,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.9243999957107008,
+                "nodes": 46,
+                "simulations": 0
+              },
+              {
+                "ply": 77,
+                "player": 1,
+                "action": [
+                  1,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.48990000505000353,
+                "nodes": 45,
+                "simulations": 0
+              },
+              {
+                "ply": 78,
+                "player": -1,
+                "action": [
+                  0,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4306999908294529,
+                "nodes": 44,
+                "simulations": 0
+              },
+              {
+                "ply": 79,
+                "player": 1,
+                "action": [
+                  0,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.42729999404400587,
+                "nodes": 43,
+                "simulations": 0
+              },
+              {
+                "ply": 80,
+                "player": -1,
+                "action": [
+                  0,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.4141999816056341,
+                "nodes": 42,
+                "simulations": 0
+              },
+              {
+                "ply": 81,
+                "player": 1,
+                "action": [
+                  7,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.3877999843098223,
+                "nodes": 41,
+                "simulations": 0
+              },
+              {
+                "ply": 82,
+                "player": -1,
+                "action": [
+                  6,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.38159999530762434,
+                "nodes": 40,
+                "simulations": 0
+              },
+              {
+                "ply": 83,
+                "player": 1,
+                "action": [
+                  9,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.36979999276809394,
+                "nodes": 39,
+                "simulations": 0
+              },
+              {
+                "ply": 84,
+                "player": -1,
+                "action": [
+                  9,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.38559999666176736,
+                "nodes": 38,
+                "simulations": 0
+              },
+              {
+                "ply": 85,
+                "player": 1,
+                "action": [
+                  2,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.35459999344311655,
+                "nodes": 37,
+                "simulations": 0
+              },
+              {
+                "ply": 86,
+                "player": -1,
+                "action": [
+                  2,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.3409000055398792,
+                "nodes": 36,
+                "simulations": 0
+              },
+              {
+                "ply": 87,
+                "player": 1,
+                "action": [
+                  1,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.3318000235594809,
+                "nodes": 35,
+                "simulations": 0
+              },
+              {
+                "ply": 88,
+                "player": -1,
+                "action": [
+                  1,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.32690001535229385,
+                "nodes": 34,
+                "simulations": 0
+              },
+              {
+                "ply": 89,
+                "player": 1,
+                "action": [
+                  0,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.3218000056222081,
+                "nodes": 33,
+                "simulations": 0
+              },
+              {
+                "ply": 90,
+                "player": -1,
+                "action": [
+                  0,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.30819998937658966,
+                "nodes": 32,
+                "simulations": 0
+              },
+              {
+                "ply": 91,
+                "player": 1,
+                "action": [
+                  0,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.29910000739619136,
+                "nodes": 31,
+                "simulations": 0
+              },
+              {
+                "ply": 92,
+                "player": -1,
+                "action": [
+                  0,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.291000003926456,
+                "nodes": 30,
+                "simulations": 0
+              },
+              {
+                "ply": 93,
+                "player": 1,
+                "action": [
+                  5,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.29170000925660133,
+                "nodes": 29,
+                "simulations": 0
+              },
+              {
+                "ply": 94,
+                "player": -1,
+                "action": [
+                  8,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2730000123847276,
+                "nodes": 28,
+                "simulations": 0
+              },
+              {
+                "ply": 95,
+                "player": 1,
+                "action": [
+                  7,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.27019999106414616,
+                "nodes": 27,
+                "simulations": 0
+              },
+              {
+                "ply": 96,
+                "player": -1,
+                "action": [
+                  9,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2542999864090234,
+                "nodes": 26,
+                "simulations": 0
+              },
+              {
+                "ply": 97,
+                "player": 1,
+                "action": [
+                  4,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.2449000021442771,
+                "nodes": 25,
+                "simulations": 0
+              },
+              {
+                "ply": 98,
+                "player": -1,
+                "action": [
+                  3,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.23560001864098012,
+                "nodes": 24,
+                "simulations": 0
+              },
+              {
+                "ply": 99,
+                "player": 1,
+                "action": [
+                  6,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.225499999942258,
+                "nodes": 23,
+                "simulations": 0
+              },
+              {
+                "ply": 100,
+                "player": -1,
+                "action": [
+                  5,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.21650001872330904,
+                "nodes": 22,
+                "simulations": 0
+              },
+              {
+                "ply": 101,
+                "player": 1,
+                "action": [
+                  4,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.20700000459328294,
+                "nodes": 21,
+                "simulations": 0
+              },
+              {
+                "ply": 102,
+                "player": -1,
+                "action": [
+                  2,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.20369997946545482,
+                "nodes": 20,
+                "simulations": 0
+              },
+              {
+                "ply": 103,
+                "player": 1,
+                "action": [
+                  1,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.18840000848285854,
+                "nodes": 19,
+                "simulations": 0
+              },
+              {
+                "ply": 104,
+                "player": -1,
+                "action": [
+                  3,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.17889999435283244,
+                "nodes": 18,
+                "simulations": 0
+              },
+              {
+                "ply": 105,
+                "player": 1,
+                "action": [
+                  2,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.16840000171214342,
+                "nodes": 17,
+                "simulations": 0
+              },
+              {
+                "ply": 106,
+                "player": -1,
+                "action": [
+                  1,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.15839998377487063,
+                "nodes": 16,
+                "simulations": 0
+              },
+              {
+                "ply": 107,
+                "player": 1,
+                "action": [
+                  2,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.14910000027157366,
+                "nodes": 15,
+                "simulations": 0
+              },
+              {
+                "ply": 108,
+                "player": -1,
+                "action": [
+                  0,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.1382000045850873,
+                "nodes": 14,
+                "simulations": 0
+              },
+              {
+                "ply": 109,
+                "player": 1,
+                "action": [
+                  10,
+                  5
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.12859998969361186,
+                "nodes": 13,
+                "simulations": 0
+              },
+              {
+                "ply": 110,
+                "player": -1,
+                "action": [
+                  10,
+                  4
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.12389998300932348,
+                "nodes": 12,
+                "simulations": 0
+              },
+              {
+                "ply": 111,
+                "player": 1,
+                "action": [
+                  10,
+                  6
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.1134999911300838,
+                "nodes": 11,
+                "simulations": 0
+              },
+              {
+                "ply": 112,
+                "player": -1,
+                "action": [
+                  10,
+                  7
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.10260002454742789,
+                "nodes": 10,
+                "simulations": 0
+              },
+              {
+                "ply": 113,
+                "player": 1,
+                "action": [
+                  10,
+                  3
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.09270000737160444,
+                "nodes": 9,
+                "simulations": 0
+              },
+              {
+                "ply": 114,
+                "player": -1,
+                "action": [
+                  10,
+                  8
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.08399999933317304,
+                "nodes": 8,
+                "simulations": 0
+              },
+              {
+                "ply": 115,
+                "player": 1,
+                "action": [
+                  10,
+                  9
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.07529999129474163,
+                "nodes": 7,
+                "simulations": 0
+              },
+              {
+                "ply": 116,
+                "player": -1,
+                "action": [
+                  10,
+                  2
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.06640001083724201,
+                "nodes": 6,
+                "simulations": 0
+              },
+              {
+                "ply": 117,
+                "player": 1,
+                "action": [
+                  10,
+                  1
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.057199998991563916,
+                "nodes": 5,
+                "simulations": 0
+              },
+              {
+                "ply": 118,
+                "player": -1,
+                "action": [
+                  0,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.04809998790733516,
+                "nodes": 4,
+                "simulations": 0
+              },
+              {
+                "ply": 119,
+                "player": 1,
+                "action": [
+                  0,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.039099977584555745,
+                "nodes": 3,
+                "simulations": 0
+              },
+              {
+                "ply": 120,
+                "player": -1,
+                "action": [
+                  10,
+                  0
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.030099996365606785,
+                "nodes": 2,
+                "simulations": 0
+              },
+              {
+                "ply": 121,
+                "player": 1,
+                "action": [
+                  10,
+                  10
+                ],
+                "reward": 0.0,
+                "elapsed_ms": 0.020400009816512465,
+                "nodes": 1,
+                "simulations": 0
+              }
+            ],
+            "terminated": true,
+            "winner": null
+          }
+        ],
+        "errors": [],
+        "pass": true
+      }
+    ],
+    "pass": true
+  }
+}

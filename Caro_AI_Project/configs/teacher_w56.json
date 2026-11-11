@@ -1,0 +1,84 @@
+{
+  "contract_version": "caro-v2",
+  "config_version": "teacher_w56-draft1",
+  "status": "frozen",
+  "frozen": true,
+  "game_config": {
+    "board_size": 11,
+    "win_length": 5
+  },
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "seed_policy": "Runner cấp seed qua derive_seed(base_seed, pair_index, game_index // 2); hai ván đổi bên dùng chung seed; agent chỉ dùng random.Random cục bộ từ budget.seed, không dùng global RNG.",
+  "pair": {
+    "production": [
+      "heuristic",
+      "mcts"
+    ],
+    "swap_sides": true
+  },
+  "heuristic": {
+    "factory": "core.agents.heuristic_ai:HeuristicAgent",
+    "options": {
+      "name": "heuristic"
+    }
+  },
+  "candidates": [
+    {
+      "label": "mcts-50",
+      "simulations": 50,
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "rollout_policy": "epsilon_tactical_local",
+        "rollout_epsilon": 0.15,
+        "reuse_simulation_env": true
+      }
+    },
+    {
+      "label": "mcts-100",
+      "simulations": 100,
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "rollout_policy": "epsilon_tactical_local",
+        "rollout_epsilon": 0.15,
+        "reuse_simulation_env": true
+      }
+    },
+    {
+      "label": "mcts-200",
+      "simulations": 200,
+      "agent_options": {
+        "tactical_precheck": true,
+        "candidate_policy": "tactical_local_seeded",
+        "neighbor_radius": 2,
+        "rollout_policy": "epsilon_tactical_local",
+        "rollout_epsilon": 0.15,
+        "reuse_simulation_env": true
+      }
+    },
+    {
+      "label": "mcts-100-legacy",
+      "simulations": 100,
+      "agent_options": {}
+    }
+  ],
+  "selected_profile": "mcts-200",
+  "selection_rationale": "Đề xuất mcts-200 (tactical regression đã xanh (171 passed), chờ cả nhóm duyệt). Bench seed 11, 10 ván/profile, Windows-11, AMD Ryzen 6 CPU, Python 3.13.5: 0 budget violation, deterministic_replay=true cho mọi profile. Heuristic ~1 ms/nước nên không cần cache. mcts-200 ~1.6 s/nước, ~105 sims/s, ván dài hơn (TB 50.2 ply) nên nhiều sample hơn; ETA single-process 2.24 h cho 200 ván, 3.37 h cho 300 ván. Chưa đo chất lượng nhãn bằng trận đấu; ước lượng dựa trên 10 ván một seed nên có độ dao động lớn.",
+  "estimates": {
+    "eta_hours_200_games": 2.24,
+    "eta_hours_300_games": 3.37,
+    "basis": "mean_game_seconds=40.4 từ teacher_bench.json (seed 11, 10 ván), single process"
+  },
+  "tactical_regression": {
+    "command": "pytest tests/test_heuristic_ai.py tests/test_minimax_ai.py tests/test_mcts_ai.py -q -p no:cacheprovider",
+    "result": "171 passed",
+    "date": "2026-11-09"
+  }
+}
