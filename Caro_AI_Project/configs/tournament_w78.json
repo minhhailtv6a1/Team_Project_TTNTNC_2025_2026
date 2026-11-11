@@ -1,0 +1,27 @@
+{
+  "schema": "caro-w78-tournament-v1",
+  "contract_version": "caro-v2",
+  "game_config": {"board_size": 11, "win_length": 5},
+  "checkpoint": "models/checkpoints/model-v5-natural-teachers-run2/best.pt",
+  "base_seed": 20261111,
+  "games_per_pair": 100,
+  "swap_sides": true,
+  "budget_enforcer": {"tolerance_ms": 50.0, "mode": "record"},
+  "agents": {
+    "random": {"kind": "random", "options": {}},
+    "heuristic": {"kind": "heuristic", "options": {}},
+    "minimax": {"kind": "minimax", "options": {"default_depth": 2, "alpha_beta": true, "move_ordering": true, "neighbor_radius": 2}},
+    "mcts": {"kind": "mcts", "options": {"default_simulations": 8, "exploration_weight": 0.7, "tactical_precheck": true, "candidate_policy": "heuristic_seeded", "neighbor_radius": 2, "progressive_widening_c": 1.5, "progressive_widening_alpha": 0.5, "rollout_policy": "epsilon_heuristic", "rollout_epsilon": 0.15, "reuse_simulation_env": true, "rollout_horizon": 8, "leaf_evaluation": "pattern"}},
+    "neural": {"kind": "neural", "options": {"device": "cpu"}}
+  },
+  "profiles": {
+    "DEFAULT": {
+      "description": "Cấu hình công bố đã freeze của từng agent.",
+      "budgets": {"random": {}, "heuristic": {}, "minimax": {"max_depth": 2}, "mcts": {"simulations": 8}, "neural": {}}
+    },
+    "FAIR": {
+      "description": "Cùng giới hạn 150 ms cho mỗi nước; options agent vẫn là bản frozen.",
+      "budgets": {"random": {"time_limit_ms": 150}, "heuristic": {"time_limit_ms": 150}, "minimax": {"time_limit_ms": 150}, "mcts": {"time_limit_ms": 150}, "neural": {"time_limit_ms": 150}}
+    }
+  }
+}
