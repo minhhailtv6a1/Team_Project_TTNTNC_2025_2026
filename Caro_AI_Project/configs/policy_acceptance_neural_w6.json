@@ -1,0 +1,9 @@
+{
+  "contract_version": "caro-v2",
+  "checkpoint": "models/checkpoints/model-v5-natural-teachers-run2-20261112T051727Z-1-001/model-v5-natural-teachers-run2/best.pt",
+  "checkpoint_sha256": "d3bf4023055d63108ffc977d792841af49ac38d92252dcf900bbf5c740e238bb",
+  "fixture_sha256": "f1f6f184ce9ccbde69ff47d8ca7718411f8f794703effa45deaaaf95de9ad68f",
+  "dataset": "data/processed_tensors/w56_dataset_v5_natural",
+  "dataset_version": "dataset-v5-clean-d4-natural-teachers",
+  "dataset_manifest_sha256": "2515e17c3037a4c632ce96d8f95ee3b9197c939f18464d14cd8c22c8a266fc72"
+}
