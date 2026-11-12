@@ -1,6 +1,6 @@
 {
   "contract_version": "caro-v2",
-  "config_version": "teacher_w56-draft1",
+  "config_version": "teacher_w56-frozen1",
   "status": "frozen",
   "frozen": true,
   "game_config": {
@@ -70,11 +70,11 @@
     }
   ],
   "selected_profile": "mcts-200",
-  "selection_rationale": "Đề xuất mcts-200 (tactical regression đã xanh (171 passed), chờ cả nhóm duyệt). Bench seed 11, 10 ván/profile, Windows-11, AMD Ryzen 6 CPU, Python 3.13.5: 0 budget violation, deterministic_replay=true cho mọi profile. Heuristic ~1 ms/nước nên không cần cache. mcts-200 ~1.6 s/nước, ~105 sims/s, ván dài hơn (TB 50.2 ply) nên nhiều sample hơn; ETA single-process 2.24 h cho 200 ván, 3.37 h cho 300 ván. Chưa đo chất lượng nhãn bằng trận đấu; ước lượng dựa trên 10 ván một seed nên có độ dao động lớn.",
+  "selection_rationale": "Đã chọn mcts-200 và được cả nhóm xác nhận theo thông tin Ly cung cấp; tactical regression đạt 171 passed. Bench seed 11, 10 ván/profile, Windows-11, AMD Ryzen 6 CPU, Python 3.13.5: 0 budget violation, deterministic_replay=true cho mọi profile. Heuristic ~1 ms/nước nên không cần cache. mcts-200 ~1.6 s/nước, ~105 sims/s, ván dài hơn (TB 50.2 ply) nên nhiều sample hơn; ETA single-process 2.24 h cho 200 ván, 3.37 h cho 300 ván. Chưa đo chất lượng nhãn bằng trận đấu; ước lượng dựa trên 10 ván một seed nên có độ dao động lớn.",
   "estimates": {
     "eta_hours_200_games": 2.24,
     "eta_hours_300_games": 3.37,
-    "basis": "mean_game_seconds=40.4 từ teacher_bench.json (seed 11, 10 ván), single process"
+    "basis": "mean_game_seconds=40.4; số liệu benchmark được tổng hợp trong teacher_w56.json theo xác nhận của Ly (seed 11, 10 ván), single process"
   },
   "tactical_regression": {
     "command": "pytest tests/test_heuristic_ai.py tests/test_minimax_ai.py tests/test_mcts_ai.py -q -p no:cacheprovider",

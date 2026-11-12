@@ -1,5 +1,7 @@
-"""W6 acceptance infrastructure; no neural/checkpoint dependency."""
+"""W6 acceptance infrastructure and optional real-checkpoint contract tests."""
 import math
+import os
+from pathlib import Path
 
 import pytest
 
@@ -141,3 +143,120 @@ def test_generic_report_never_claims_checkpoint_verified():
     report = evaluate(HeuristicAgent())
     assert report["contract_pass"]
     assert report["checkpoint_load_status"] == "not_checked_by_generic_harness"
+
+
+def test_smoke_loss_diagnostics_follow_serialized_record_schema():
+    from benchmarks.policy_checkpoint_acceptance import smoke_failure_examples
+
+    case = next(c for c in CASES if c["id"] == "terminal_win")
+    record = {"game_id": "diagnostic-fixture", "x_agent": "opponent-heuristic",
+              "o_agent": "candidate", "winner": 1,
+              "moves": [{"action": action, "player": 1 if i % 2 == 0 else -1}
+                        for i, action in enumerate(case["actions"])]}
+
+    def uniform_reader(agent, env):
+        legal = set(env.legal_actions())
+        return [1 / len(legal) if divmod(i, 11) in legal else 0 for i in range(121)]
+
+    examples = smoke_failure_examples(StubAgent("legal"), uniform_reader,
+        {"pairs": [{"opponent": "heuristic", "records": [record]}]})
+    assert len(examples) == 1
+    example = examples[0]
+    assert example["candidate_side"] == -1
+    assert example["action"] == case["actions"][-2]
+    assert example["opponent_winning_reply"] == case["actions"][-1]
+    assert example["history_before"] == case["actions"][:-2]
+    assert len(example["top5"]) == 5
+    assert sum(example["legal_probabilities"]) == pytest.approx(1)
+
+
+@pytest.fixture(scope="module")
+def checkpoint_candidate():
+    path = os.environ.get("CARO_POLICY_CHECKPOINT")
+    if not path:
+        pytest.skip("Set CARO_POLICY_CHECKPOINT to evaluate a trained checkpoint")
+    assert Path(path).is_file(), f"Checkpoint not found: {path}"
+    torch = pytest.importorskip("torch")
+    from core.agents.neural_ai import NeuralAgent
+    from benchmarks.policy_checkpoint_acceptance import CheckpointProbabilityReader
+
+    previous_threads = torch.get_num_threads()
+    torch.set_num_threads(1)
+    try:
+        agent = NeuralAgent(path, device="cpu")
+        yield agent, CheckpointProbabilityReader(agent)
+    finally:
+        torch.set_num_threads(previous_threads)
+
+
+@pytest.mark.parametrize("case", CASES, ids=lambda c: c["id"])
+def test_trained_policy_contract_and_real_probabilities(checkpoint_candidate, case):
+    agent, reader = checkpoint_candidate
+    result = evaluate_case(agent, case, reader)
+    assert result["contract_pass"], result
+    if case["kind"] == "terminal":
+        return
+    env = build_env(case)
+    values = reader(agent, env)
+    legal = set(env.legal_actions())
+    assert sum(values) == pytest.approx(1, abs=1e-6)
+    assert all(p == 0 for i, p in enumerate(values) if divmod(i, 11) not in legal)
+    assert result["action"] == tuple(result["top5"][0]["action"])
+    assert agent.choose_action(env).score == pytest.approx(max(values), abs=1e-6)
+    # Tactical success is advisory; do not turn this into a quality assertion.
+
+
+def test_checkpoint_acceptance_rejects_wrong_digest(checkpoint_candidate):
+    from benchmarks.policy_checkpoint_acceptance import evaluate_checkpoint
+
+    agent, _ = checkpoint_candidate
+    with pytest.raises(ValueError, match="SHA-256"):
+        evaluate_checkpoint(agent.checkpoint_path, expected={"checkpoint_sha256": "0" * 64})
+
+
+def test_dataset_independence_is_not_inferred_from_provenance(checkpoint_candidate, tmp_path):
+    import json
+    from benchmarks.policy_checkpoint_acceptance import audit_fixture_overlap
+
+    agent, _ = checkpoint_candidate
+    unavailable = audit_fixture_overlap(agent)
+    assert unavailable["pass"] is None
+    assert unavailable["status"] == "not_audited_dataset_unavailable"
+    (tmp_path / "dataset_manifest.json").write_text(
+        json.dumps({"dataset_version": "wrong-dataset"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="exact checkpoint dataset"):
+        audit_fixture_overlap(agent, tmp_path)
+
+
+def test_overlap_audit_detects_real_encoded_state_collision(tmp_path):
+    import json
+    from types import SimpleNamespace
+    import numpy as np
+    from benchmarks.policy_checkpoint_acceptance import audit_fixture_overlap, sha256
+    from core.ml.data_pipeline import encode_policy_state
+
+    env = build_env(next(c for c in CASES if c["id"] == "opening_x"))
+    x, mask = encode_policy_state(env.state, env.legal_actions(), 11)
+    manifest = {"contract_version": "caro-v2", "board_size": 11,
+                "dataset_version": "overlap-test-only", "artifacts": {}}
+    for split in ("val", "test"):
+        path = tmp_path / f"{split}.npz"
+        np.savez(path, x=x[None], legal_mask=mask[None], target=np.array([0], dtype=np.int64))
+        manifest["artifacts"][split] = {"tensor": path.name, "tensor_sha256": sha256(path)}
+    manifest_path = tmp_path / "dataset_manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    agent = SimpleNamespace(dataset_version=manifest["dataset_version"],
+                            dataset_manifest_sha256=sha256(manifest_path))
+    result = audit_fixture_overlap(agent, tmp_path)
+    assert result["pass"] is False
+    assert result["overlaps"] == {"val": ["opening_x"], "test": ["opening_x"]}
+
+
+def test_real_checkpoint_smoke_through_runner(checkpoint_candidate):
+    agent, _ = checkpoint_candidate
+    report = smoke_matches(agent, games=2)
+    assert report["pass"], report
+    for pair in report["pairs"]:
+        assert len(pair["records"]) == 2
+        assert {r["x_agent"] for r in pair["records"]} == {
+            "candidate", f"opponent-{pair['opponent']}"}
