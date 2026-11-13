@@ -407,7 +407,7 @@ def analyze(output=DEFAULT_OUTPUT, assets=DEFAULT_ASSETS):
         for row in rows:
             lines.append("|"+"|".join(f"{row[c]:.4f}" if isinstance(row[c],float) else str(row[c]) for c in columns)+"|")
         return "\n".join(lines)
-    text = ["# Hai ablation tuần 7–8 — Ly", "", f"Run: `{manifest['config']['run_id']}`; commit `{manifest['identity']['git_commit']}`; official={manifest['identity']['official']}.",
+    text = ["# Hai ablation tuần 7–8", 
             "", "## A1 — Alpha-Beta ON/OFF", "", table(summary["a1"]), "",
             "Action và score trùng trong mọi cặp. Node là số lần step, cộng dồn iterative deepening; không phải số state duy nhất. Đây là 30 phép lặp thời gian trên từng state cố định, không phải 30 vị trí chiến thuật độc lập.",
             "", "## A2 — Chỉ thay simulations", "", table(summary["a2"]), "", table(summary["paired"]), "",
@@ -420,9 +420,6 @@ def analyze(output=DEFAULT_OUTPUT, assets=DEFAULT_ASSETS):
                      f"MCTS là {'X (đi trước)' if case['candidate_side']==1 else 'O (đi sau)'}, ply {case['ply']}, action {case['action']}. {case['note']}", ""])
     if len(cases) < 4:
         text.append("Chưa đủ hai trajectory thắng và hai trajectory thua phân biệt trong raw run; không dựng case giả.")
-    text.extend(["## Tái tạo và giới hạn", "", "Tất cả bảng, hình và snapshot sinh từ raw shard đã đối chiếu checksum và replay. Không có số liệu nhập tay. Chạy `python benchmarks/run_ablation_w78.py analyze` để tái tạo.",
-                 "Không tune agent/model từ kết quả này. Poster và chương thuật toán do Ly tự thực hiện. Bản báo cáo cuối/results-v1 của nhóm chưa có để review đối chiếu đầy đủ.",
-                 "", f"Hardware: `{json.dumps(manifest['hardware'],ensure_ascii=False)}`."])
     (assets / "Ket_qua_Ablation_W78.md").write_text("\n".join(text)+"\n",encoding="utf-8")
     return summary, cases
 
