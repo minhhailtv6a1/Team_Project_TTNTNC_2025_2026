@@ -1,0 +1,102 @@
+{
+  "schema": "caro-ablation-w78-v1",
+  "config_version": "ablation-w78-v1",
+  "status": "frozen",
+  "contract_version": "caro-v2",
+  "run_id": "ly-w78-ablation-v1",
+  "baseline_commit": "51d8939710a4c1f3039afac3e9f138a07bf02d3c",
+  "baseline_test_xml": "tmp/ly_w78_baseline_final_20261112.xml",
+  "frozen_sources": {
+    "core/agents/heuristic_ai.py": "1f724a489727c4a0eae799aed26b5ddbf490c1f03693c49d290822c9d535e575",
+    "core/agents/mcts_ai.py": "b4fac69c96908ef649423d0332f656b62ae58d699481d2f38f31027360a67391",
+    "core/agents/minimax_ai.py": "a7ab091dad7e02cdf1d5e0da6ce336ad67d7dff28a0a036eb9f7d4036556316e",
+    "core/agents/neural_ai.py": "d393b8a8977a94d3e08a213402e2eec17196dd5fca3392ebc5cf037f2c99542b",
+    "core/agents/random_ai.py": "2018e9ce511d7bc40fe75718594f5ca3b1ef96cff8d9827bca53221ae53b5d91",
+    "core/agents/search_utils.py": "24ee945de18295f81f91aee501192aea44320b2681aef94daf155e176a250660",
+    "core/engine/board.py": "731df3abe935520de74769e9ae14cc469a4d498b31b28b4989b0fa45fee7a969",
+    "core/engine/game_env.py": "83fbc4370f432b8ac8a39bd55633bfd7cfc58c873f3ea292397c6127ed200e60",
+    "core/engine/interfaces.py": "1613b958eff7e9e97862fe429de875216016c05887d7ea18ee3b89e5c65813de",
+    "core/engine/rules.py": "fc0408ce78beb78f9e8e982ecd88afd54186b32f5d48c6863330357ff3bad442",
+    "core/ml/architectures.py": "ed0916f3e2fd6ee878e8aac7b09e0fe06f765a07662afaf67c52623b636450de",
+    "core/ml/data_pipeline.py": "8ba33eb43b52fe65b862b1858585a66bd1d74753261e667d4835e17dd7d29409",
+    "core/utils/logger.py": "a439e01b1fa6b66abf381a1397c14c69085d5c8a42eabca3dd85fb7aabc0738e",
+    "core/utils/tournament_runner.py": "b0e8d4e7ec08e3a07b127bfa162e5c4010ba46c91075b240ed2d2ec18df49d03",
+    "tests/fixtures/policy_tactical_w6.json": "f1f6f184ce9ccbde69ff47d8ca7718411f8f794703effa45deaaaf95de9ad68f"
+  },
+  "base_seed": 20261112,
+  "seed_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "a1": {
+    "depth": 2,
+    "scenarios": [
+      "opening_x",
+      "midgame_x",
+      "block_x_gap",
+      "near_full_x"
+    ],
+    "options": {
+      "default_depth": 2,
+      "move_ordering": true,
+      "neighbor_radius": 1
+    }
+  },
+  "a2": {
+    "simulations": [
+      100,
+      400,
+      1000
+    ],
+    "options": {
+      "exploration_weight": 0.7,
+      "tactical_precheck": true,
+      "candidate_policy": "legacy_random",
+      "rollout_policy": "random",
+      "rollout_horizon": 4,
+      "leaf_evaluation": "pattern",
+      "reuse_simulation_env": true
+    },
+    "opponent": "heuristic",
+    "opponent_options": {},
+    "paired_sides": [
+      1,
+      -1
+    ]
+  },
+  "design_notes": [
+    "A1 changes only alpha_beta, with identical depth, scenario and seed.",
+    "A2 changes only SearchBudget.simulations; all games start empty with paired side swaps.",
+    "A2 uses an explicitly declared random-rollout horizon-4 profile; do not equate it to tournament MCTS.",
+    "Timing pilot used only latency, not game quality; no tuning after frozen results.",
+    "Thirty timing repetitions of one deterministic state are not thirty independent positions."
+  ]
+}
