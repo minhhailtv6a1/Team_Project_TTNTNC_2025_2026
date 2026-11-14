@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import html
 import sys
+import time
 from pathlib import Path
 
 import streamlit as st
@@ -18,15 +19,23 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from core.engine.interfaces import (
+    Agent,
+    AgentDecision,
     DEFAULT_BOARD_SIZE,
     SUPPORTED_BOARD_SIZES,
     GameEnv,
     GameConfig,
     InvalidActionError,
     Player,
+    SearchBudget,
     StepResult,
 )
 from core.engine.game_env import CaroEnv
+from core.agents.heuristic_ai import HeuristicAgent
+from core.agents.mcts_ai import MCTSAgent
+from core.agents.minimax_ai import MinimaxAgent
+from core.agents.neural_ai import NeuralAgent
+from core.agents.random_ai import RandomAgent
 from ui.human_controller import submit_human_action
 
 
@@ -41,6 +50,8 @@ AI_ALGORITHMS = (
     "MCTS",
     "Neural Network",
 )
+DEFAULT_CHECKPOINT = "models/checkpoints/model-v5-natural-teachers-run2/best.pt"
+AI_MOVE_DELAY_SECONDS = 0.12
 
 
 def _new_stats() -> dict[str, int]:
@@ -59,6 +70,9 @@ def _start_new_game(board_size: int | None = None) -> None:
         st.session_state.env = CaroEnv(GameConfig(board_size=size))
     st.session_state.move_history = []
     st.session_state.error_message = None
+    st.session_state.ai_thinking = False
+    st.session_state.auto_play = False
+    st.session_state.last_ai_decision = None
 
 
 def _initialize_session() -> None:
@@ -70,6 +84,16 @@ def _initialize_session() -> None:
         st.session_state.move_history = []
     if "error_message" not in st.session_state:
         st.session_state.error_message = None
+    if "ai_thinking" not in st.session_state:
+        st.session_state.ai_thinking = False
+    if "auto_play" not in st.session_state:
+        st.session_state.auto_play = False
+    if "last_ai_decision" not in st.session_state:
+        st.session_state.last_ai_decision = None
+    if "agent_cache" not in st.session_state:
+        st.session_state.agent_cache = {}
+    if "checkpoint_path" not in st.session_state:
+        st.session_state.checkpoint_path = DEFAULT_CHECKPOINT
     if "env" not in st.session_state:
         _start_new_game(st.session_state.board_size)
 
@@ -85,10 +109,146 @@ def _record_result(result: StepResult) -> None:
         st.session_state.stats["draws"] += 1
 
 
-def _play_move(row: int, col: int) -> None:
-    """Send one public ``(row, col)`` action through the human controller."""
+def _append_move(player: Player, action: tuple[int, int], result: StepResult) -> None:
+    st.session_state.move_history.append(
+        {
+            "number": result.next_state.move_count,
+            "player": player,
+            "action": action,
+        }
+    )
+    _record_result(result)
+
+
+def _human_player() -> Player:
+    return Player.X if st.session_state.get("human_side", "X") == "X" else Player.O
+
+
+def _is_ai_turn(env: GameEnv | None = None) -> bool:
+    env = env or st.session_state.env
+    if env.state.terminated:
+        return False
+    mode = st.session_state.get("game_mode", GAME_MODES[0])
+    if mode == "AI vs AI":
+        return True
+    if mode == "Human vs AI":
+        return env.state.current_player != _human_player()
+    return False
+
+
+def _selected_ai(player: Player) -> str:
+    if st.session_state.get("game_mode") == "AI vs AI":
+        key = "ai_x_algorithm" if player == Player.X else "ai_o_algorithm"
+        return st.session_state.get(key, AI_ALGORITHMS[0])
+    return st.session_state.get("ai_algorithm", AI_ALGORITHMS[2])
+
+
+def _checkpoint_path(value: str) -> Path:
+    path = Path(value).expanduser()
+    return path if path.is_absolute() else PROJECT_ROOT / path
+
+
+def _create_agent(algorithm: str, checkpoint: str = DEFAULT_CHECKPOINT) -> Agent:
+    """Build one UI agent using the frozen Week 7-8 settings."""
+
+    if algorithm == "Random":
+        return RandomAgent(seed=20261113)
+    if algorithm == "Heuristic":
+        return HeuristicAgent()
+    if algorithm == "Minimax (Alpha-Beta)":
+        return MinimaxAgent(default_depth=2, alpha_beta=True, move_ordering=True)
+    if algorithm == "MCTS":
+        return MCTSAgent(
+            default_simulations=8,
+            exploration_weight=0.7,
+            seed=20261113,
+            tactical_precheck=True,
+            candidate_policy="heuristic_seeded",
+            progressive_widening_c=1.5,
+            rollout_policy="epsilon_heuristic",
+            rollout_horizon=8,
+            leaf_evaluation="pattern",
+        )
+    if algorithm == "Neural Network":
+        return NeuralAgent(_checkpoint_path(checkpoint))
+    raise ValueError(f"Unknown AI algorithm: {algorithm}")
+
+
+def _get_agent(algorithm: str) -> Agent:
+    checkpoint = st.session_state.get("checkpoint_path", DEFAULT_CHECKPOINT)
+    cache_key = (algorithm, checkpoint if algorithm == "Neural Network" else None)
+    cache = st.session_state.agent_cache
+    if cache_key not in cache:
+        cache[cache_key] = _create_agent(algorithm, checkpoint)
+    return cache[cache_key]
+
+
+def _apply_ai_decision(
+    env: GameEnv,
+    player: Player,
+    algorithm: str,
+    decision: AgentDecision,
+) -> None:
+    if decision.action not in env.legal_actions():
+        raise RuntimeError(f"{algorithm} returned an illegal action: {decision.action}")
+    result = env.step(decision.action)
+    _append_move(player, decision.action, result)
+    st.session_state.move_history[-1].update(
+        {
+            "algorithm": algorithm,
+            "elapsed_ms": decision.elapsed_ms,
+            "nodes": decision.nodes,
+            "simulations": decision.simulations,
+        }
+    )
+    if result.done:
+        st.session_state.auto_play = False
+    st.session_state.last_ai_decision = {
+        "player": player,
+        "algorithm": algorithm,
+        "elapsed_ms": decision.elapsed_ms,
+        "nodes": decision.nodes,
+        "simulations": decision.simulations,
+    }
+
+
+def _play_ai_turn() -> bool:
+    """Play exactly one AI move and leave the board unchanged on failure."""
 
     env: GameEnv = st.session_state.env
+    if not _is_ai_turn(env) or st.session_state.ai_thinking:
+        return False
+    player = env.state.current_player
+    algorithm = _selected_ai(player)
+    st.session_state.ai_thinking = True
+    try:
+        agent = _get_agent(algorithm)
+        decision = agent.choose_action(env, SearchBudget(seed=20261113 + env.state.move_count))
+        _apply_ai_decision(env, player, algorithm, decision)
+        st.session_state.error_message = None
+        return True
+    except (FileNotFoundError, RuntimeError, ValueError) as exc:
+        st.session_state.error_message = f"{algorithm}: {exc}"
+        st.session_state.auto_play = False
+        return False
+    finally:
+        st.session_state.ai_thinking = False
+
+
+def _start_ai_game() -> None:
+    """Start step-by-step AI-vs-AI playback on successive reruns."""
+
+    if not st.session_state.env.state.terminated:
+        st.session_state.auto_play = True
+
+
+def _play_move(row: int, col: int) -> None:
+    """Submit one human action and, in Human-vs-AI, one AI reply."""
+
+    env: GameEnv = st.session_state.env
+    if _is_ai_turn(env):
+        st.session_state.error_message = "Please wait for the AI turn to finish."
+        return
     try:
         move = submit_human_action(env, (row, col))
     except InvalidActionError as exc:
@@ -96,15 +256,10 @@ def _play_move(row: int, col: int) -> None:
         return
 
     result = move.result
-    st.session_state.move_history.append(
-        {
-            "number": result.next_state.move_count,
-            "player": move.player,
-            "action": move.action,
-        }
-    )
+    _append_move(move.player, move.action, result)
     st.session_state.error_message = None
-    _record_result(result)
+    if not result.done and st.session_state.get("game_mode") == "Human vs AI":
+        _play_ai_turn()
 
 
 def _player_name(player: Player) -> str:
@@ -119,12 +274,39 @@ def _cell_label(value: int) -> str:
     return " "
 
 
+def _winning_cells(env: GameEnv) -> tuple[tuple[int, int], ...]:
+    """Return every winning line through the terminal state's last action."""
+
+    state = env.state
+    if not state.terminated or state.winner is None or state.last_action is None:
+        return ()
+
+    board = state.board
+    size = env.config.board_size
+    winner = int(state.winner)
+    start_row, start_col = state.last_action
+    winning: set[tuple[int, int]] = set()
+    for row_step, col_step in ((0, 1), (1, 0), (1, 1), (1, -1)):
+        line = [(start_row, start_col)]
+        for direction in (-1, 1):
+            row = start_row + direction * row_step
+            col = start_col + direction * col_step
+            while 0 <= row < size and 0 <= col < size and int(board[row][col]) == winner:
+                line.append((row, col))
+                row += direction * row_step
+                col += direction * col_step
+        if len(line) >= env.config.win_length:
+            winning.update(line)
+    return tuple(sorted(winning))
+
+
 def _build_dynamic_cell_css(env: GameEnv) -> str:
-    """Style occupied and last-move cells from environment state."""
+    """Style occupied, last-move and winning cells from environment state."""
 
     state = env.state
     board = state.board
     size = env.config.board_size
+    winning = set(_winning_cells(env))
     rules: list[str] = []
     for row in range(size):
         for col in range(size):
@@ -144,6 +326,12 @@ def _build_dynamic_cell_css(env: GameEnv) -> str:
                 rules.append(
                     f"{selector} {{border:2px solid #FFA726!important;"
                     "box-shadow:none!important;}"
+                )
+            if (row, col) in winning:
+                rules.append(
+                    f"{selector} {{color:#B71C1C!important;"
+                    "background:#FFE3E3!important;border:3px solid #E53935!important;"
+                    "box-shadow:0 0 0 2px rgba(229,57,53,.18)!important;}"
                 )
     return "\n".join(rules)
 
@@ -393,8 +581,15 @@ def _inject_styles(env: GameEnv) -> None:
             vertical-align: -1px;
         }}
         .caro-hint {{ color: #9198A2; font-size: 11px; text-align: center; margin-top: 24px; }}
-        .st-key-result_banner {{ margin-top: 18px; padding: 10px 12px; border-radius: 4px; background: #FFF4E5; }}
-        .st-key-result_banner [data-testid="stHorizontalBlock"] {{ align-items: center; }}
+        .st-key-result_banner, .st-key-win_result_banner {{
+            margin-top: 18px; padding: 10px 12px; border-radius: 4px; background: #FFF4E5;
+        }}
+        .st-key-win_result_banner {{
+            border-left: 4px solid var(--caro-red);
+            background: #FDEEEE;
+        }}
+        .st-key-result_banner [data-testid="stHorizontalBlock"],
+        .st-key-win_result_banner [data-testid="stHorizontalBlock"] {{ align-items: center; }}
         .caro-result-title {{ color: #333B45; font-size: 15px; font-weight: 700; }}
         .caro-result-copy {{ color: #7B8491; font-size: 11px; margin-top: 2px; }}
         .st-key-play_again_button button {{
@@ -453,11 +648,23 @@ def _history_html() -> str:
     history = st.session_state.move_history
     if not history:
         return '<span style="font-family:Inter,Segoe UI,sans-serif">No moves yet.<br>Your first move will appear here.</span>'
-    return "<br>".join(
-        f"{move['number']:>2}. {_player_name(move['player'])[-1]} → "
-        f"({move['action'][0]}, {move['action'][1]})"
-        for move in history
-    )
+    lines: list[str] = []
+    for move in history:
+        line = (
+            f"{move['number']:>2}. {_player_name(move['player'])[-1]} → "
+            f"({move['action'][0]}, {move['action'][1]})"
+        )
+        if "algorithm" in move:
+            line += (
+                f" · {html.escape(str(move['algorithm']))}"
+                f" · {float(move['elapsed_ms']):.1f} ms"
+            )
+            if move["nodes"]:
+                line += f" · {move['nodes']} nodes"
+            if move["simulations"]:
+                line += f" · {move['simulations']} sims"
+        lines.append(line)
+    return "<br>".join(lines)
 
 
 def _render_sidebar() -> None:
@@ -475,9 +682,48 @@ def _render_sidebar() -> None:
             AI_ALGORITHMS,
             index=2,
             key="ai_algorithm",
-            disabled=st.session_state.game_mode == "Human vs Human",
-            help="AI execution is connected in later weekly tasks.",
+            disabled=st.session_state.game_mode != "Human vs AI",
+            on_change=_start_new_game,
+            help="AI level used in Human vs AI mode.",
         )
+        if st.session_state.game_mode == "Human vs AI":
+            st.selectbox(
+                "Human Side",
+                ("X", "O"),
+                key="human_side",
+                on_change=_start_new_game,
+                help="X always moves first.",
+            )
+        elif st.session_state.game_mode == "AI vs AI":
+            st.selectbox(
+                "Player X AI",
+                AI_ALGORITHMS,
+                key="ai_x_algorithm",
+                on_change=_start_new_game,
+            )
+            st.selectbox(
+                "Player O AI",
+                AI_ALGORITHMS,
+                index=1,
+                key="ai_o_algorithm",
+                on_change=_start_new_game,
+            )
+
+        selected_algorithms = {
+            st.session_state.get("ai_algorithm"),
+            st.session_state.get("ai_x_algorithm"),
+            st.session_state.get("ai_o_algorithm"),
+        }
+        if (
+            st.session_state.game_mode != "Human vs Human"
+            and "Neural Network" in selected_algorithms
+        ):
+            st.text_input(
+                "Neural Checkpoint",
+                key="checkpoint_path",
+                on_change=_start_new_game,
+                help="Absolute path or path relative to the project root.",
+            )
         st.selectbox(
             "Board Size",
             BOARD_SIZES,
@@ -493,6 +739,17 @@ def _render_sidebar() -> None:
             use_container_width=True,
             on_click=_start_new_game,
         )
+        if st.session_state.game_mode == "AI vs AI":
+            st.button(
+                "▶  Run AI Game",
+                key="ai_move_button",
+                use_container_width=True,
+                disabled=(
+                    st.session_state.env.state.terminated
+                    or st.session_state.auto_play
+                ),
+                on_click=_start_ai_game,
+            )
         st.markdown(
             f"""
             <div class="caro-sidebar-rule" style="margin-top:22px"></div>
@@ -531,11 +788,23 @@ def _render_status(env: GameEnv) -> None:
         """,
         unsafe_allow_html=True,
     )
+    decision = st.session_state.get("last_ai_decision")
+    if decision:
+        details = [f"{decision['elapsed_ms']:.1f} ms"]
+        if decision["nodes"]:
+            details.append(f"{decision['nodes']} nodes")
+        if decision["simulations"]:
+            details.append(f"{decision['simulations']} simulations")
+        st.caption(
+            f"Last AI move: {decision['algorithm']} ({_player_name(decision['player'])}) · "
+            + " · ".join(details)
+        )
 
 
 def _render_board(env: GameEnv) -> None:
     state = env.state
     size = env.config.board_size
+    board_locked = state.terminated or _is_ai_turn(env) or st.session_state.ai_thinking
     with st.container(key="board_stage"):
         for row in range(size):
             columns = st.columns(size, gap=None)
@@ -544,7 +813,7 @@ def _render_board(env: GameEnv) -> None:
                     _cell_label(int(state.board[row][col])),
                     key=f"cell_{size}_{row}_{col}",
                     use_container_width=True,
-                    disabled=state.terminated,
+                    disabled=board_locked,
                     on_click=_play_move,
                     args=(row, col),
                 )
@@ -574,7 +843,8 @@ def _render_result(env: GameEnv) -> None:
         title = "🤝 It's a draw!"
         copy = f"All {env.config.board_size**2} cells filled. Well played."
 
-    with st.container(key="result_banner"):
+    banner_key = "win_result_banner" if state.winner is not None else "result_banner"
+    with st.container(key=banner_key):
         message_col, action_col = st.columns([4, 1])
         message_col.markdown(
             f'<div class="caro-result-title">{html.escape(title)}</div>'
@@ -601,6 +871,12 @@ def main() -> None:
     env: GameEnv = st.session_state.env
     _inject_styles(env)
     _render_sidebar()
+    if (
+        st.session_state.game_mode == "Human vs AI"
+        and env.state.move_count == 0
+        and _is_ai_turn(env)
+    ):
+        _play_ai_turn()
 
     st.markdown(
         f'<div class="caro-meta"><span>Caro / {html.escape(st.session_state.game_mode)}</span>'
@@ -621,17 +897,30 @@ def main() -> None:
         _render_result(env)
         state = env.state
         if not state.terminated:
-            hint = (
-                "Choose any empty cell to make the first move."
-                if state.move_count == 0
-                else "Choose an empty cell to continue."
-            )
+            if st.session_state.auto_play:
+                hint = "AI game is running step by step."
+            elif _is_ai_turn(env):
+                hint = "The board is locked during the AI turn."
+            else:
+                hint = (
+                    "Choose any empty cell to make the first move."
+                    if state.move_count == 0
+                    else "Choose an empty cell to continue."
+                )
             st.markdown(f'<div class="caro-hint">{hint}</div>', unsafe_allow_html=True)
 
     st.markdown(
         '<div class="caro-footer">Connect five horizontally, vertically or diagonally.</div>',
         unsafe_allow_html=True,
     )
+    if (
+        st.session_state.auto_play
+        and st.session_state.game_mode == "AI vs AI"
+        and not env.state.terminated
+    ):
+        time.sleep(AI_MOVE_DELAY_SECONDS)
+        if _play_ai_turn():
+            st.rerun()
 
 
 if __name__ == "__main__":
