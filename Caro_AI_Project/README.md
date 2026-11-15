@@ -149,6 +149,8 @@ Pipeline replay raw game, chia split theo ván trước augmentation, kiểm tra
 
 ## Tài liệu trong repository
 
+- [`PhanCongVaQuyTacLamViec.md`](Team_Project_TTNTNC_2025_2026/Caro_AI_Project/PhanCongVaQuyTacLamViec.md).
+
 - [`docs/contract/docs_contracts_caro_v2.md`](docs/contract/docs_contracts_caro_v2.md): contract và luật chơi.
 - [`docs/data/Dataset_v5_Natural_Teachers_Report.md`](docs/data/Dataset_v5_Natural_Teachers_Report.md): self-play 2.000 ván và dataset-v2.
 - [`docs/data/Policy_v5_Best_666_Evaluation_Report.md`](docs/data/Policy_v5_Best_666_Evaluation_Report.md): đánh giá policy v5.
@@ -159,3 +161,7 @@ Pipeline replay raw game, chia split theo ván trước augmentation, kiểm tra
 - Chỉ bàn 11×11 được hỗ trợ chính thức.
 - Kết quả phụ thuộc checkpoint, seed, budget và cấu hình công bố; không phải chứng minh tính tối ưu hoặc khả năng áp dụng sang trò chơi khác.
 - NeuralAgent cần checkpoint tương thích ở máy chạy.
+
+## Link viết báo cáo
+
+- [`https://docs.google.com/document/d/1NVxzcBqmKC6S_fFCWx6w_eMvAiYwGa95q_eGoWpWJdE/edit?tab=t.0`]
